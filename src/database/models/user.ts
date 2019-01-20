@@ -6,6 +6,39 @@ import * as mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+export interface IUser extends mongoose.Document {
+  game_info: {
+    minecraft: {
+      uuid: string,
+      username: string,
+      boughtPlugins: string[]
+    },
+    steam: {
+      steamID: string,
+      username: string
+    }
+  },
+  account_info: {
+    username: string,
+    email: string,
+    group: string,
+    primaryName: string,
+    password: {
+      hash: string
+    },
+    resetPassword: {
+      resetKey: string,
+      resetExpire: Date
+    },
+    accountVerify: {
+      accountVerified: boolean,
+      verifyKey: string
+    }
+  },
+  balance: number
+}
+
+
 const User = new Schema({
   game_info: {
     minecraft: {
@@ -70,4 +103,4 @@ User.methods.generateJWT = function() {
   );
 };
 
-module.exports = mongoose.model("User", User);
+export default User;

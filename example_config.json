@@ -18,7 +18,7 @@
     "user": "change@me.com",
     "password": "change_this",
     "host": "smtp.me.com",
-    "port": "696",
+    "port": 696,
     "from": "change@me.com"
   },
   "defaultGroup": "5bf1194965ee972712fb5a03",

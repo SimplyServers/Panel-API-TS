@@ -1,6 +1,24 @@
 import * as mongoose from "mongoose";
+import User from "./user";
 
 const Schema = mongoose.Schema;
+
+export interface IServerNode extends mongoose.Document {
+    ip: string,
+    port: number,
+    secret: string,
+    name: string,
+    status: {
+        lastOnline: Date,
+        cpu: string,
+        totalmem: number,
+        freemem: number,
+        totaldisk: number,
+        freedisk: number
+    },
+    games: any,
+    plugins: any
+}
 
 // Node is reserved... so gotta say something else!
 const ServerNode = new Schema({
@@ -20,4 +38,4 @@ const ServerNode = new Schema({
     plugins: Object
 });
 
-module.exports = mongoose.model('Node', ServerNode);
+export default ServerNode;

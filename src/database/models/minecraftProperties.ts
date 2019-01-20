@@ -1,6 +1,23 @@
 import * as mongoose from "mongoose";
+import User from "./user";
 
 const Schema = mongoose.Schema;
+
+export interface IMinecraftProperties extends mongoose.Document {
+    server: string,
+    settings: {
+        spawnprotection: number,
+        allownether: boolean,
+        gamemode: number,
+        difficulty: number,
+        spawnmonsters: boolean,
+        pvp: boolean,
+        hardcore: boolean,
+        allowflight: boolean,
+        resourcepack: string,
+        whitelist: boolean
+    }
+}
 
 const MinecraftProperties = new Schema({
     server: String,
@@ -18,4 +35,4 @@ const MinecraftProperties = new Schema({
     }
 });
 
-module.exports = mongoose.model('MinecraftProperties', MinecraftProperties);
+export default MinecraftProperties;

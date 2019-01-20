@@ -2,6 +2,16 @@ import * as mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+export interface IGroup extends mongoose.Document {
+    permissions: string[],
+    color: string,
+    name: string,
+    displayName: string,
+    isAdmin: boolean,
+    isStaff: boolean,
+    presetsAllowed: string[]
+}
+
 const Group = new Schema({
     permissions: [String],
     color: String,
@@ -12,4 +22,4 @@ const Group = new Schema({
     presetsAllowed: [String]
 });
 
-module.exports = mongoose.model('Group', Group);
+export default Group;

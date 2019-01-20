@@ -2,6 +2,14 @@ import * as mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+export interface IMinecraftPlugin extends mongoose.Document {
+  name: string,
+  games: any,
+  credits: number,
+  reloadRequired: boolean,
+  description: string
+}
+
 const MinecraftPlugin = new Schema({
   name: String,
   games: Array,
@@ -20,4 +28,4 @@ MinecraftPlugin.methods.checkComp = function(game) {
   return works;
 };
 
-module.exports = mongoose.model("MinecraftPlugin", MinecraftPlugin);
+export default MinecraftPlugin;

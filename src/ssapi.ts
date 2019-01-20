@@ -1,4 +1,13 @@
+import * as mongoose from "mongoose";
+
 import * as configData from "../config.json";
+import BugReport, { IBugReport } from "./database/models/bugreport";
+import Group, { IGroup } from "./database/models/group";
+import MinecraftPlugin, { IMinecraftPlugin } from "./database/models/minecraftPlugin";
+import MinecraftProperties, { IMinecraftProperties } from "./database/models/minecraftProperties";
+import ServerNode, { IServerNode } from "./database/models/node";
+import Preset, { IPreset } from "./database/models/preset";
+import User, { IUser } from "./database/models/user";
 
 import {IConfig} from "./types/IConfig";
 import {Logger} from "./util/logger";
@@ -24,5 +33,14 @@ export class SimplyServersAPI{
     }
     private bootstrap = async (): Promise<void> => {
         SimplyServersAPI.logger.info("Bootstrap init");
+
+        // Add modals
+        mongoose.model<IBugReport>('BugReport', BugReport);
+        mongoose.model<IServerNode>('Node', ServerNode);
+        mongoose.model<IGroup>('Group', Group);
+        mongoose.model<IPreset>('Preset', Preset);
+        mongoose.model<IMinecraftPlugin>('MinecraftPlugin', MinecraftPlugin);
+        mongoose.model<IMinecraftProperties>('MinecraftProperties', MinecraftProperties);
+        mongoose.model<IUser>('User', User);
     };
 }

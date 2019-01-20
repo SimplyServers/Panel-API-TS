@@ -2,6 +2,22 @@ import * as mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+export interface IServer extends mongoose.Document {
+    owner: string,
+    sub_owners: string[],
+    preset: string,
+    timeOnline: number,
+    motd: string,
+    nodeInstalled: string,
+    sftpPassword: string,
+    online: boolean,
+    name: string,
+    port: number,
+    special: {
+        minecraftPlugins: string[]
+    }
+}
+
 const Server = new Schema({
     owner: String,
     sub_owners: [String],
@@ -18,4 +34,4 @@ const Server = new Schema({
     }
 });
 
-module.exports = mongoose.model('Server', Server);
+export default Server;

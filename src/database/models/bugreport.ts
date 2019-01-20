@@ -1,6 +1,21 @@
+import { Document } from "mongoose";
 import * as mongoose from "mongoose";
+import User from "./user";
 
 const Schema = mongoose.Schema;
+
+export interface IBugReport extends mongoose.Document {
+    user_id: string,
+    subject: string,
+    message: string,
+    date: Date
+    review: {
+        isIssue: boolean,
+        accepted: boolean,
+        status: string,
+        credits: number
+    }
+}
 
 const BugReport = new Schema({
     user_id: String,
@@ -15,4 +30,4 @@ const BugReport = new Schema({
     }
 });
 
-module.exports = mongoose.model('BugReport', BugReport);
+export default BugReport;
