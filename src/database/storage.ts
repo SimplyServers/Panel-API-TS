@@ -1,10 +1,10 @@
 import { Models } from "../types/models";
 import { ActionFailed } from "../util/errors/ActionFailed";
 
-const mongoose = require("mongoose");
+import * as mongoose from "mongoose";
 
 export class Storage {
-  static getItems = async (model: Models, condition: any, rule: any) => {
+  public static getItems = async (model: Models, condition: any, rule: any) => {
     const mongooseModel = Storage.getModel(model);
 
     let modelData;
@@ -23,7 +23,7 @@ export class Storage {
     return modelData;
   };
 
-  static getItem = async (model: Models, id: string, rule: any) => {
+  public static getItem = async (model: Models, id: string, rule: any) => {
     const mongooseModel = Storage.getModel(model);
 
     let modelData;
@@ -43,7 +43,7 @@ export class Storage {
     return modelData;
   };
 
-  static removeItem = async (model: Models, id: string) => {
+  public static removeItem = async (model: Models, id: string) => {
     const mongooseModel = Storage.getModel(model);
 
     let modelData;
@@ -64,7 +64,7 @@ export class Storage {
     return modelData;
   };
 
-  static getItemByCon = async (model: Models, condition: any, rule: any) => {
+  public static getItemByCon = async (model: Models, condition: any, rule: any) => {
     const mongooseModel = Storage.getModel(model);
 
     let modelData;
@@ -83,7 +83,7 @@ export class Storage {
     return modelData;
   };
 
-  static getAll = async (model: Models, rule: any) => {
+  public static getAll = async (model: Models, rule: any) => {
     const mongooseModel = Storage.getModel(model);
 
     let modelData;

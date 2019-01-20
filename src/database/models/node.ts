@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import * as mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-//Node is reserved... so gotta say something else!
+// Node is reserved... so gotta say something else!
 const ServerNode = new Schema({
     ip: String,
     port: Number,

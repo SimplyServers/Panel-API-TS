@@ -1,8 +1,8 @@
 import {SimplyServersAPI} from "../../ssapi";
 
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
+import * as mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
