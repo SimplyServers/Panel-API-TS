@@ -18,7 +18,7 @@ export interface IServer extends mongoose.Document {
     }
 }
 
-const Server = new Schema({
+const GameServer = new Schema({
     owner: String,
     sub_owners: [String],
     preset: String,
@@ -34,4 +34,4 @@ const Server = new Schema({
     }
 });
 
-export default Server;
+export default GameServer;

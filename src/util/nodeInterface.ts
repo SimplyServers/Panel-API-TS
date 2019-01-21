@@ -4,7 +4,7 @@ import urlJoin = require("url-join");
 
 
 import { IServerNode } from "../database/models/node";
-import { IServer } from "../database/models/server";
+import { IServer } from "../database/models/gameServer";
 
 export class NodeInterface {
   private readonly node: IServerNode;

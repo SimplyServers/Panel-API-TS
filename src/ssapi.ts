@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
 
 import * as configData from "../config.json";
+import { APIServer } from "./api/server";
 import BugReport, { IBugReport } from "./database/models/bugreport";
 import Group, { IGroup } from "./database/models/group";
 import MinecraftPlugin, { IMinecraftPlugin } from "./database/models/minecraftPlugin";
@@ -55,5 +56,9 @@ export class SimplyServersAPI{
         // Start updater
         const nodeUpdater = new NodeUpdater();
         nodeUpdater.start();
+
+        // Start API
+        const apiServer = new APIServer();
+        await apiServer.bootstrapExpress();
     };
 }
