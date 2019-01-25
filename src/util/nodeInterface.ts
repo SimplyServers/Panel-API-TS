@@ -5,8 +5,25 @@ import urlJoin = require("url-join");
 
 import { IServer } from "../database/models/gameServer";
 import { IServerNode } from "../database/models/node";
+import { ActionFailed } from "./errors/ActionFailed";
 
 export class NodeInterface {
+
+  public static niceHandle(e){
+    if(!e.error){
+      return "Unknown error.";
+    }
+
+    let msg;
+    try{
+      msg = JSON.parse(e.error).msg;
+    }catch (e) {
+      msg = "Unknown error.";
+    }
+
+    return msg;
+  }
+
   private readonly node: IServerNode;
 
   constructor(node: IServerNode) {

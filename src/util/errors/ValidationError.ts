@@ -1,6 +1,6 @@
 export class ValidationError extends Error{
 
-    public field;
+    public field: object;
 
     constructor(field) {
         super();

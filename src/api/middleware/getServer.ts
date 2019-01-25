@@ -3,7 +3,7 @@ import { Models } from "../../types/models";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class GetServerMiddleware {
-  public serverBasicAccess = async (req, res, next) => {
+  public static serverBasicAccess = async (req, res, next) => {
     let server;
     try{
       server = await Storage.getItem(Models.Server, req.params.server);
@@ -20,7 +20,7 @@ export class GetServerMiddleware {
 
   };
 
-  public serverOwnerAccess = async (req, res, next) => {
+  public static serverOwnerAccess = async (req, res, next) => {
     let server;
     try{
       server = await Storage.getItem(Models.Server, req.params.server);
@@ -36,7 +36,7 @@ export class GetServerMiddleware {
     }
   };
 
-  public getServer = async (req, res, next) => {
+  public static getServer = async (req, res, next) => {
     let server;
     try{
       server = await Storage.getItem(Models.Server, req.params.server);

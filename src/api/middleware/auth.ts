@@ -6,7 +6,7 @@ import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class AuthMiddleware {
 
-  public isStaff = async (req, res, next) => {
+  public static isStaff = async (req, res, next) => {
     let user;
     let group;
     try {
@@ -26,7 +26,7 @@ export class AuthMiddleware {
     }
   };
 
-  public isAdmin = async (req, res, next) => {
+  public static isAdmin = async (req, res, next) => {
     let user;
     let group;
     try {
@@ -46,23 +46,15 @@ export class AuthMiddleware {
     }
   };
 
-  public JWTAuth = () => {
-    return {
-      required: jwt({
-        secret: SimplyServersAPI.config.web.JWTSecret,
-        userProperty: 'payload',
-        getToken: this.getToken,
-      }),
-      optional: jwt({
-        secret: SimplyServersAPI.config.web.JWTSecret,
-        userProperty: 'payload',
-        getToken: this.getToken,
-        credentialsRequired: false,
-      }),
-    }
+  public static required = () => {
+    return jwt({
+      secret: SimplyServersAPI.config.web.JWTSecret,
+      userProperty: 'payload',
+      getToken: AuthMiddleware.getToken,
+    });
   };
 
-  private getToken = (req: any) => {
+  private static getToken = (req: any) => {
     const {headers: {authorization}} = req;
     if (authorization && authorization.split(' ')[0] === 'Token') {
       return authorization.split(' ')[1];

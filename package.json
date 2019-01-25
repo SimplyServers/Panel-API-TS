@@ -26,6 +26,7 @@
     "@types/express": "^4.16.0",
     "@types/express-jwt": "0.0.41",
     "@types/express-rate-limit": "^3.3.0",
+    "@types/express-validator": "^3.0.0",
     "@types/fs-extra": "^5.0.4",
     "@types/jsonwebtoken": "^8.3.0",
     "@types/mongo-sanitize": "^1.0.0",
@@ -57,6 +58,7 @@
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "express-rate-limit": "^3.3.2",
+    "express-validator": "^5.3.1",
     "fs-extra": "^7.0.1",
     "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.4.5",
@@ -74,7 +76,6 @@
     "socketio-jwt": "^4.5.0",
     "url-join": "^4.0.0",
     "uuid": "^3.3.2",
-    "validator": "^10.11.0",
     "winston": "^3.1.0",
     "zxcvbn": "^4.4.2"
   }
