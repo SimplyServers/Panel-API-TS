@@ -3,8 +3,8 @@ import * as request from "request-promise";
 import urlJoin = require("url-join");
 
 
-import { IServerNode } from "../database/models/node";
 import { IServer } from "../database/models/gameServer";
+import { IServerNode } from "../database/models/node";
 
 export class NodeInterface {
   private readonly node: IServerNode;

@@ -1,4 +1,4 @@
 {
   "extends": ["tslint:latest", "tslint-config-prettier"],
-  "rules": { "object-literal-sort-keys": false, "no-return-await": false, "no-submodule-imports": false }
+  "rules": { "object-literal-sort-keys": false, "no-return-await": false, "no-submodule-imports": false, "prefer-conditional-expression": false }
 }
