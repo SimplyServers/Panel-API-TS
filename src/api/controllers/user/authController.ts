@@ -128,8 +128,12 @@ export class AuthController implements IController{
         return next(new ActionFailed("Failed to authenticate", true))
       }
 
-      return res.json({
-        user: await user.getAuthJSON()
-      })
+      try {
+        return res.json({
+          user: await user.getAuthJSON()
+        })
+      }catch (e) {
+        return next(e);
+      }
   };
 }
