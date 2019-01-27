@@ -1,11 +1,20 @@
-import * as mongoose from "mongoose";
-import User from "./user";
+import { Types } from "mongoose";
+import { pre, prop, Typegoose } from "typegoose";
 
-const Schema = mongoose.Schema;
+@pre<MinecraftProperties>('save', async function (next) {
+    if (this._id === undefined || this._id === null) {
+        this._id = Types.ObjectId();
+    }
+    next();
+})
 
-export interface IMinecraftProperties extends mongoose.Document {
-    server: string,
-    settings: {
+export default class MinecraftProperties extends Typegoose {
+    @prop()
+    public _id?: Types.ObjectId;
+    @prop()
+    public server: string;
+    @prop()
+    public settings: {
         spawnprotection: number,
         allownether: boolean,
         gamemode: number,
@@ -18,21 +27,3 @@ export interface IMinecraftProperties extends mongoose.Document {
         whitelist: boolean
     }
 }
-
-const MinecraftProperties = new Schema({
-    server: String,
-    settings: {
-        spawnprotection: Number,
-        allownether: Boolean,
-        gamemode: Number,
-        difficulty: Number,
-        spawnmonsters: Boolean,
-        pvp: Boolean,
-        hardcore: Boolean,
-        allowflight: Boolean,
-        resourcepack: String,
-        whitelist: Boolean
-    }
-});
-
-export default MinecraftProperties;

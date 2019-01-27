@@ -1,7 +1,7 @@
 export enum Models {
     Group = "Group",
     Node = "Node",
-    Server = "Server",
+    GameServer = "GameServer",
     Preset = "Preset",
     User = "User",
     MinecraftPlugin = "MinecraftPlugin",

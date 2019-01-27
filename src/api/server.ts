@@ -5,6 +5,7 @@ import * as http from "http";
 import * as https from "https";
 import * as SocketIO from "socket.io";
 import { SimplyServersAPI } from "../ssapi";
+import { AuthController } from "./controllers/user/authController";
 import { ControlsController } from "./controllers/user/gameserver/controlsController";
 import { Passport } from "./passport";
 
@@ -100,6 +101,8 @@ export class APIServer {
   };
 
   private createHttp = async (): Promise<void> => {
+    SimplyServersAPI.logger.verbose("Loading API...");
+
     if (process.env.NODE_ENV === "dev") {
       // Create dev server
       this.http = http.createServer(this.express);
@@ -153,7 +156,10 @@ export class APIServer {
       const router = express.Router();
 
       const controlsController = new ControlsController();
-      controlsController.register(router);
+      controlsController.initRoutes(router);
+
+      const authController = new AuthController();
+      authController.initRoutes(router);
 
       this.express.use('/api/v1/', router);
   };

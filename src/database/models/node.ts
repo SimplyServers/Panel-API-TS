@@ -1,41 +1,35 @@
-import * as mongoose from "mongoose";
-import User from "./user";
+import { Types } from "mongoose";
+import { pre, prop, Typegoose } from "typegoose";
 
-const Schema = mongoose.Schema;
+@pre<ServerNode>('save', async function (next) {
+    if (this._id === undefined || this._id === null) {
+        this._id = Types.ObjectId();
+    }
+    next();
+})
 
-export interface IServerNode extends mongoose.Document {
-    ip: string,
-    port: number,
-    secret: string,
-    name: string,
-    status: {
-        lastOnline: Date,
-        cpu: string,
-        totalmem: number,
-        freemem: number,
-        totaldisk: number,
-        freedisk: number
-    },
-    games: any,
-    plugins: any
+export default class ServerNode extends Typegoose {
+    @prop()
+    public _id?: Types.ObjectId;
+    @prop()
+    public ip: string;
+    @prop()
+    public port: number;
+    @prop()
+    public secret: string;
+    @prop()
+    public name: string;
+    @prop()
+    public status: {
+        lastOnline: Date;
+        cpu: string;
+        totalmem: number;
+        freemem: number;
+        totaldisk: number;
+        freedisk: number;
+    };
+    @prop()
+    public games: any;
+    @prop()
+    public plugins: any;
 }
-
-// Node is reserved... so gotta say something else!
-const ServerNode = new Schema({
-    ip: String,
-    port: Number,
-    secret: String,
-    name: String,
-    status: {
-        lastOnline: Date,
-        cpu: String,
-        totalmem: Number,
-        freemem: Number,
-        totaldisk: Number,
-        freedisk: Number
-    },
-    games: Object,
-    plugins: Object
-});
-
-export default ServerNode;

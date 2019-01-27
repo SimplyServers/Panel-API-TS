@@ -1,25 +1,26 @@
-import * as mongoose from "mongoose";
+import { Types } from "mongoose";
+import { pre, prop, Typegoose } from "typegoose";
 
-const Schema = mongoose.Schema;
+@pre<Group>('save', async function (next) {
+    if (this._id === undefined || this._id === null) {
+        this._id = Types.ObjectId();
+    }
+    next();
+})
 
-export interface IGroup extends mongoose.Document {
-    permissions: string[],
-    color: string,
-    name: string,
-    displayName: string,
-    isAdmin: boolean,
-    isStaff: boolean,
-    presetsAllowed: string[]
+export default class Group extends Typegoose {
+    @prop()
+    public _id?: Types.ObjectId;
+    @prop()
+    public color: string;
+    @prop()
+    public name: string;
+    @prop()
+    public displayName: string;
+    @prop()
+    public isAdmin: boolean;
+    @prop()
+    public isStaff: boolean;
+    @prop()
+    public presetsAllowed: string[];
 }
-
-const Group = new Schema({
-    permissions: [String],
-    color: String,
-    name: String,
-    displayName: String,
-    isAdmin: Boolean,
-    isStaff: Boolean,
-    presetsAllowed: [String]
-});
-
-export default Group;

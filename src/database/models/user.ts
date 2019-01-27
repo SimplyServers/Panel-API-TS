@@ -1,13 +1,23 @@
-import {SimplyServersAPI} from "../../ssapi";
-
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import * as mongoose from "mongoose";
+import { Types } from "mongoose";
+import { instanceMethod, pre, prop, Typegoose } from "typegoose";
+import { SimplyServersAPI } from "../../ssapi";
+import { Models } from "../../types/models";
+import { Storage } from "../storage";
 
-const Schema = mongoose.Schema;
+@pre<User>('save', async function (next) {
+  if (this._id === undefined || this._id === null) {
+    this._id = Types.ObjectId();
+  }
+  next();
+})
 
-export interface IUser extends mongoose.Document {
-  game_info: {
+export default class User extends Typegoose{
+  @prop()
+  public _id?: Types.ObjectId;
+  @prop()
+  public game_info?: {
     minecraft: {
       uuid: string,
       username: string,
@@ -17,82 +27,75 @@ export interface IUser extends mongoose.Document {
       steamID: string,
       username: string
     }
-  },
-  account_info: {
+  };
+
+  @prop()
+  public account_info: {
     username: string,
     email: string,
-    group: string,
-    primaryName: string,
-    password: {
+    group?: string,
+    primaryName?: string,
+    password?: {
       hash: string
     },
-    resetPassword: {
+    resetPassword?: {
       resetKey: string,
       resetExpire: Date
     },
-    accountVerify: {
+    accountVerify?: {
       accountVerified: boolean,
       verifyKey: string
     }
-  },
-  balance: number
-}
+  };
 
+  @prop()
+  public balance: number;
 
-const User = new Schema({
-  game_info: {
-    minecraft: {
-      uuid: String,
-      username: String,
-      boughtPlugins: [String]
-    },
-    steam: {
-      steamID: String,
-      username: String
-    }
-  },
-  account_info: {
-    username: String,
-    email: String,
-    group: String,
-    primaryName: String,
-    password: {
-      hash: String
-    },
-    resetPassword: {
-      resetKey: String,
-      resetExpire: Date
-    },
-    accountVerify: {
-      accountVerified: Boolean,
-      verifyKey: String
-    }
-  },
-  balance: Number
-});
-
-User.methods.removeCredits = function(credits: number) {
-  if (this.balance - credits < 0) {
+  @instanceMethod
+  public removeCredits(credits: number) {
+    if (this.balance - credits < 0) {
       return false;
-  }
-  this.balance -= credits;
-  return true;
-};
+    }
+    this.balance -= credits;
+    return true;
+  };
 
-User.methods.setPassword = async function(password: string) {
-  const salt = await bcrypt.genSalt(10);
-  this.account_info.password.hash = await bcrypt.hash(password, salt);
-};
+  @instanceMethod
+  public async setPassword(password: string) {
+    const salt = await bcrypt.genSalt(10);
+    this.account_info.password.hash = await bcrypt.hash(password, salt);
+  };
 
-User.methods.validatePassword = async function(password: string) {
-  return await bcrypt.compare(password, this.account_info.password.hash);
-};
+  @instanceMethod
+  public async getAuthJSON(){
+    const returnData = {
+      token: this.generateJWT(),
+      email: this.account_info.email,
+      username: this.account_info.username,
+      mcUUID: this.game_info.minecraft.uuid,
+      id: this._id,
+      credits: this.balance,
+      group: ""
+    };
 
-User.methods.generateJWT = function() {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 7); // TODO: think about this...
-  return jwt.sign(
+    if(this.account_info.group && this.account_info.group !== "") {
+      returnData.group = await Storage.getItem(Models.Group, this.account_info.group)
+    }
+
+    return returnData;
+  };
+
+  @instanceMethod
+  public async validatePassword(password: string) {
+    return await bcrypt.compare(password, this.account_info.password.hash);
+  };
+
+  @instanceMethod
+  public generateJWT() {
+    const today = new Date();
+    const expirationDate = new Date(today);
+    expirationDate.setDate(today.getDate() + 7); // TODO: think about this...
+    return jwt.sign(
       {
         email: this.account_info.email,
         username: this.account_info.username,
@@ -100,7 +103,6 @@ User.methods.generateJWT = function() {
         exp: parseInt((expirationDate.getTime() / 1000).toString(), 10)
       },
       SimplyServersAPI.config.web.JWTSecret
-  );
-};
-
-export default User;
+    );
+  };
+}

@@ -1,37 +1,38 @@
-import * as mongoose from "mongoose";
+import { Types } from "mongoose";
+import { pre, prop, Typegoose } from "typegoose";
 
-const Schema = mongoose.Schema;
+@pre<GameServer>('save', async function (next) {
+    if (this._id === undefined || this._id === null) {
+        this._id = Types.ObjectId();
+    }
+    next();
+})
 
-export interface IServer extends mongoose.Document {
-    owner: string,
-    sub_owners: string[],
-    preset: string,
-    timeOnline: number,
-    motd: string,
-    nodeInstalled: string,
-    sftpPassword: string,
-    online: boolean,
-    name: string,
-    port: number,
-    special: {
-        minecraftPlugins: string[]
+export default class GameServer extends Typegoose {
+    @prop()
+    public _id?: Types.ObjectId;
+    @prop()
+    public owner: string;
+    @prop()
+    public sub_owners: string[];
+    @prop()
+    public preset: string;
+    @prop()
+    public timeOnline: number;
+    @prop()
+    public motd: string;
+    @prop()
+    public nodeInstalled: string;
+    @prop()
+    public sftpPassword: string;
+    @prop()
+    public online: boolean;
+    @prop()
+    public name: string;
+    @prop()
+    public port: number;
+    @prop()
+    public special: {
+        minecraftPlugins: string[];
     }
 }
-
-const GameServer = new Schema({
-    owner: String,
-    sub_owners: [String],
-    preset: String,
-    timeOnline: Number,
-    motd: String,
-    nodeInstalled: String,
-    sftpPassword: String,
-    online: Boolean,
-    name: String,
-    port: Number,
-    special: {
-        minecraftPlugins: [String]
-    }
-});
-
-export default GameServer;

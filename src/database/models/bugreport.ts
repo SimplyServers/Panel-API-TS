@@ -1,33 +1,29 @@
-import { Document } from "mongoose";
-import * as mongoose from "mongoose";
-import User from "./user";
+import { Types } from "mongoose";
+import { pre, prop, Typegoose } from "typegoose";
 
-const Schema = mongoose.Schema;
+@pre<Bugreport>('save', async function (next) {
+    if (this._id === undefined || this._id === null) {
+        this._id = Types.ObjectId();
+    }
+    next();
+})
 
-export interface IBugReport extends mongoose.Document {
-    user_id: string,
-    subject: string,
-    message: string,
-    date: Date
-    review: {
+export default class Bugreport extends Typegoose {
+    @prop()
+    public _id?: Types.ObjectId;
+    @prop()
+    public user_id: string;
+    @prop()
+    public subject: string;
+    @prop()
+    public message: string;
+    @prop()
+    public date: Date;
+    @prop()
+    public review: {
         isIssue: boolean,
         accepted: boolean,
         status: string,
         credits: number
     }
 }
-
-const BugReport = new Schema({
-    user_id: String,
-    subject: String,
-    message: String,
-    date: Date,
-    review: {
-        isIssue: Boolean,
-        accepted: Boolean,
-        status: String,
-        credits: Number
-    }
-});
-
-export default BugReport;

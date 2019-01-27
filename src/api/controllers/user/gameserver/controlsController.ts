@@ -26,7 +26,6 @@ export class ControlsController implements IController{
   };
 
   public executeCommand = async (req, res, next) => {
-    console.log("hm,m");
       const errors = validationResult(req);
       if(!errors.isEmpty()) {
         return next(new ValidationError(errors.array()));

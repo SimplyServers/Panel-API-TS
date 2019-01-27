@@ -1,50 +1,43 @@
-import * as mongoose from "mongoose";
-import User from "./user";
+import { Types } from "mongoose";
+import { pre, prop, Typegoose } from "typegoose";
 
-const Schema = mongoose.Schema;
+@pre<Preset>('save', async function (next) {
+  if (this._id === undefined || this._id === null) {
+    this._id = Types.ObjectId();
+  }
+  next();
+})
 
-export interface IPreset extends mongoose.Document {
-    name: string,
-    game: string,
-    autoShutdown: boolean,
-    maxPlayers: number,
-    build: {
-        mem: number,
-        io: number,
-        cpu: number
-    },
-    special: {
-        fs: any,
-        views: string[],
+export default class Preset extends Typegoose{
+  @prop()
+  public _id?: Types.ObjectId;
+  @prop()
+    public name: string;
+  @prop()
+    public game: string;
+  @prop()
+    public autoShutdown: boolean;
+  @prop()
+    public maxPlayers: number;
+  @prop()
+    public build: {
+        mem: number;
+        io: number;
+        cpu: number;
+    };
+  @prop()
+    public special: {
+        fs: any;
+        views: string[];
         minecraft: {
-            maxPlugins: number
+            maxPlugins: number;
         }
-    },
-    preinstalledPlugins: string[],
-    allowSwitchingTo: string[],
-    creditsPerDay: number
+    };
+  @prop()
+    public preinstalledPlugins: string[];
+  @prop()
+    public allowSwitchingTo: string[];
+  @prop()
+    public creditsPerDay: number;
 }
 
-const Preset = new Schema({
-    name: String,
-    game: String,
-    autoShutdown: Boolean,
-    maxPlayers: Number,
-    build: {
-        mem: Number,
-        io: Number,
-        cpu: Number
-    },
-    special: {
-        fs: Array,
-        views: [String],
-        minecraft: {
-            maxPlugins: Number
-        }
-    },
-    preinstalledPlugins: [String],
-    allowSwitchingTo: [String],
-    creditsPerDay: Number
-});
-
-export default Preset;

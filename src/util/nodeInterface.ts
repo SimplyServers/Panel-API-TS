@@ -1,10 +1,9 @@
 import * as querystring from "querystring";
 import * as request from "request-promise";
 import urlJoin = require("url-join");
+import GameServer from "../database/models/gameServer";
+import ServerNode from "../database/models/node";
 
-
-import { IServer } from "../database/models/gameServer";
-import { IServerNode } from "../database/models/node";
 import { ActionFailed } from "./errors/ActionFailed";
 
 export class NodeInterface {
@@ -24,9 +23,9 @@ export class NodeInterface {
     return msg;
   }
 
-  private readonly node: IServerNode;
+  private readonly node: ServerNode;
 
-  constructor(node: IServerNode) {
+  constructor(node: ServerNode) {
     this.node = node;
   }
 
@@ -38,76 +37,76 @@ export class NodeInterface {
     return await this.get("node");
   };
 
-  public powerOn = async (server: IServer) => {
-    const serverRoot = urlJoin("server", server._id);
+  public powerOn = async (server: GameServer) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "power/on"));
   };
 
-  public powerOff = async (server: IServer) => {
-    const serverRoot = urlJoin("server", server._id);
+  public powerOff = async (server: GameServer) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "power/off"));
   };
 
-  public powerKill = async (server: IServer) => {
-    const serverRoot = urlJoin("server", server._id);
+  public powerKill = async (server: GameServer) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "power/kill"));
   };
 
-  public reinstall = async (server: IServer) => {
-    const serverRoot = urlJoin("server", server._id);
+  public reinstall = async (server: GameServer) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "reinstall"));
   };
 
-  public install = async (server: IServer) => {
-    const serverRoot = urlJoin("server", server._id);
+  public install = async (server: GameServer) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "install"));
   };
 
-  public remove = async (server: IServer) => {
-    const serverRoot = urlJoin("server", server._id);
+  public remove = async (server: GameServer) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "remove"));
   };
 
-  public changePassword = async (server: IServer, password: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public changePassword = async (server: GameServer, password: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "resetPassword"), {
       password
     });
   };
 
-  public edit = async (server: IServer, config: any) => {
-    const serverRoot = urlJoin("server", server._id);
+  public edit = async (server: GameServer, config: any) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "edit"), {
       config
     });
   };
 
-  public installPlugin = async (server: IServer, plugin: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public installPlugin = async (server: GameServer, plugin: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "installPlugin"), {
       plugin
     });
   };
 
-  public removePlugin = async (server: IServer, plugin: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public removePlugin = async (server: GameServer, plugin: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "removePlugin"), {
       plugin
     });
   };
 
-  public getServerPlugins = async (server: IServer) => {
-    const serverRoot = urlJoin("server", server._id);
+  public getServerPlugins = async (server: GameServer) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "plugins"));
   };
@@ -116,56 +115,56 @@ export class NodeInterface {
     return await this.get("/plugin");
   };
 
-  public add = async (server: IServer, config: any, password: string) => {
+  public add = async (server: GameServer, config: any, password: string) => {
     return await this.post("/server/add", { config, password });
   };
 
-  public serverStatus = async (server: IServer) => {
-    return await this.get(urlJoin("server", server._id));
+  public serverStatus = async (server: GameServer) => {
+    return await this.get(urlJoin("server", server._id.toString()));
   };
 
-  public checkAllowed = async (server: IServer, path: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public checkAllowed = async (server: GameServer, path: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "checkAllowed"), { path });
   };
 
-  public fileContents = async (server: IServer, path: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public fileContents = async (server: GameServer, path: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "fileContents"), { path });
   };
 
-  public execute = async (server: IServer, command: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public execute = async (server: GameServer, command: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "execute"), { command });
   };
 
-  public getDir = async (server: IServer, path: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public getDir = async (server: GameServer, path: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "getDir"), { path });
   };
 
-  public removeFolder = async (server: IServer, path: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public removeFolder = async (server: GameServer, path: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "removeFolder"), { path });
   };
 
-  public removeFile = async (server: IServer, path: string) => {
-    const serverRoot = urlJoin("server", server._id);
+  public removeFile = async (server: GameServer, path: string) => {
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "removeFile"), { path });
   };
 
   public createFile = async (
-    server: IServer,
+    server: GameServer,
     path: string,
     contents: string
   ) => {
-    const serverRoot = urlJoin("server", server._id);
+    const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "writeFile"), {
       path,

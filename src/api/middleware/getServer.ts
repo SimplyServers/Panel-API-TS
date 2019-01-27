@@ -7,7 +7,7 @@ export class GetServerMiddleware {
     console.log("gere");
     let server;
     try{
-      server = await Storage.getItem(Models.Server, req.params.server);
+      server = await Storage.getItem(Models.GameServer, req.params.server);
     }catch (e) {
       return next(e);
     }
@@ -26,7 +26,7 @@ export class GetServerMiddleware {
   public static serverOwnerAccess = async (req, res, next) => {
     let server;
     try{
-      server = await Storage.getItem(Models.Server, req.params.server);
+      server = await Storage.getItem(Models.GameServer, req.params.server);
     }catch (e) {
       return next(e);
     }
@@ -42,7 +42,7 @@ export class GetServerMiddleware {
   public static getServer = async (req, res, next) => {
     let server;
     try{
-      server = await Storage.getItem(Models.Server, req.params.server);
+      server = await Storage.getItem(Models.GameServer, req.params.server);
     }catch (e) {
       return next(e);
     }
