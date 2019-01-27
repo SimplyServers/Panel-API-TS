@@ -5,17 +5,21 @@ import { Models } from "../../types/models";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class AuthMiddleware {
-
   public static isStaff = async (req, res, next) => {
     let user;
     let group;
     try {
       user = await Storage.getItem(Models.User, req.payload.id);
       if (!user.account_info.group || user.account_info.group === "") {
-        return next(new ActionFailed("You must be assigned to a group to access this endpoint", true));
+        return next(
+          new ActionFailed(
+            "You must be assigned to a group to access this endpoint",
+            true
+          )
+        );
       }
       group = await Storage.getItem(Models.Group, user.account_info.group);
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
 
@@ -32,10 +36,15 @@ export class AuthMiddleware {
     try {
       user = await Storage.getItem(Models.User, req.payload.id);
       if (!user.account_info.group || user.account_info.group === "") {
-        return next(new ActionFailed("You must be assigned to a group to access this endpoint", true));
+        return next(
+          new ActionFailed(
+            "You must be assigned to a group to access this endpoint",
+            true
+          )
+        );
       }
       group = await Storage.getItem(Models.Group, user.account_info.group);
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
 
@@ -46,19 +55,33 @@ export class AuthMiddleware {
     }
   };
 
-  public static required = () => {
-    return jwt({
-      secret: SimplyServersAPI.config.web.JWTSecret,
-      userProperty: 'payload',
-      getToken: AuthMiddleware.getToken,
-    });
+  private static getToken = (req: any) => {
+    const {
+      headers: { authorization }
+    } = req;
+    if (authorization && authorization.split(" ")[0] === "Token") {
+      return authorization.split(" ")[1];
+    }
+    console.log("fucking hell");
+    return null;
   };
 
-  private static getToken = (req: any) => {
-    const {headers: {authorization}} = req;
-    if (authorization && authorization.split(' ')[0] === 'Token') {
-      return authorization.split(' ')[1];
-    }
-    return null;
+  private static getSecret = () => {
+    console.log("got secert");
+    return SimplyServersAPI.config.web.JWTSecret;
+  };
+
+  public static jwtAuth = {
+    required: jwt({
+      secret: AuthMiddleware.getSecret,
+      userProperty: "payload",
+      getToken: AuthMiddleware.getToken
+    }),
+    optional: jwt({
+      secret: AuthMiddleware.getSecret,
+      userProperty: 'payload',
+      getToken: AuthMiddleware.getToken,
+      credentialsRequired: false,
+    })
   };
 }

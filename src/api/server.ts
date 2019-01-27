@@ -5,6 +5,8 @@ import * as http from "http";
 import * as https from "https";
 import * as SocketIO from "socket.io";
 import { SimplyServersAPI } from "../ssapi";
+import { ControlsController } from "./controllers/user/gameserver/controlsController";
+import { Passport } from "./passport";
 
 export class APIServer {
   public express;
@@ -51,8 +53,12 @@ export class APIServer {
     // Mount our routes
     this.mountRoutes();
 
+    // Passport
+    Passport.bootstrap();
+
     // Error handling
     this.express.use((err, req, res, next) => {
+      console.log("error handler triggered");
       if (err.name === "UnauthorizedError") {
         res.status(401);
         res.json({
@@ -89,6 +95,7 @@ export class APIServer {
         });
       }
     });
+
     await this.createHttp();
   };
 
@@ -143,6 +150,11 @@ export class APIServer {
   };
 
   private mountRoutes = (): void => {
+      const router = express.Router();
 
+      const controlsController = new ControlsController();
+      controlsController.register(router);
+
+      this.express.use('/api/v1/', router);
   };
 }

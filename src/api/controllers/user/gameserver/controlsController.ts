@@ -8,23 +8,25 @@ import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/nodeInterface";
 import { AuthMiddleware } from "../../../middleware/auth";
 import { GetServerMiddleware } from "../../../middleware/getServer";
+import { IController } from "../../IController";
 
-export class ControlsController {
-  public register = (router: Router) => {
+export class ControlsController implements IController{
+  public initRoutes = (router: Router) => {
     router.post('/server/:server/control/command', [
-      AuthMiddleware.required,
+      AuthMiddleware.jwtAuth.required,
       GetServerMiddleware.serverBasicAccess,
       check('command').isLength({max: 50})
     ], this.executeCommand);
     router.post('/server/:server/control/install', [
-      AuthMiddleware.required, GetServerMiddleware.serverBasicAccess
+      AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess
     ], this.install);
     router.post('/server/:server/control/reinstall', [
-      AuthMiddleware.required, GetServerMiddleware.serverBasicAccess
+      AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess
     ], this.reinstall);
   };
 
   public executeCommand = async (req, res, next) => {
+    console.log("hm,m");
       const errors = validationResult(req);
       if(!errors.isEmpty()) {
         return next(new ValidationError(errors.array()));
