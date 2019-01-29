@@ -11,45 +11,46 @@ import { SimplyServersAPI } from "../../../ssapi";
 import { Models } from "../../../types/models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
+import { Mailer } from "../../../util/mailer";
 import { IController } from "../IController";
 
-export class AuthController implements IController{
+export class AuthController implements IController {
 
   public initRoutes(router: Router): void {
-      router.post('/auth/login', [
-        check('email').isLength({max: 50}),
-        check('email').isEmail(),
-        check('password').isLength({max: 50}),
-      ], this.login);
-
-    router.post('/auth/register', [
-      check('email').isLength({max: 50}),
-      check('email').isEmail(),
-      check('password').isLength({max: 50}),
-      check('username').isLength({max: 50})
+    router.post("/auth/login", [
+      check("email").isLength({ max: 50 }),
+      check("email").isEmail(),
+      check("password").isLength({ max: 50 })
     ], this.login);
+
+    router.post("/auth/register", [
+      check("email").isLength({ max: 50 }),
+      check("email").isEmail(),
+      check("password").isLength({ max: 50 }),
+      check("username").isLength({ max: 50 })
+    ], this.regiser);
   }
 
   public regiser = async (req, res, next) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
     }
 
     const passwordResults = zxcvbn(req.body.password);
-    if(passwordResults.score < 2){
+    if (passwordResults.score < 2) {
       return next(new ValidationError({
         "location": "body",
         "param": "password",
         "msg": "Password not strong enough"
-      }))
+      }));
     }
 
     // Check for existing users
     let existingUsers;
-    try{
-      existingUsers = await Storage.getItems(Models.User,  {$or: [{"account_info.email": req.body.email}, {"account_info.username": req.body.username}]})
-    }catch (e) {
+    try {
+      existingUsers = await Storage.getItems(Models.User, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
+    } catch (e) {
       return next(e);
     }
     if (existingUsers.length !== 0) {
@@ -58,15 +59,16 @@ export class AuthController implements IController{
           "location": "body",
           "param": "username",
           "msg": "Username is taken"
-        }))
+        }));
       } else if (existingUsers[0].account_info.email === req.body.email) {
         return next(new ValidationError({
           "location": "body",
           "param": "email",
           "msg": "Email is taken"
-        }))
+        }));
       }
-      return next(new ActionFailed('Value already exists', true));
+      console.log("Existing users: " + existingUsers);
+      return next(new ActionFailed("Value already exists", true));
     }
 
     // Create the verify token
@@ -76,64 +78,102 @@ export class AuthController implements IController{
     const UserModal = new User().getModelForClass(User);
 
     const newUser = new UserModal({
+      game_info: {
+        minecraft: {},
+        steam: {}
+      },
       account_info: {
         email: req.body.email,
         username: req.body.username,
-        accountVerify: {accountVerified: false, verifyKey: verifyToken}
+        accountVerify: { accountVerified: false, verifyKey: verifyToken },
+        password: {},
+        resetPassword: {}
       },
       balance: 0
     });
 
-    if(SimplyServersAPI.config.defaultGroup && SimplyServersAPI.config.defaultGroup !== ""){
+    if (SimplyServersAPI.config.defaultGroup && SimplyServersAPI.config.defaultGroup !== "") {
       newUser.account_info.group = SimplyServersAPI.config.defaultGroup;
     }
 
-    await newUser.save();
+    // TODO: GMAIL ARE DUMB
+    // // Send them the verify email
+    // const mailer = new Mailer();
+    // try{
+    //   await mailer.sendVerify(newUser.account_info.email, verifyToken)
+    // }catch (e) {
+    //   SimplyServersAPI.logger.error(e);
+    //   return next(new ValidationError({
+    //     "location": "body",
+    //     "param": "email",
+    //     "msg": "Email is invalid"
+    //   }))
+    // }
 
+    // Update password
+    await newUser.setPassword(req.body.password);
+
+    try {
+      await newUser.save();
+    } catch (e) {
+      return next(new ActionFailed("Failed to save user", false));
+    }
+
+    let userData;
+    try {
+      userData = await newUser.getAuthJSON();
+    } catch (e) {
+      console.log(e);
+      return next(new ActionFailed("Failed to get auth info", false));
+    }
+
+    return res.json({
+      user: userData
+    });
   };
 
   public login = async (req, res, next) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
     }
-      let user;
-      // TODO: make passport async
-      // try{
-      //   user = await passport.authenticate('local', {session: false})(req, res);
-      // }catch (e) {
-      //   return next(e);
-      // }
-      try{
-        user = await new Promise((resolve, reject) => {
-          passport.authenticate('local', {session: false}, (err, passportUser) => {
-            if(err){
-              return reject(err);
-            }
+    let user;
+    // TODO: make passport async
+    // try{
+    //   user = await passport.authenticate('local', {session: false})(req, res);
+    // }catch (e) {
+    //   return next(e);
+    // }
+    try {
+      user = await new Promise((resolve, reject) => {
+        passport.authenticate("local", { session: false }, (err, passportUser) => {
+          if (err) {
+            return reject(err);
+          }
 
-            if(passportUser){
-              return resolve(passportUser);
-            }else{
-              return reject(new ActionFailed('Failed to authenticate', true));
-            }
-          })(req, res);
-        });
-      }catch (e) {
-        return next(e);
-      }
+          if (passportUser) {
+            return resolve(passportUser);
+          } else {
+            return reject(new ActionFailed("Failed to authenticate", true));
+          }
+        })(req, res);
+      });
+    } catch (e) {
+      return next(e);
+    }
 
-      console.log("got user: " + JSON.stringify(user));
+    console.log("got user: " + JSON.stringify(user));
 
-      if(!user){
-        return next(new ActionFailed("Failed to authenticate", true))
-      }
+    if (!user) {
+      return next(new ActionFailed("Failed to authenticate", true));
+    }
 
-      try {
-        return res.json({
-          user: await user.getAuthJSON()
-        })
-      }catch (e) {
-        return next(e);
-      }
+    try {
+      return res.json({
+        user: await user.getAuthJSON()
+      });
+    } catch (e) {
+      return next(e);
+    }
   };
 }

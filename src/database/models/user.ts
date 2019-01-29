@@ -17,15 +17,15 @@ export default class User extends Typegoose{
   @prop()
   public _id?: Types.ObjectId;
   @prop()
-  public game_info?: {
+  public game_info: {
     minecraft: {
-      uuid: string,
-      username: string,
-      boughtPlugins: string[]
+      uuid?: string,
+      username?: string,
+      boughtPlugins?: string[]
     },
     steam: {
-      steamID: string,
-      username: string
+      steamID?: string,
+      username?: string
     }
   };
 
@@ -35,16 +35,16 @@ export default class User extends Typegoose{
     email: string,
     group?: string,
     primaryName?: string,
-    password?: {
-      hash: string
+    password: {
+      hash?: string
     },
-    resetPassword?: {
-      resetKey: string,
-      resetExpire: Date
+    resetPassword: {
+      resetKey?: string,
+      resetExpire?: Date
     },
-    accountVerify?: {
-      accountVerified: boolean,
-      verifyKey: string
+    accountVerify: {
+      accountVerified?: boolean,
+      verifyKey?: string
     }
   };
 

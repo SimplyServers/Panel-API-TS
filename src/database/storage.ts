@@ -12,12 +12,15 @@ export class Storage {
   public static getItems = async (model: Models, condition: any, rule?: any) => {
     const mongooseModel = Storage.getModel(model);
 
+    console.log("befoe:" +JSON.stringify(condition));
+    console.log("condition: " + JSON.stringify(condition));
+
     let modelData;
     try {
       if (rule) {
-        modelData = await mongooseModel.find(Storage.mongoSterlize(condition), rule);
+        modelData = await mongooseModel.find(condition, rule);
       } else {
-        modelData = await mongooseModel.find(Storage.mongoSterlize(condition));
+        modelData = await mongooseModel.find(condition);
       }
     } catch (e) {
       throw new ActionFailed("Failed to find " + model.toString() + "s.", true);
@@ -78,9 +81,9 @@ export class Storage {
     let modelData;
     try {
       if (rule) {
-        modelData = await mongooseModel.findOne(Storage.mongoSterlize(condition), rule);
+        modelData = await mongooseModel.findOne(condition, rule);
       } else {
-        modelData = await mongooseModel.findOne(Storage.mongoSterlize(condition));
+        modelData = await mongooseModel.findOne(condition);
       }
     } catch (e) {
       throw new ActionFailed("Failed to find " + model.toString() + ".", true);
@@ -129,16 +132,4 @@ export class Storage {
         return new Preset().getModelForClass(Preset);
     }
   };
-
-  // https://github.com/vkarpov15/mongo-sanitize/blob/master/index.js
-  private static mongoSterlize(condition: object) {
-    if (condition instanceof Object) {
-      for (const key in condition) {
-        if (/^\$/.test(key)) {
-          delete condition[key];
-        }
-      }
-    }
-    return condition;
-  }
 }
