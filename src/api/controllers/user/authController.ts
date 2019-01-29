@@ -28,10 +28,10 @@ export class AuthController implements IController {
       check("email").isEmail(),
       check("password").isLength({ max: 50 }),
       check("username").isLength({ max: 50 })
-    ], this.regiser);
+    ], this.register);
   }
 
-  public regiser = async (req, res, next) => {
+  public register = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
@@ -67,7 +67,6 @@ export class AuthController implements IController {
           "msg": "Email is taken"
         }));
       }
-      console.log("Existing users: " + existingUsers);
       return next(new ActionFailed("Value already exists", true));
     }
 
@@ -123,7 +122,6 @@ export class AuthController implements IController {
     try {
       userData = await newUser.getAuthJSON();
     } catch (e) {
-      console.log(e);
       return next(new ActionFailed("Failed to get auth info", false));
     }
 
@@ -161,8 +159,6 @@ export class AuthController implements IController {
     } catch (e) {
       return next(e);
     }
-
-    console.log("got user: " + JSON.stringify(user));
 
     if (!user) {
       return next(new ActionFailed("Failed to authenticate", true));

@@ -59,16 +59,18 @@ export class AuthMiddleware {
     const {
       headers: { authorization }
     } = req;
+
+    console.log("got auth:" +authorization);
+
     if (authorization && authorization.split(" ")[0] === "Token") {
       return authorization.split(" ")[1];
     }
-    console.log("fucking hell");
     return null;
   };
 
-  private static getSecret = () => {
-    console.log("got secert");
-    return SimplyServersAPI.config.web.JWTSecret;
+  private static getSecret = (req, payload, done) => {
+    // This is here because typescript decided that it needed to compile some of this code instead of running it at runtime
+    done(null, SimplyServersAPI.config.web.JWTSecret);
   };
 
   public static jwtAuth = {
