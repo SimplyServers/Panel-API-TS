@@ -18,16 +18,25 @@ export class AuthController implements IController {
 
   public initRoutes(router: Router): void {
     router.post("/auth/login", [
+      check("email").exists(),
       check("email").isLength({ max: 50 }),
       check("email").isEmail(),
-      check("password").isLength({ max: 50 })
+      check("password").exists(),
+      check("password").isLength({ max: 50 }),
+      check("password").isString()
     ], this.login);
 
     router.post("/auth/register", [
+      check("email").exists(),
       check("email").isLength({ max: 50 }),
       check("email").isEmail(),
+      check("email").normalizeEmail(),
+      check("password").exists(),
       check("password").isLength({ max: 50 }),
-      check("username").isLength({ max: 50 })
+      check("username").exists(),
+      check("username").isLength({ max: 50 }),
+      check("password").isString(),
+      check("username").isString
     ], this.register);
   }
 

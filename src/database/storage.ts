@@ -8,6 +8,8 @@ import ServerNode from "./models/node";
 import Preset from "./models/preset";
 import User from "./models/user";
 
+import * as mongoose from "mongoose";
+
 export class Storage {
   public static getItems = async (model: Models, condition: any, rule?: any) => {
     const mongooseModel = Storage.getModel(model);
@@ -37,9 +39,9 @@ export class Storage {
     let modelData;
     try {
       if (rule) {
-        modelData = await mongooseModel.findOne({ _id: id }, rule);
+        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(id)}, rule)
       } else {
-        modelData = await mongooseModel.findOne({ _id: id });
+        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(id)})
       }
     } catch (e) {
       throw new ActionFailed("Failed to find " + model.toString() + ".", true);
@@ -57,7 +59,7 @@ export class Storage {
 
     let modelData;
     try {
-      modelData = await mongooseModel.deleteOne({ _id: id });
+      modelData = await mongooseModel.deleteOne({_id: new mongoose.Types.ObjectId(id)});
     } catch (e) {
       throw new ActionFailed(
         "Failed to remove " + model.toString() + ".",

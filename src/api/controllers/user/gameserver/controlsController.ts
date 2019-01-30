@@ -15,7 +15,9 @@ export class ControlsController implements IController{
     router.post('/server/:server/control/command', [
       AuthMiddleware.jwtAuth.required,
       GetServerMiddleware.serverBasicAccess,
-      check('command').isLength({max: 50})
+      check("command").exists(),
+      check('command').isLength({max: 50}),
+      check('command').isString()
     ], this.executeCommand);
     router.post('/server/:server/control/install', [
       AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess

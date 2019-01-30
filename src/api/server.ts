@@ -7,6 +7,7 @@ import * as SocketIO from "socket.io";
 import { SimplyServersAPI } from "../ssapi";
 import { AuthController } from "./controllers/user/authController";
 import { ControlsController } from "./controllers/user/gameserver/controlsController";
+import { GroupController } from "./controllers/user/groupController";
 import { Passport } from "./passport";
 
 export class APIServer {
@@ -160,6 +161,9 @@ export class APIServer {
 
       const authController = new AuthController();
       authController.initRoutes(router);
+
+      const groupController = new GroupController();
+      groupController.initRoutes(router);
 
       this.express.use('/api/v1/', router);
   };
