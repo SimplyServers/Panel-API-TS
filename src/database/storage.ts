@@ -132,4 +132,16 @@ export class Storage {
         return new Preset().getModelForClass(Preset);
     }
   };
+
+  // https://github.com/vkarpov15/mongo-sanitize/blob/master/index.js
+  public static mongoSterlize(condition: object) {
+    if (condition instanceof Object) {
+      for (const key in condition) {
+        if (/^\$/.test(key)) {
+          delete condition[key];
+        }
+      }
+    }
+    return condition;
+  }
 }
