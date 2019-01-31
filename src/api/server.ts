@@ -7,7 +7,7 @@ import * as SocketIO from "socket.io";
 import { SimplyServersAPI } from "../ssapi";
 import { AuthController } from "./controllers/user/authController";
 import { ControlsController } from "./controllers/user/gameserver/controlsController";
-import { GroupController } from "./controllers/user/groupController";
+import { GroupController } from "./controllers/admin/groupController";
 import { Passport } from "./passport";
 
 export class APIServer {

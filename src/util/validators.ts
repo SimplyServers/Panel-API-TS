@@ -3,7 +3,7 @@ import { ValidationError } from "./errors/ValidationError";
 
 export class Validators {
   public static checkJsonArray = (value) => {
-    let returnArr = [];
+    const returnArr = [];
     let arr;
     try {
       arr = JSON.parse(value);

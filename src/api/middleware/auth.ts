@@ -73,6 +73,9 @@ export class AuthMiddleware {
     done(null, SimplyServersAPI.config.web.JWTSecret);
   };
 
+  // We need this to be after the previous functions are defined. Blame Typescript and express-jwt.
+  /* tslint:disable:member-ordering */
+  /* tslint:disable:object-literal-sort-keys */
   public static jwtAuth = {
     required: jwt({
       secret: AuthMiddleware.getSecret,
@@ -86,4 +89,6 @@ export class AuthMiddleware {
       credentialsRequired: false,
     })
   };
+  /* tslint:disable:member-ordering */
+  /* tslint:disable:object-literal-sort-keys */
 }
