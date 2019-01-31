@@ -15,14 +15,10 @@ export class NodeController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("ip").exists(),
-        check("ip").isIP(),
-        check("name").exists(),
-        check("name").isString(),
-        check("secret").exists(),
-        check("secret").isString(),
-        check("port").exists(),
-        check("port").isPort()
+        check("ip").exists().isIP(),
+        check("name").exists().isString().isLength({ max: 30 }),
+        check("secret").exists().isString().isLength({ max: 50 }),
+        check("port").exists().isPort()
       ],
       this.addNode
     );
@@ -31,14 +27,10 @@ export class NodeController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("ip").exists(),
-        check("ip").isIP(),
-        check("name").exists(),
-        check("name").isString(),
-        check("secret").exists(),
-        check("secret").isString(),
-        check("port").exists(),
-        check("port").isPort()
+        check("ip").exists().isIP(),
+        check("name").exists().isString().isLength({ max: 30 }),
+        check("secret").exists().isString().isLength({ max: 50 }),
+        check("port").exists().isPort()
       ],
       this.editNode
     );

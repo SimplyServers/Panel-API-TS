@@ -49,7 +49,7 @@ export class PresetController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("name").exists().isString(),
+        check("name").exists().isString().isLength({ max: 30 }),
         check("mem").exists().toInt(),
         check("io").exists().toInt(),
         check("cpu").exists().toInt(),
@@ -68,7 +68,7 @@ export class PresetController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("name").exists().isString(),
+        check("name").exists().isString().isLength({ max: 30 }),
         check("mem").exists().toInt(),
         check("io").exists().toInt(),
         check("cpu").exists().toInt(),
