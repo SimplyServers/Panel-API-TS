@@ -4,7 +4,9 @@ import * as fs from "fs-extra";
 import * as http from "http";
 import * as https from "https";
 import * as SocketIO from "socket.io";
+import node from "../database/models/node";
 import { SimplyServersAPI } from "../ssapi";
+import { NodeController } from "./controllers/admin/nodeController";
 import { AuthController } from "./controllers/user/authController";
 import { ControlsController } from "./controllers/user/gameserver/controlsController";
 import { GroupController } from "./controllers/admin/groupController";
@@ -164,6 +166,9 @@ export class APIServer {
 
       const groupController = new GroupController();
       groupController.initRoutes(router);
+
+      const nodeController = new NodeController();
+      nodeController.initRoutes(router);
 
       this.express.use('/api/v1/', router);
   };

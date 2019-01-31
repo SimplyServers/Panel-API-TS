@@ -166,8 +166,8 @@ export class GroupController implements IController {
 
     const newGroup = new GroupModal({
       color: req.body.color,
-      name: req.body.name,
       displayName: req.body.displayName,
+      name: req.body.name,
       isAdmin: req.body.isAdmin,
       isStaff: req.body.isStaff,
       presetsAllowed: req.body.presetsAllowed
