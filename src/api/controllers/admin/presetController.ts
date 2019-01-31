@@ -182,6 +182,10 @@ export class PresetController implements IController {
     existingPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
     existingPreset.maxPlayers = req.body.maxPlayers;
 
+    if(req.body.maxPlugins) {
+      existingPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
+    }
+
     try {
       await existingPreset.save();
     } catch (e) {
