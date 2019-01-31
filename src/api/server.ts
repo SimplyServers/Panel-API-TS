@@ -7,6 +7,7 @@ import * as SocketIO from "socket.io";
 import node from "../database/models/node";
 import { SimplyServersAPI } from "../ssapi";
 import { NodeController } from "./controllers/admin/nodeController";
+import { PresetController } from "./controllers/admin/presetController";
 import { AuthController } from "./controllers/user/authController";
 import { ControlsController } from "./controllers/user/gameserver/controlsController";
 import { GroupController } from "./controllers/admin/groupController";
@@ -169,6 +170,9 @@ export class APIServer {
 
       const nodeController = new NodeController();
       nodeController.initRoutes(router);
+
+      const presetController = new PresetController();
+      presetController.initRoutes(router);
 
       this.express.use('/api/v1/', router);
   };
