@@ -98,6 +98,7 @@ export class PresetController implements IController {
       this.getPresets
     );
   }
+
   public getPresets = async (req, res, next) => {
     let presets;
     try {
