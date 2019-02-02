@@ -10,6 +10,7 @@ import { pre, prop, Typegoose } from "typegoose";
 
 export default class Preset extends Typegoose{
   @prop()
+  /* tslint:disable:variable-name */
   public _id?: Types.ObjectId;
   @prop()
     public name: string;
