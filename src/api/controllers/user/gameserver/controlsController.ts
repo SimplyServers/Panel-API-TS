@@ -35,7 +35,10 @@ export class ControlsController implements IController{
 
       let node;
       try{
-        node = await Storage.getItem(Models.Node, req.server.nodeInstalled);
+        node = await Storage.getItem({
+          model: Models.Node,
+          id: req.server.nodeInstalled
+        });
       }catch (e) {
         return next(e);
       }
@@ -56,7 +59,10 @@ export class ControlsController implements IController{
   public install = async (req, res, next) => {
     let node;
     try{
-      node = await Storage.getItem(Models.Node, req.server.nodeInstalled);
+      node = await Storage.getItem({
+        model: Models.Node,
+        id: req.server.nodeInstalled
+      });
     }catch (e) {
       return next(e);
     }
@@ -81,7 +87,10 @@ export class ControlsController implements IController{
   public reinstall = async (req, res, next) => {
     let node;
     try{
-      node = await Storage.getItem(Models.Node, req.server.nodeInstalled);
+      node = await Storage.getItem({
+        model: Models.Node,
+        id: req.server.nodeInstalled
+      });
     }catch (e) {
       return next(e);
     }

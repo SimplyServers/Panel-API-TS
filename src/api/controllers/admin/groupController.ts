@@ -11,77 +11,122 @@ import { IController } from "../IController";
 
 export class GroupController implements IController {
   public initRoutes(router: Router): void {
-    router.post("/group/add", [
-      AuthMiddleware.jwtAuth.required,
-      AuthMiddleware.isAdmin,
-      check("presetsAllowed").exists().customSanitizer(Validators.checkJsonArray),
-      check("color").exists().isHexColor(),
-      check("name").exists().isString().isLength({ max: 30 }),
-      check("displayName").exists().isString().isLength({ max: 30 }),
-      check("isAdmin").exists().toBoolean(),
-      check("isStaff").exists().toBoolean(),
-    ], this.addGroup);
-    router.post("/group/:group/edit", [
-      AuthMiddleware.jwtAuth.required,
-      AuthMiddleware.isAdmin,
-      check("presetsAllowed").exists().customSanitizer(Validators.checkJsonArray),
-      check("color").exists().isHexColor(),
-      check("name").exists().isString().isLength({ max: 30 }),
-      check("displayName").exists().isString().isLength({ max: 30 }),
-      check("isAdmin").exists().toBoolean(),
-      check("isStaff").exists().toBoolean(),
-    ], this.editGroup);
-    router.get("/group/:group/remove", [
-      AuthMiddleware.jwtAuth.required,
-      AuthMiddleware.isAdmin,
-    ], this.removeGroup);
-    router.get("/group/:group/", [
-      AuthMiddleware.jwtAuth.required,
-      AuthMiddleware.isAdmin,
-    ], this.getGroup);
-    router.get("/group/", [
-      AuthMiddleware.jwtAuth.required,
-      AuthMiddleware.isAdmin,
-    ], this.getGroups);
-  };
+    router.post(
+      "/group/add",
+      [
+        AuthMiddleware.jwtAuth.required,
+        AuthMiddleware.isAdmin,
+        check("presetsAllowed")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
+        check("color")
+          .exists()
+          .isHexColor(),
+        check("name")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("displayName")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("isAdmin")
+          .exists()
+          .toBoolean(),
+        check("isStaff")
+          .exists()
+          .toBoolean()
+      ],
+      this.addGroup
+    );
+    router.post(
+      "/group/:group/edit",
+      [
+        AuthMiddleware.jwtAuth.required,
+        AuthMiddleware.isAdmin,
+        check("presetsAllowed")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
+        check("color")
+          .exists()
+          .isHexColor(),
+        check("name")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("displayName")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("isAdmin")
+          .exists()
+          .toBoolean(),
+        check("isStaff")
+          .exists()
+          .toBoolean()
+      ],
+      this.editGroup
+    );
+    router.get(
+      "/group/:group/remove",
+      [AuthMiddleware.jwtAuth.required, AuthMiddleware.isAdmin],
+      this.removeGroup
+    );
+    router.get(
+      "/group/:group/",
+      [AuthMiddleware.jwtAuth.required, AuthMiddleware.isAdmin],
+      this.getGroup
+    );
+    router.get(
+      "/group/",
+      [AuthMiddleware.jwtAuth.required, AuthMiddleware.isAdmin],
+      this.getGroups
+    );
+  }
 
   public getGroups = async (req, res, next) => {
     let groups;
-    try{
-      groups = await Storage.getAll(Models.Group);
-    }catch (e) {
+    try {
+      groups = await Storage.getAll({ model: Models.Group });
+    } catch (e) {
       return next(e);
     }
 
     return res.json({
       groups
-    })
+    });
   };
 
   public getGroup = async (req, res, next) => {
     let group;
-    try{
-      group = await Storage.getItem(Models.Group, req.params.group);
-    }catch (e) {
+    try {
+      group = await Storage.getItem({
+        model: Models.Group,
+        id: req.params.group
+      });
+    } catch (e) {
       return next(e);
     }
 
     return res.json({
       group
-    })
+    });
   };
 
   public removeGroup = async (req, res, next) => {
     let group;
     try {
-      group = await Storage.removeItem(Models.Group, req.params.group);
+      group = await Storage.removeItem({
+        model: Models.Group,
+        id: req.params.group
+      });
     } catch (e) {
       return next(e);
     }
 
     // Make sure we removed more then 0
     if (group.n < 1) {
-      return next(new ActionFailed('Failed to find group matching id', true));
+      return next(new ActionFailed("Failed to find group matching id", true));
     }
 
     return res.json({});
@@ -96,7 +141,9 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await Storage.getItems(Models.Group, {name: req.body.name});
+      existingGroups = await Storage.getItems({model: Models.Group, condition: {
+        name: req.body.name
+      }});
     } catch (e) {
       return next(e);
     }
@@ -104,10 +151,11 @@ export class GroupController implements IController {
     if (existingGroups.length !== 0) {
       // This is expected to be 1, especially if they aren't changing the name
       console.log("ext:" + JSON.stringify(existingGroups[0]));
-      if (existingGroups[0]._id.toString() !== req.params.group) { // Only fire this if the group we're editing is NOT this
+      if (existingGroups[0]._id.toString() !== req.params.group) {
+        // Only fire this if the group we're editing is NOT this
         return next(new ActionFailed("Name already assigned to group.", true));
       }
-    }else{
+    } else {
       return next(new ActionFailed("Failed to find group matching id", true));
     }
 
@@ -120,16 +168,15 @@ export class GroupController implements IController {
     existingGroup.isAdmin = req.body.isAdmin;
     existingGroup.isStaff = req.body.isStaff;
 
-    try{
+    try {
       await existingGroup.save();
-    }catch (e) {
-      return next(new ActionFailed('Failed to save group.', false));
+    } catch (e) {
+      return next(new ActionFailed("Failed to save group.", false));
     }
 
     return res.json({
-      group:existingGroup
-    })
-
+      group: existingGroup
+    });
   };
 
   public addGroup = async (req, res, next) => {
@@ -141,7 +188,9 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await Storage.getItems(Models.Group, { name: req.body.name });
+      existingGroups = await Storage.getItems({model: Models.Group, condition: {
+        name: req.body.name
+      }});
     } catch (e) {
       return next(new ActionFailed("Failed checking existing groups.", false));
     }

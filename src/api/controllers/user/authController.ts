@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-
-import * as mongoose from "mongoose";
 import * as passport from "passport";
 import * as zxcvbn from "zxcvbn";
 import User from "../../../database/models/user";
@@ -11,7 +9,6 @@ import { SimplyServersAPI } from "../../../ssapi";
 import { Models } from "../../../types/models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
-import { Mailer } from "../../../util/mailer";
 import { IController } from "../IController";
 
 export class AuthController implements IController {
@@ -36,11 +33,12 @@ export class AuthController implements IController {
       check("username").exists(),
       check("username").isLength({ max: 50 }),
       check("password").isString(),
-      check("username").isString
+      check("username").isString()
     ], this.register);
   }
 
   public register = async (req, res, next) => {
+    console.log("hello");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
@@ -58,7 +56,11 @@ export class AuthController implements IController {
     // Check for existing users
     let existingUsers;
     try {
-      existingUsers = await Storage.getItems(Models.User, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
+      // existingUsers = await Storage.getItems(Models.User, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
+      existingUsers = await Storage.getItems({
+        model: Models.User,
+        condition: { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] }
+      });
     } catch (e) {
       return next(e);
     }

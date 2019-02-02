@@ -21,7 +21,10 @@ export class UserController implements IController {
   public getUsers = async (req, res, next) => {
     let users;
     try {
-      users = await Storage.getAll(Models.User, {"acocunt_info.password": 0});
+      users = await Storage.getAll({
+        model: Models.User,
+        rule: { "acocunt_info.password": 0 }
+      });
     } catch (e) {
       return next(e);
     }
@@ -34,7 +37,7 @@ export class UserController implements IController {
   public getUser = async (req, res, next) => {
     let user;
     try {
-      user = await Storage.getItem(Models.User, req.params.user);
+      user = await Storage.getItem({ model: Models.User, id: req.params.user });
     } catch (e) {
       return next(e);
     }

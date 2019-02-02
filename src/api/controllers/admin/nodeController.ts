@@ -15,10 +15,20 @@ export class NodeController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("ip").exists().isIP(),
-        check("name").exists().isString().isLength({ max: 30 }),
-        check("secret").exists().isString().isLength({ max: 50 }),
-        check("port").exists().isPort()
+        check("ip")
+          .exists()
+          .isIP(),
+        check("name")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("secret")
+          .exists()
+          .isString()
+          .isLength({ max: 50 }),
+        check("port")
+          .exists()
+          .isPort()
       ],
       this.addNode
     );
@@ -27,10 +37,20 @@ export class NodeController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("ip").exists().isIP(),
-        check("name").exists().isString().isLength({ max: 30 }),
-        check("secret").exists().isString().isLength({ max: 50 }),
-        check("port").exists().isPort()
+        check("ip")
+          .exists()
+          .isIP(),
+        check("name")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("secret")
+          .exists()
+          .isString()
+          .isLength({ max: 50 }),
+        check("port")
+          .exists()
+          .isPort()
       ],
       this.editNode
     );
@@ -53,7 +73,7 @@ export class NodeController implements IController {
   public getNodes = async (req, res, next) => {
     let nodes;
     try {
-      nodes = await Storage.getAll(Models.Node);
+      nodes = await Storage.getAll({ model: Models.Node });
     } catch (e) {
       return next(e);
     }
@@ -66,7 +86,7 @@ export class NodeController implements IController {
   public getNode = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem(Models.Node, req.params.node);
+      node = await Storage.getItem({ model: Models.Node, id: req.params.node });
     } catch (e) {
       return next(e);
     }
@@ -79,7 +99,10 @@ export class NodeController implements IController {
   public removeNode = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.removeItem(Models.Node, req.params.node);
+      node = await Storage.removeItem({
+        model: Models.Node,
+        id: req.params.node
+      });
     } catch (e) {
       return next(e);
     }
@@ -101,8 +124,11 @@ export class NodeController implements IController {
     // Make sure the name isn't already assigned
     let existingNodes;
     try {
-      existingNodes = await Storage.getItems(Models.Node, {
-        name: req.body.name
+      existingNodes = await Storage.getItems({
+        model: Models.Node,
+        condition: {
+          name: req.body.name
+        }
       });
     } catch (e) {
       return next(e);
@@ -146,8 +172,11 @@ export class NodeController implements IController {
     // Make sure the name isn't already assigned
     let existingNodes;
     try {
-      existingNodes = await Storage.getItems(Models.Node, {
-        name: req.body.name
+      existingNodes = await Storage.getItems({
+        model: Models.Node,
+        condition: {
+          name: req.body.name
+        }
       });
     } catch (e) {
       return next(new ActionFailed("Failed checking existing nodes.", false));

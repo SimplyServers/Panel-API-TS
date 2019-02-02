@@ -10,107 +10,122 @@ import User from "./models/user";
 
 import * as mongoose from "mongoose";
 
+export interface IConditionOptions {
+  model: Models,
+  condition: any,
+  rule?: any,
+  allowEmpty?: boolean
+}
+
+export interface IIDOptions {
+  model: Models,
+  id: string,
+  rule?: any,
+  allowEmpty?: boolean
+}
+
+export interface IGeneralOptions {
+  model: Models;
+  rule?: any;
+}
+
 export class Storage {
-  public static getItems = async (model: Models, condition: any, rule?: any) => {
-    const mongooseModel = Storage.getModel(model);
-
-    console.log("befoe:" +JSON.stringify(condition));
-    console.log("condition: " + JSON.stringify(condition));
+  public static getItems = async (options: IConditionOptions) => {
+    const mongooseModel = Storage.getModel(options.model);
 
     let modelData;
     try {
-      if (rule) {
-        modelData = await mongooseModel.find(condition, rule);
+      if (options.rule) {
+        modelData = await mongooseModel.find(options.condition, options.rule);
       } else {
-        modelData = await mongooseModel.find(condition);
+        modelData = await mongooseModel.find(options.condition);
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + model.toString() + "s.", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
     }
     if (!modelData) {
-      throw new ActionFailed("Failed to find " + model.toString() + "s.", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
     }
     return modelData;
   };
 
-  public static getItem = async (model: Models, id: string, rule?: any) => {
-    const mongooseModel: InstanceType<any> = Storage.getModel(model);
+  public static getItem = async (options: IIDOptions) => {
+    const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     let modelData;
     try {
-      if (rule) {
-        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(id)}, rule)
+      if (options.rule) {
+        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(options.id)}, options.rule)
       } else {
-        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(id)})
+        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(options.id)})
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + model.toString() + ".", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
     }
 
     if (!modelData) {
-      console.log("Failed: ID " + id, ", model: " + model.toString());
-      throw new ActionFailed("Failed to find " + model.toString() + ".", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
     }
     return modelData;
   };
 
-  public static removeItem = async (model: Models, id: string) => {
-    const mongooseModel: InstanceType<any> = Storage.getModel(model);
+  public static removeItem = async (options: IIDOptions) => {
+    const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     let modelData;
     try {
-      modelData = await mongooseModel.deleteOne({_id: new mongoose.Types.ObjectId(id)});
+      modelData = await mongooseModel.deleteOne({_id: new mongoose.Types.ObjectId(options.id)});
     } catch (e) {
       throw new ActionFailed(
-        "Failed to remove " + model.toString() + ".",
+        "Failed to remove " + options.model.toString() + ".",
         true
       );
     }
     if (!modelData) {
       throw new ActionFailed(
-        "Failed to remove " + model.toString() + ".",
+        "Failed to remove " + options.model.toString() + ".",
         true
       );
     }
     return modelData;
   };
 
-  public static getItemByCon = async (model: Models, condition: any, rule?: any) => {
-    const mongooseModel: InstanceType<any> = Storage.getModel(model);
+  public static getItemByCon = async (options: IConditionOptions) => {
+    const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     mongooseModel.findOne({});
 
     let modelData;
     try {
-      if (rule) {
-        modelData = await mongooseModel.findOne(condition, rule);
+      if (options.rule) {
+        modelData = await mongooseModel.findOne(options.condition, options.rule);
       } else {
-        modelData = await mongooseModel.findOne(condition);
+        modelData = await mongooseModel.findOne(options.condition);
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + model.toString() + ".", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
     }
     if (!modelData) {
-      throw new ActionFailed("Failed to find " + model.toString() + ".", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
     }
     return modelData;
   };
 
-  public static getAll = async (model: Models, rule?: any) => {
-    const mongooseModel: InstanceType<any> = Storage.getModel(model);
+  public static getAll = async (options: IGeneralOptions) => {
+    const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     let modelData;
     try {
-      if (rule) {
-        modelData = await mongooseModel.find({}, rule);
+      if (options.rule) {
+        modelData = await mongooseModel.find({}, options.rule);
       } else {
         modelData = await mongooseModel.find({});
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + model.toString() + "s.", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
     }
     if (!modelData) {
-      throw new ActionFailed("Failed to find " + model.toString() + "s.", true);
+      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
     }
     return modelData;
   };

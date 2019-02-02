@@ -10,8 +10,7 @@ import { AuthMiddleware } from "../../middleware/auth";
 import { IController } from "../IController";
 
 export class PresetController implements IController {
-
-  public fsValidator = (value) => {
+  public fsValidator = value => {
     const returnArr = [];
     let arr;
     try {
@@ -20,24 +19,33 @@ export class PresetController implements IController {
       throw new ValidationError(value + " is not valid JSON.");
     }
 
-    if(!(Object.prototype.toString.call(arr) === '[object Array]')){
+    if (!(Object.prototype.toString.call(arr) === "[object Array]")) {
       throw new ValidationError(value + " is not an array.");
     }
 
     arr.map(rule => {
-      if(!rule.path){
-        throw new ActionFailed("Fs value " + JSON.stringify(rule) + " is missing path", true);
-      }else if(!rule.canChange){
-        throw new ActionFailed("Fs value " + JSON.stringify(rule) + " is missing canChange", true);
-      }else if(!rule.canSee){
-        throw new ActionFailed("Fs value " + JSON.stringify(rule) + " is missing canSee", true);
+      if (!rule.path) {
+        throw new ActionFailed(
+          "Fs value " + JSON.stringify(rule) + " is missing path",
+          true
+        );
+      } else if (!rule.canChange) {
+        throw new ActionFailed(
+          "Fs value " + JSON.stringify(rule) + " is missing canChange",
+          true
+        );
+      } else if (!rule.canSee) {
+        throw new ActionFailed(
+          "Fs value " + JSON.stringify(rule) + " is missing canSee",
+          true
+        );
       }
 
       returnArr.push({
         path: rule.path.toString(),
         canChange: rule.canChange.toString(),
         canSee: rule.canSee.toString()
-      })
+      });
     });
 
     return returnArr;
@@ -49,17 +57,40 @@ export class PresetController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("name").exists().isString().isLength({ max: 30 }),
-        check("mem").exists().toInt(),
-        check("io").exists().toInt(),
-        check("cpu").exists().toInt(),
-        check("creditsPerDay").exists().toInt(),
-        check("maxPlugins").optional().toInt(),
-        check("maxPlayers").exists().toInt(),
-        check("views").exists().customSanitizer(Validators.checkJsonArray),
-        check("preinstalledPlugins").exists().customSanitizer(Validators.checkJsonArray),
-        check("autoShutdown").exists().toBoolean(),
-        check("fs").exists().customSanitizer(this.fsValidator)
+        check("name")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("mem")
+          .exists()
+          .toInt(),
+        check("io")
+          .exists()
+          .toInt(),
+        check("cpu")
+          .exists()
+          .toInt(),
+        check("creditsPerDay")
+          .exists()
+          .toInt(),
+        check("maxPlugins")
+          .optional()
+          .toInt(),
+        check("maxPlayers")
+          .exists()
+          .toInt(),
+        check("views")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
+        check("preinstalledPlugins")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
+        check("autoShutdown")
+          .exists()
+          .toBoolean(),
+        check("fs")
+          .exists()
+          .customSanitizer(this.fsValidator)
       ],
       this.addPreset
     );
@@ -68,17 +99,40 @@ export class PresetController implements IController {
       [
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
-        check("name").exists().isString().isLength({ max: 30 }),
-        check("mem").exists().toInt(),
-        check("io").exists().toInt(),
-        check("cpu").exists().toInt(),
-        check("creditsPerDay").exists().toInt(),
-        check("maxPlugins").optional().toInt(),
-        check("maxPlayers").exists().toInt(),
-        check("views").exists().customSanitizer(Validators.checkJsonArray),
-        check("preinstalledPlugins").exists().customSanitizer(Validators.checkJsonArray),
-        check("autoShutdown").exists().toBoolean(),
-        check("fs").exists().customSanitizer(this.fsValidator)
+        check("name")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("mem")
+          .exists()
+          .toInt(),
+        check("io")
+          .exists()
+          .toInt(),
+        check("cpu")
+          .exists()
+          .toInt(),
+        check("creditsPerDay")
+          .exists()
+          .toInt(),
+        check("maxPlugins")
+          .optional()
+          .toInt(),
+        check("maxPlayers")
+          .exists()
+          .toInt(),
+        check("views")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
+        check("preinstalledPlugins")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
+        check("autoShutdown")
+          .exists()
+          .toBoolean(),
+        check("fs")
+          .exists()
+          .customSanitizer(this.fsValidator)
       ],
       this.editPreset
     );
@@ -102,7 +156,7 @@ export class PresetController implements IController {
   public getPresets = async (req, res, next) => {
     let presets;
     try {
-      presets = await Storage.getAll(Models.Preset);
+      presets = await Storage.getAll({ model: Models.Preset });
     } catch (e) {
       return next(e);
     }
@@ -115,7 +169,10 @@ export class PresetController implements IController {
   public getPreset = async (req, res, next) => {
     let preset;
     try {
-      preset = await Storage.getItem(Models.Preset, req.params.preset);
+      preset = await Storage.getItem({
+        model: Models.Preset,
+        id: req.params.preset
+      });
     } catch (e) {
       return next(e);
     }
@@ -128,7 +185,10 @@ export class PresetController implements IController {
   public removePreset = async (req, res, next) => {
     let preset;
     try {
-      preset = await Storage.removeItem(Models.Preset, req.params.preset);
+      preset = await Storage.removeItem({
+        model: Models.Preset,
+        id: req.params.preset
+      });
     } catch (e) {
       return next(e);
     }
@@ -150,8 +210,11 @@ export class PresetController implements IController {
     // Make sure the name isn't already assigned
     let existingPresets;
     try {
-      existingPresets = await Storage.getItems(Models.Preset, {
-        name: req.body.name
+      existingPresets = await Storage.getItems({
+        model: Models.Preset,
+        condition: {
+          name: req.body.name
+        }
       });
     } catch (e) {
       return next(e);
@@ -183,7 +246,7 @@ export class PresetController implements IController {
     existingPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
     existingPreset.maxPlayers = req.body.maxPlayers;
 
-    if(req.body.maxPlugins) {
+    if (req.body.maxPlugins) {
       existingPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
     }
 
@@ -207,8 +270,11 @@ export class PresetController implements IController {
     // Make sure the name isn't already assigned
     let existingPresets;
     try {
-      existingPresets = await Storage.getItems(Models.Preset, {
-        name: req.body.name
+      existingPresets = await Storage.getItems({
+        model: Models.Preset,
+        condition: {
+          name: req.body.name
+        }
       });
     } catch (e) {
       return next(new ActionFailed("Failed checking existing presets.", false));
@@ -233,14 +299,14 @@ export class PresetController implements IController {
       special: {
         fs: req.body.fs,
         views: req.body.views,
-        minecraft: {},
+        minecraft: {}
       },
       preinstalledPlugins: req.body.preinstalledPlugins,
       allowSwitchingTo: req.body.allowSwitchingTo,
       creditsPerDay: req.body.creditsPerDay
     });
 
-    if(req.body.maxPlugins) {
+    if (req.body.maxPlugins) {
       newPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
     }
 
