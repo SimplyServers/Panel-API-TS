@@ -14,7 +14,7 @@ export class Passport {
         async (usr, pass, done) => {
           let user;
           try {
-            user = await Storage.getItemByCon(Models.User, {"account_info.email": usr});
+            user = await Storage.getItemByCon({model: Models.User, condition: {"account_info.email": usr}});
           }catch (e) {
             return done(null, false, { message: 'Server error' });
           }

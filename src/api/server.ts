@@ -6,13 +6,14 @@ import * as https from "https";
 import * as SocketIO from "socket.io";
 import node from "../database/models/node";
 import { SimplyServersAPI } from "../ssapi";
+import { GroupController } from "./controllers/admin/groupController";
 import { NodeController } from "./controllers/admin/nodeController";
 import { PresetController } from "./controllers/admin/presetController";
 import { UserController } from "./controllers/admin/userController";
 import { AuthController } from "./controllers/user/authController";
 import { ControlsController } from "./controllers/user/gameserver/controlsController";
-import { GroupController } from "./controllers/admin/groupController";
-import { ProfileController } from "./controllers/user/profileController";
+import { FsController } from "./controllers/user/gameserver/fsController";
+// import { ProfileController } from "./controllers/user/profileController";
 import { Passport } from "./passport";
 
 export class APIServer {
@@ -179,8 +180,11 @@ export class APIServer {
       const userController = new UserController();
       userController.initRoutes(router);
 
-      const profileController = new ProfileController();
-      profileController.initRoutes(router);
+      // const profileController = new ProfileController();
+      // profileController.initRoutes(router);
+
+      const fsController = new FsController();
+      fsController.initRoutes(router);
 
       this.express.use('/api/v1/', router);
   };

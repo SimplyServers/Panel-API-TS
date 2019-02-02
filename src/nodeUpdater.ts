@@ -30,35 +30,35 @@ export class NodeUpdater {
 
     // We ignore the promise but that's fine
     // this.checkInterval = setInterval(this.check, 1000 * 60 * 3);
-      this.checkInterval = setInterval(this.check, 1000 * 10);
+    this.checkInterval = setInterval(this.check, 1000 * 10);
   };
 
   private check = async () => {
-      SimplyServersAPI.logger.verbose("Updating nodes");
-      const nodes = await Storage.getAll(Models.Node, {});
-      await Promise.all(
-        nodes.map(async node => {
-          const nodeInterface = new NodeInterface(node);
+    SimplyServersAPI.logger.verbose("Updating nodes");
+    const nodes = await Storage.getAll({ model: Models.Node });
+    await Promise.all(
+      nodes.map(async node => {
+        const nodeInterface = new NodeInterface(node);
 
-          let queryResults: any;
-          try {
-            queryResults = await nodeInterface.query();
-            node.plugins = await nodeInterface.getPlugins();
-            node.games = await nodeInterface.games();
-          }catch (e) {
-            SimplyServersAPI.logger.error("Failed to ping node: " + e);
-            return;
-          }
+        let queryResults: any;
+        try {
+          queryResults = await nodeInterface.query();
+          node.plugins = await nodeInterface.getPlugins();
+          node.games = await nodeInterface.games();
+        } catch (e) {
+          SimplyServersAPI.logger.error("Failed to ping node: " + e);
+          return;
+        }
 
-          node.status.lastOnline = Date.now().valueOf();
-          node.status.cpu = queryResults.cpu;
-          node.status.totalmem = queryResults.totalmem;
-          node.status.freemem = queryResults.freemem;
-          node.status.totaldisk = queryResults.totaldisk;
-          node.status.freedisk = queryResults.freedisk;
+        node.status.lastOnline = Date.now().valueOf();
+        node.status.cpu = queryResults.cpu;
+        node.status.totalmem = queryResults.totalmem;
+        node.status.freemem = queryResults.freemem;
+        node.status.totaldisk = queryResults.totaldisk;
+        node.status.freedisk = queryResults.freedisk;
 
-          SimplyServersAPI.logger.verbose("Updated info for node " + node._id);
-        })
-      );
+        SimplyServersAPI.logger.verbose("Updated info for node " + node._id);
+      })
+    );
   };
 }
