@@ -12,7 +12,8 @@ import { UserController } from "./controllers/admin/userController";
 import { AuthController } from "./controllers/user/authController";
 import { ControlsController } from "./controllers/user/gameserver/controlsController";
 import { FsController } from "./controllers/user/gameserver/fsController";
-import { ProfileController } from "./controllers/user/profileController";
+import { PowerController } from "./controllers/user/gameserver/powerController";
+// import { ProfileController } from "./controllers/user/profileController";
 import { Passport } from "./passport";
 
 export class APIServer {
@@ -179,8 +180,11 @@ export class APIServer {
       const userController = new UserController();
       userController.initRoutes(router);
 
-      const profileController = new ProfileController();
-      profileController.initRoutes(router);
+      // const profileController = new ProfileController();
+      // profileController.initRoutes(router);
+      
+      const powerController = new PowerController();
+      powerController.initRoutes(router);
 
       const fsController = new FsController();
       fsController.initRoutes(router);
