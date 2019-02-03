@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { check } from "express-validator/check";
 import { Storage } from "../../../../database/storage";
 import { Models } from "../../../../types/models";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
