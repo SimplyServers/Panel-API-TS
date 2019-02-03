@@ -10,6 +10,7 @@ import { pre, prop, Typegoose } from "typegoose";
 
 export default class ServerNode extends Typegoose {
     @prop()
+    /* tslint:disable:variable-name */
     public _id?: Types.ObjectId;
     @prop()
     public ip: string;

@@ -6,46 +6,46 @@ import { SimplyServersAPI } from "../../ssapi";
 import { Models } from "../../types/models";
 import { Storage } from "../storage";
 
-@pre<User>('save', async function (next) {
+@pre<User>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-
-export default class User extends Typegoose{
+export default class User extends Typegoose {
   @prop()
+  /* tslint:disable:variable-name */
   public _id?: Types.ObjectId;
   @prop()
   public game_info: {
     minecraft: {
-      uuid?: string,
-      username?: string,
-      boughtPlugins?: string[]
-    },
+      uuid?: string;
+      username?: string;
+      boughtPlugins?: string[];
+    };
     steam: {
-      steamID?: string,
-      username?: string
-    }
+      steamID?: string;
+      username?: string;
+    };
   };
 
   @prop()
   public account_info: {
-    username: string,
-    email: string,
-    group?: string,
-    primaryName?: string,
+    username: string;
+    email: string;
+    group?: string;
+    primaryName?: string;
     password: {
-      hash?: string
-    },
+      hash?: string;
+    };
     resetPassword: {
-      resetKey?: string,
-      resetExpire?: Date
-    },
+      resetKey?: string;
+      resetExpire?: Date;
+    };
     accountVerify: {
-      accountVerified?: boolean,
-      verifyKey?: string
-    }
+      accountVerified?: boolean;
+      verifyKey?: string;
+    };
   };
 
   @prop()
@@ -58,16 +58,16 @@ export default class User extends Typegoose{
     }
     this.balance -= credits;
     return true;
-  };
+  }
 
   @instanceMethod
   public async setPassword(password: string) {
     const salt = await bcrypt.genSalt(10);
     this.account_info.password.hash = await bcrypt.hash(password, salt);
-  };
+  }
 
   @instanceMethod
-  public async getAuthJSON(){
+  public async getAuthJSON() {
     const returnData = {
       token: this.generateJWT(),
       email: this.account_info.email,
@@ -78,17 +78,20 @@ export default class User extends Typegoose{
       group: ""
     };
 
-    if(this.account_info.group && this.account_info.group !== "") {
-      returnData.group = await Storage.getItem(Models.Group, this.account_info.group)
+    if (this.account_info.group && this.account_info.group !== "") {
+      returnData.group = await Storage.getItem({
+        model: Models.Group,
+        id: this.account_info.group
+      });
     }
 
     return returnData;
-  };
+  }
 
   @instanceMethod
   public async validatePassword(password: string) {
     return await bcrypt.compare(password, this.account_info.password.hash);
-  };
+  }
 
   @instanceMethod
   public generateJWT() {
@@ -104,5 +107,5 @@ export default class User extends Typegoose{
       },
       SimplyServersAPI.config.web.JWTSecret
     );
-  };
+  }
 }

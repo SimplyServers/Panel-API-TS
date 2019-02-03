@@ -9,7 +9,7 @@ export class AuthMiddleware {
     let user;
     let group;
     try {
-      user = await Storage.getItem(Models.User, req.payload.id);
+      user = await Storage.getItem({ model: Models.User, id: req.payload.id });
       if (!user.account_info.group || user.account_info.group === "") {
         return next(
           new ActionFailed(
@@ -18,7 +18,10 @@ export class AuthMiddleware {
           )
         );
       }
-      group = await Storage.getItem(Models.Group, user.account_info.group);
+      group = await Storage.getItem({
+        model: Models.Group,
+        id: user.account_info.group
+      });
     } catch (e) {
       return next(e);
     }
@@ -34,7 +37,7 @@ export class AuthMiddleware {
     let user;
     let group;
     try {
-      user = await Storage.getItem(Models.User, req.payload.id);
+      user = await Storage.getItem({ model: Models.User, id: req.payload.id });
       if (!user.account_info.group || user.account_info.group === "") {
         return next(
           new ActionFailed(
@@ -43,7 +46,10 @@ export class AuthMiddleware {
           )
         );
       }
-      group = await Storage.getItem(Models.Group, user.account_info.group);
+      group = await Storage.getItem({
+        model: Models.Group,
+        id: user.account_info.group
+      });
     } catch (e) {
       return next(e);
     }
@@ -60,7 +66,7 @@ export class AuthMiddleware {
       headers: { authorization }
     } = req;
 
-    console.log("got auth:" +authorization);
+    console.log("got auth:" + authorization);
 
     if (authorization && authorization.split(" ")[0] === "Token") {
       return authorization.split(" ")[1];
@@ -84,9 +90,9 @@ export class AuthMiddleware {
     }),
     optional: jwt({
       secret: AuthMiddleware.getSecret,
-      userProperty: 'payload',
+      userProperty: "payload",
       getToken: AuthMiddleware.getToken,
-      credentialsRequired: false,
+      credentialsRequired: false
     })
   };
   /* tslint:disable:member-ordering */
