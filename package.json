@@ -8,7 +8,8 @@
     "dev": "ts-node ./main.ts",
     "start": "nodemon ./main.ts",
     "lint": "tslint -c tslint.json -e './node_modules/' --project './src' --fix",
-    "prod": "npm run build && npm run start"
+    "prod": "npm run build && npm run start",
+    "debug:mac": "node --inspect -r ts-node/register main.ts"
   },
   "repository": {
     "type": "git",
