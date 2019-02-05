@@ -1,12 +1,12 @@
-import { Models } from "../types/models";
+import { Models } from "../types/Models";
 import { ActionFailed } from "../util/errors/ActionFailed";
-import GameServer from "./models/gameServer";
-import Group from "./models/group";
-import MinecraftPlugin from "./models/minecraftPlugin";
-import MinecraftProperties from "./models/minecraftProperties";
-import ServerNode from "./models/node";
-import Preset from "./models/preset";
-import User from "./models/user";
+import GameServer from "./models/GameServer";
+import Group from "./models/Group";
+import MinecraftPlugin from "./models/MinecraftPlugin";
+import MinecraftProperties from "./models/MinecraftProperties";
+import ServerNode from "./models/ServerNode";
+import Preset from "./models/Preset";
+import User from "./models/User";
 
 import * as mongoose from "mongoose";
 

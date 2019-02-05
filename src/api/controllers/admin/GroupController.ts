@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Group from "../../../database/models/group";
-import { Storage } from "../../../database/storage";
-import { Models } from "../../../types/models";
+import Group from "../../../database/models/Group";
+import { Storage } from "../../../database/Storage";
+import { Models } from "../../../types/Models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
-import { Validators } from "../../../util/validators";
-import { AuthMiddleware } from "../../middleware/auth";
+import { Validators } from "../../../util/Validators";
+import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
 export class GroupController implements IController {

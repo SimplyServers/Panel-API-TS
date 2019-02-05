@@ -4,17 +4,17 @@ import * as fs from "fs-extra";
 import * as http from "http";
 import * as https from "https";
 import * as SocketIO from "socket.io";
-import { SimplyServersAPI } from "../ssapi";
-import { GroupController } from "./controllers/admin/groupController";
-import { NodeController } from "./controllers/admin/nodeController";
-import { PresetController } from "./controllers/admin/presetController";
-import { UserController } from "./controllers/admin/userController";
-import { AuthController } from "./controllers/user/authController";
-import { ControlsController } from "./controllers/user/gameserver/controlsController";
-import { FsController } from "./controllers/user/gameserver/fsController";
-import { PowerController } from "./controllers/user/gameserver/powerController";
-// import { ProfileController } from "./controllers/user/profileController";
-import { Passport } from "./passport";
+import { SimplyServersAPI } from "../SimplyServersAPI";
+import { GroupController } from "./controllers/admin/GroupController";
+import { NodeController } from "./controllers/admin/NodeController";
+import { PresetController } from "./controllers/admin/PresetController";
+import { UserController } from "./controllers/admin/UserController";
+import { AuthController } from "./controllers/user/AuthController";
+import { ControlsController } from "./controllers/user/gameserver/ControlsController";
+import { FSController } from "./controllers/user/gameserver/FSController";
+import { PowerController } from "./controllers/user/gameserver/PowerController";
+import { ProfileController } from "./controllers/user/ProfileController";
+import { Passport } from "./Passport";
 
 export class APIServer {
   public express;
@@ -180,13 +180,13 @@ export class APIServer {
       const userController = new UserController();
       userController.initRoutes(router);
 
-      // const profileController = new ProfileController();
-      // profileController.initRoutes(router);
+      const profileController = new ProfileController();
+      profileController.initRoutes(router);
       
       const powerController = new PowerController();
       powerController.initRoutes(router);
 
-      const fsController = new FsController();
+      const fsController = new FSController();
       fsController.initRoutes(router);
 
       this.express.use('/api/v1/', router);

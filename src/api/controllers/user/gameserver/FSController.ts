@@ -1,17 +1,17 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
-import Preset from "../../../../database/models/preset";
-import { Storage } from "../../../../database/storage";
-import { Models } from "../../../../types/models";
+import Preset from "../../../../database/models/Preset";
+import { Storage } from "../../../../database/Storage";
+import { Models } from "../../../../types/Models";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
-import { NodeInterface } from "../../../../util/nodeInterface";
-import { AuthMiddleware } from "../../../middleware/auth";
-import { GetServerMiddleware } from "../../../middleware/getServer";
+import { NodeInterface } from "../../../../util/NodeInterface";
+import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
+import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
 
 import * as path from "path";
 
-export class FsController implements IController {
+export class FSController implements IController {
   public initRoutes(router: Router): void {
     router.post(
       "/server/:server/fs/checkAllowed",

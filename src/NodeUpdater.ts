@@ -1,7 +1,7 @@
-import { Storage } from "./database/storage";
-import { SimplyServersAPI } from "./ssapi";
-import { Models } from "./types/models";
-import { NodeInterface } from "./util/nodeInterface";
+import { Storage } from "./database/Storage";
+import { SimplyServersAPI } from "./SimplyServersAPI";
+import { Models } from "./types/Models";
+import { NodeInterface } from "./util/NodeInterface";
 
 export class NodeUpdater {
   public enabled: boolean;

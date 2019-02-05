@@ -1,3 +1,3 @@
-import {SimplyServersAPI} from "./src/ssapi";
+import {SimplyServersAPI} from "./src/SimplyServersAPI";
 
 new SimplyServersAPI();

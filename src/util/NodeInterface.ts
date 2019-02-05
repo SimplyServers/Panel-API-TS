@@ -1,8 +1,8 @@
 import * as querystring from "querystring";
 import * as request from "request-promise";
 import urlJoin = require("url-join");
-import GameServer from "../database/models/gameServer";
-import ServerNode from "../database/models/node";
+import GameServer from "../database/models/GameServer";
+import ServerNode from "../database/models/ServerNode";
 
 import { ActionFailed } from "./errors/ActionFailed";
 

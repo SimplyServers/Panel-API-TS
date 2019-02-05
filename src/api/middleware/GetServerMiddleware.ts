@@ -1,5 +1,5 @@
-import { Storage } from "../../database/storage";
-import { Models } from "../../types/models";
+import { Storage } from "../../database/Storage";
+import { Models } from "../../types/Models";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class GetServerMiddleware {

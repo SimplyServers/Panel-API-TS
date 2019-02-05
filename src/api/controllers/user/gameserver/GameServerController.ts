@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { IController } from "../../IController";
 
-export class GameserverController implements IController{
+export class GameServerController implements IController{
   public initRoutes(router: Router): void {
 
   }

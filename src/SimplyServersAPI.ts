@@ -1,15 +1,11 @@
 import * as mongoose from "mongoose";
 
 import * as configData from "../config.json";
-import { APIServer } from "./api/server";
-import ServerNode from "./database/models/node";
-import User from "./database/models/user";
-import { Storage } from "./database/storage";
-import { NodeUpdater } from "./nodeUpdater";
+import { APIServer } from "./api/APIServer";
+import { NodeUpdater } from "./NodeUpdater";
 
 import { IConfig } from "./types/IConfig";
-import { Models } from "./types/models";
-import { Logger } from "./util/logger";
+import { Logger } from "./util/Logger";
 
 export class SimplyServersAPI{
     public static logger: Logger;

@@ -1,5 +1,5 @@
 import * as request from "request-promise";
-import { SimplyServersAPI } from "../ssapi";
+import { SimplyServersAPI } from "../SimplyServersAPI";
 
 export class Captcha {
   public static checkValid = async (ip: string, key: string): Promise<boolean> => {

@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as winston from 'winston';
-import {SimplyServersAPI} from "../ssapi";
+import {SimplyServersAPI} from "../SimplyServersAPI";
 
 class Logger {
 

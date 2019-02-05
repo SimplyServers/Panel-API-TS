@@ -2,9 +2,9 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { Types } from "mongoose";
 import { instanceMethod, pre, prop, Typegoose } from "typegoose";
-import { SimplyServersAPI } from "../../ssapi";
-import { Models } from "../../types/models";
-import { Storage } from "../storage";
+import { SimplyServersAPI } from "../../SimplyServersAPI";
+import { Models } from "../../types/Models";
+import { Storage } from "../Storage";
 
 @pre<User>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
