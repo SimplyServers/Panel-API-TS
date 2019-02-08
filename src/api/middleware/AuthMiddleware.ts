@@ -1,7 +1,7 @@
 import * as jwt from "express-jwt";
-import { Storage } from "../../database/storage";
-import { SimplyServersAPI } from "../../ssapi";
-import { Models } from "../../types/models";
+import { Storage } from "../../database/Storage";
+import { SimplyServersAPI } from "../../SimplyServersAPI";
+import { Models } from "../../types/Models";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class AuthMiddleware {

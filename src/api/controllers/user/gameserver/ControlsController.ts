@@ -1,13 +1,13 @@
 import { Router } from "express";
 
 import { check, validationResult } from "express-validator/check";
-import { Storage } from "../../../../database/storage";
-import { Models } from "../../../../types/models";
+import { Storage } from "../../../../database/Storage";
+import { Models } from "../../../../types/Models";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
-import { NodeInterface } from "../../../../util/nodeInterface";
-import { AuthMiddleware } from "../../../middleware/auth";
-import { GetServerMiddleware } from "../../../middleware/getServer";
+import { NodeInterface } from "../../../../util/NodeInterface";
+import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
+import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
 
 export class ControlsController implements IController{

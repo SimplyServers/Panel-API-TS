@@ -1,7 +1,7 @@
 import * as passport from "passport";
 import passportLocal = require("passport-local");
-import { Storage } from "../database/storage";
-import { Models } from "../types/models";
+import { Storage } from "../database/Storage";
+import { Models } from "../types/Models";
 
 export class Passport {
   public static bootstrap = () => {

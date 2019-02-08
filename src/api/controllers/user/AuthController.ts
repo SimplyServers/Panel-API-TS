@@ -2,11 +2,11 @@ import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
 import * as passport from "passport";
 import * as zxcvbn from "zxcvbn";
-import User from "../../../database/models/user";
+import User from "../../../database/models/User";
 
-import { Storage } from "../../../database/storage";
-import { SimplyServersAPI } from "../../../ssapi";
-import { Models } from "../../../types/models";
+import { Storage } from "../../../database/Storage";
+import { SimplyServersAPI } from "../../../SimplyServersAPI";
+import { Models } from "../../../types/Models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { IController } from "../IController";

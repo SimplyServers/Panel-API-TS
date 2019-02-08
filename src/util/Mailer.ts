@@ -1,7 +1,7 @@
 import * as nodeMailer from "nodemailer";
 import * as Mail from "nodemailer/lib/mailer";
 
-import { SimplyServersAPI } from "../ssapi";
+import { SimplyServersAPI } from "../SimplyServersAPI";
 
 export class Mailer{
 

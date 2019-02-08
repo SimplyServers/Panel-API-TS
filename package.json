@@ -8,7 +8,8 @@
     "dev": "ts-node ./main.ts",
     "start": "nodemon ./main.ts",
     "lint": "tslint -c tslint.json -e './node_modules/' --project './src' --fix",
-    "prod": "npm run build && npm run start"
+    "prod": "npm run build && npm run start",
+    "debug:mac": "NODE_ENV=dev DEBUG=* node --inspect -r ts-node/register main.ts"
   },
   "repository": {
     "type": "git",
@@ -69,6 +70,7 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^5.0.1",
     "querystring": "^0.2.0",
+    "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",

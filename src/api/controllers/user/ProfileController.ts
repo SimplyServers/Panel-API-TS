@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { Storage } from "../../../database/storage";
-import { Models } from "../../../types/models";
-import { AuthMiddleware } from "../../middleware/auth";
+import { Storage } from "../../../database/Storage";
+import { Models } from "../../../types/Models";
+import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
 export class ProfileController implements IController {

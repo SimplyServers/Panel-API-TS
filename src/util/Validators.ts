@@ -1,4 +1,4 @@
-import { Storage } from "../database/storage";
+import { Storage } from "../database/Storage";
 import { ValidationError } from "./errors/ValidationError";
 
 export class Validators {

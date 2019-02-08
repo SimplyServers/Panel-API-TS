@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Node from "../../../database/models/node";
-import { Storage } from "../../../database/storage";
-import { Models } from "../../../types/models";
+import Node from "../../../database/models/ServerNode";
+import { Storage } from "../../../database/Storage";
+import { Models } from "../../../types/Models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
-import { AuthMiddleware } from "../../middleware/auth";
+import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
 export class NodeController implements IController {
