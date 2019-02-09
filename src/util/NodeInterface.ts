@@ -115,7 +115,7 @@ export class NodeInterface {
     return await this.get("/plugin");
   };
 
-  public add = async (server: GameServer, config: any, password: string) => {
+  public add = async (config: any, password: string) => {
     return await this.post("/server/add", { config, password });
   };
 
