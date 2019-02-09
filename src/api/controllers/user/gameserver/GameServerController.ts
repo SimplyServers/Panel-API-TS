@@ -1,14 +1,21 @@
+import * as crypto from "crypto";
 import { Router } from "express";
 import { check } from "express-validator/check";
+import GameServer from "../../../../database/models/GameServer";
+import MinecraftProperties from "../../../../database/models/MinecraftProperties";
+import Node from "../../../../database/models/ServerNode";
 import { Storage } from "../../../../database/Storage";
+import { SimplyServersAPI } from "../../../../SimplyServersAPI";
 import { Models } from "../../../../types/Models";
+import { Captcha } from "../../../../util/Captcha";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
+import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
 
-export class GameserverController implements IController{
+export class GameserverController implements IController {
   public initRoutes(router: Router): void {
     router.post(
       "/server/:server/changePreset",
@@ -21,16 +28,366 @@ export class GameserverController implements IController{
       ],
       this.changePreset
     );
-    router.get(
-      "/server/:server/remove",
+    router.post(
+      "/server/:server/addSubuser",
       [
         AuthMiddleware.jwtAuth.required,
-        GetServerMiddleware.serverOwnerAccess,
+        GetServerMiddleware.serverBasicAccess,
+        check("email").exists(),
+        check("email").isLength({ max: 50 }),
+        check("email").isEmail(),
+        check("email").normalizeEmail(),
       ],
+      this.addSubuser
+    );
+    router.post(
+      "/server/:server/removeSubuser",
+      [
+        AuthMiddleware.jwtAuth.required,
+        GetServerMiddleware.serverBasicAccess,
+        check("id").exists(),
+        check("id").isLength({ max: 50 }),
+        check("id").isString()
+      ],
+      this.removeSubuser
+    );
+    router.post(
+      "/server/add",
+      [
+        AuthMiddleware.jwtAuth.required,
+        check("captcha").exists(),
+        check("captcha").isLength({ max: 80 }),
+        check("captcha").isString(),
+        check("preset").exists(),
+        check("preset").isLength({ max: 50 }),
+        check("preset").isString(),
+        check("motd").exists(),
+        check("motd").isLength({ max: 20 }),
+        check("motd").isString(),
+        check("name").exists(),
+        check("name").isLength({ max: 10 }),
+        check("name").isString(),
+        check("name").isAlphanumeric()
+      ],
+      this.changePreset
+    );
+    router.get(
+      "/server/:server/remove",
+      [AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverOwnerAccess],
       this.removeServer
     );
+  }
+
+  public removeSubuser = async (req, res, next) => {
+    let targetUser;
+    try{
+      targetUser = await Storage.getItem({
+        model: Models.User,
+        id: req.body.id
+      });
+    }catch (e) {
+      return next(e);
+    }
+
+    const userIndex = req.server.sub_owners.indexOf(targetUser._id);
+    if (!(userIndex > -1)) {
+      return next(new ActionFailed('User is not an subuser.', true));
+    }
+
+    req.server.sub_owners.splice(userIndex, 1);
+
+    try {
+      await req.server.save();
+    } catch (e) {
+      return next(new ActionFailed('Failed save server.', false));
+    }
+
+    return res.json({});
   };
 
+  public addSubuser = async (req, res, next) => {
+    let targetUser;
+    try{
+      targetUser = await Storage.getItemByCon({
+        model: Models.User,
+        condition: {
+          "account_info.email": req.body.email
+        }
+      });
+    }catch (e) {
+      return next(e);
+    }
+
+    if (req.server.sub_owners.indexOf(targetUser._id) > -1) {
+      return next(new ActionFailed('User is already an subuser.', true));
+    }
+
+    if (req.server.owner === targetUser._id.toString()) {
+      return next(new ActionFailed('The server owner is not a valid subuser.', true));
+    }
+
+    req.server.sub_owners.push(targetUser._id);
+
+    try {
+      await req.server.save();
+    } catch (e) {
+      return next(new ActionFailed('Failed save server.', false));
+    }
+
+    return res.json({});
+  };
+
+  public addServer = async (req, res, next) => {
+    if (
+      process.env.NODE_ENV !== "dev" &&
+      Captcha.checkValid(req.connection.remoteAddress, req.body.captcha)
+    ) {
+      return next(
+        new ValidationError({
+          location: "body",
+          param: "email",
+          msg: "Captcha is incorrect"
+        })
+      );
+    }
+
+    let exisitngServers;
+    let decidedNode;
+    let preset;
+    let nodes;
+    let group;
+    let user;
+    try {
+      exisitngServers = await Storage.getItems({
+        model: Models.GameServer,
+        condition: {
+          $or: [
+            {
+              name: req.body.name
+            },
+            {
+              owner: req.payload.id
+            }
+          ]
+        }
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    if (exisitngServers.length !== 0) {
+      if (exisitngServers[0].name.toString() === req.body.name.toString()) {
+        return next(
+          new ValidationError({
+            location: "body",
+            param: "name",
+            msg: "Name already assigned"
+          })
+        );
+      } else if (
+        exisitngServers[0].owner.toString() === req.payload.id.toString()
+      ) {
+        return next(new ActionFailed("You already own a server.", true));
+      }
+      return next(new ActionFailed("Value already exists", true));
+    }
+
+    try {
+      const getUser = Storage.getItem({
+        model: Models.User,
+        id: req.payload.id
+      });
+      const getPreset = Storage.getItem({
+        model: Models.Preset,
+        id: req.body.preset
+      });
+      const getNodes = Storage.getAll({
+        model: Models.Node
+      });
+
+      user = await getUser;
+      preset = await getPreset;
+      nodes = await getNodes;
+
+      group = await Storage.getItem({
+        model: Models.Group,
+        id: user.account_info.group
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    // Check if the user has access to preset
+    if (!(group.presetsAllowed.indexOf(req.body.payload) > -1)) {
+      return next(new ActionFailed("You don't have permissions.", true));
+    }
+
+    // Check if there are no nodes
+    if (nodes.length < 1) {
+      return next(new ActionFailed("No available nodes", false));
+    }
+
+    // THIS IS THE CODE THAT GETS A RANDOMIZED NODE THAT HAS FREE DISK STORAGE ON IT
+    // THIS IS JANKY AF SO HELP PLZ
+
+    const shuffledNodes = nodes
+      .map(a => [Math.random(), a])
+      .sort((a, b) => a[0] - b[0])
+      .map(a => a[1]);
+
+    let found = false;
+
+    shuffledNodes.map(nodeModal => {
+      if (found) {
+        return;
+      }
+      if (
+        nodeModal.games.find(game => game.name === preset.game) !== undefined
+      ) {
+        if (!nodeModal.status.freedisk || !nodeModal.status.totaldisk) {
+          SimplyServersAPI.logger.info(
+            "Node " + nodeModal._id + " is too new."
+          );
+        } else {
+          if (nodeModal.status.freedisk / nodeModal.status.totaldisk < 0.8) {
+            // At 80%
+            decidedNode = new nodeModal();
+            found = true;
+          } else {
+            SimplyServersAPI.logger.info(
+              "Node " +
+                nodeModal._id +
+                " is stressed (" +
+                nodeModal.status.freedisk / nodeModal.status.totaldisk +
+                ")"
+            );
+          }
+        }
+      }
+    });
+
+    // Make sure node is not undefined.
+    if (!found || !decidedNode) {
+      return next(new ActionFailed("No available nodes for game", true));
+    }
+
+    // Generate new password
+    const sftpPwd = crypto
+      .randomBytes(Math.ceil(15 / 2))
+      .toString("hex")
+      .slice(0, 15);
+
+    // Create the user
+    const ServerModal = new GameServer().getModelForClass(GameServer);
+
+    const newServer = new ServerModal({
+      owner: req.payload.id,
+      sub_owners: [],
+      preset: req.body.preset,
+      timeOnline: 0,
+      online: false,
+      nodeInstalled: decidedNode._id, // ITS BEEN INITIALIZED DUMBASS
+      motd: req.body.motd,
+      sftpPassword: sftpPwd,
+      port: 0,
+      name: req.body.name,
+      special: {
+        minecraftPlugins: []
+      }
+    });
+
+    try {
+      await newServer.save();
+    } catch (e) {
+      return next(new ActionFailed("Failed save server.", false));
+    }
+
+    const serverTemplateConfig = {
+      id: newServer._id,
+      game: preset.game,
+      port: -1,
+      build: {
+        io: preset.build.io,
+        cpu: preset.build.cpu,
+        mem: preset.build.mem
+      },
+      players: preset.maxPlayers
+    };
+
+    // Create manager config
+    const nodeInterface = new NodeInterface(decidedNode);
+
+    let createData;
+    try {
+      createData = await nodeInterface.add(
+        JSON.stringify(serverTemplateConfig),
+        sftpPwd
+      );
+    } catch (e) {
+      try {
+        await newServer.remove();
+        return next(
+          new ActionFailed("Failed to add server to selected node", false)
+        );
+      } catch (e) {
+        return next(new ActionFailed("Failed recovering from fallback", false));
+      }
+    }
+
+    // Update server port from data
+    newServer.port = createData.server.port;
+
+    try {
+      await newServer.save();
+    } catch (e) {
+      return next(new ActionFailed("Failed updating server port", false));
+    }
+
+    // (if its a Minecraft server) update minecraft_properties
+    if (preset.special.views.indexOf("minecraft_properties_viewer") > -1) {
+      // Create the user
+      const MinecraftPropertiesModal = new MinecraftProperties().getModelForClass(
+        MinecraftProperties
+      );
+
+      const serverProperties = new MinecraftPropertiesModal({
+        server: newServer._id,
+        settings: {
+          spawnprotection: 16,
+          allownether: true,
+          gamemode: 0,
+          difficulty: 1,
+          spawnmonsters: true,
+          pvp: true,
+          hardcore: false,
+          allowflight: false,
+          resourcepack: "",
+          whitelist: false
+        }
+      });
+
+      try {
+        await serverProperties.save();
+      } catch (e) {
+        return next(new ActionFailed("Failed save server properties.", false));
+      }
+    }
+
+    // Install any preinstalled plugins specified
+    if (preset.preinstalledPlugins) {
+      await Promise.all(
+        preset.preinstalledPlugins.map(async value => {
+          try {
+            await nodeInterface.installPlugin(newServer._id, value);
+          } catch (e) {
+            SimplyServersAPI.logger.error("Server plugin install failed: " + e);
+          }
+        })
+      );
+    }
+
+    return res.json({});
+  };
 
   public changePreset = async (req, res, next) => {
     let node;
@@ -39,7 +396,7 @@ export class GameserverController implements IController{
     let group;
     let newPreset;
 
-    try{
+    try {
       const getUsers = Storage.getItem({
         model: Models.User,
         id: req.payload.id
@@ -65,15 +422,14 @@ export class GameserverController implements IController{
       group = await Storage.getItem({
         model: Models.Group,
         id: user.account_info.group
-      })
-
-    }catch (e) {
+      });
+    } catch (e) {
       return next(e);
     }
 
     // Check to see if preset is compatible.
     if (!(preset.allowSwitchingTo.indexOf(req.body.preset) > -1)) {
-      return next(new ActionFailed('Preset not allowed.', true));
+      return next(new ActionFailed("Preset not allowed.", true));
     }
 
     if (!(group.presetsAllowed.indexOf(req.body.preset) > -1)) {
@@ -81,23 +437,26 @@ export class GameserverController implements IController{
     }
 
     if (req.body.preset === req.server.preset) {
-      return next(new ActionFailed('This is already your preset.', true));
+      return next(new ActionFailed("This is already your preset.", true));
     }
 
     // Contact node
     const nodeInterface = new NodeInterface(node);
 
-    try{
-      await nodeInterface.edit(req.server, JSON.stringify({
-        build: {
-          io: newPreset.build.io,
-          mem: newPreset.build.mem,
-          cpu: newPreset.build.cpu
-        },
-        players: newPreset.maxPlayers,
-        game: newPreset.game
-      }));
-    }catch (e) {
+    try {
+      await nodeInterface.edit(
+        req.server,
+        JSON.stringify({
+          build: {
+            io: newPreset.build.io,
+            mem: newPreset.build.mem,
+            cpu: newPreset.build.cpu
+          },
+          players: newPreset.maxPlayers,
+          game: newPreset.game
+        })
+      );
+    } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
           return next(new ActionFailed("Server is locked.", true));
@@ -113,7 +472,7 @@ export class GameserverController implements IController{
     try {
       await req.server.save();
     } catch (e) {
-      return next(new ActionFailed('Failed save server.', false));
+      return next(new ActionFailed("Failed save server.", false));
     }
 
     return res.json({});
@@ -121,21 +480,21 @@ export class GameserverController implements IController{
 
   public removeServer = async (req, res, next) => {
     let node;
-    try{
+    try {
       node = await Storage.getItem({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
 
     // Contact node
     const nodeInterface = new NodeInterface(node);
 
-    try{
+    try {
       await nodeInterface.remove(req.server);
-    }catch (e) {
+    } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
           return next(new ActionFailed("Server is locked.", true));
@@ -146,13 +505,12 @@ export class GameserverController implements IController{
       }
     }
 
-    try{
+    try {
       req.server.remove();
-    }catch (e) {
-      return next(new ActionFailed('Failed remove server.', false));
+    } catch (e) {
+      return next(new ActionFailed("Failed remove server.", false));
     }
 
     return res.json({});
   };
-
 }

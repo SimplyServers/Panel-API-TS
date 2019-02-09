@@ -12,6 +12,7 @@ import { UserController } from "./controllers/admin/UserController";
 import { AuthController } from "./controllers/user/AuthController";
 import { ControlsController } from "./controllers/user/gameserver/ControlsController";
 import { FSController } from "./controllers/user/gameserver/FSController";
+import { GameserverController } from "./controllers/user/gameserver/GameServerController";
 import { PowerController } from "./controllers/user/gameserver/PowerController";
 import { ProfileController } from "./controllers/user/ProfileController";
 import { Passport } from "./Passport";
@@ -152,43 +153,51 @@ export class APIServer {
 
     // Listen on the HTTP/HTTPS port
     this.http.listen(SimplyServersAPI.config.web.ports.http);
-    if(this.https) {
+    if (this.https) {
       this.https.listen(SimplyServersAPI.config.web.ports.https);
     }
 
-    SimplyServersAPI.logger.info("API server done loading. HTTP: " + SimplyServersAPI.config.web.ports.http + ", HTTPS: " + SimplyServersAPI.config.web.ports.https);
+    SimplyServersAPI.logger.info(
+      "API server done loading. HTTP: " +
+        SimplyServersAPI.config.web.ports.http +
+        ", HTTPS: " +
+        SimplyServersAPI.config.web.ports.https
+    );
   };
 
   private mountRoutes = (): void => {
-      const router = express.Router();
+    const router = express.Router();
 
-      const controlsController = new ControlsController();
-      controlsController.initRoutes(router);
+    const controlsController = new ControlsController();
+    controlsController.initRoutes(router);
 
-      const authController = new AuthController();
-      authController.initRoutes(router);
+    const authController = new AuthController();
+    authController.initRoutes(router);
 
-      const groupController = new GroupController();
-      groupController.initRoutes(router);
+    const groupController = new GroupController();
+    groupController.initRoutes(router);
 
-      const nodeController = new NodeController();
-      nodeController.initRoutes(router);
+    const nodeController = new NodeController();
+    nodeController.initRoutes(router);
 
-      const presetController = new PresetController();
-      presetController.initRoutes(router);
+    const presetController = new PresetController();
+    presetController.initRoutes(router);
 
-      const userController = new UserController();
-      userController.initRoutes(router);
+    const userController = new UserController();
+    userController.initRoutes(router);
 
-      const profileController = new ProfileController();
-      profileController.initRoutes(router);
-      
-      const powerController = new PowerController();
-      powerController.initRoutes(router);
+    const profileController = new ProfileController();
+    profileController.initRoutes(router);
 
-      const fsController = new FSController();
-      fsController.initRoutes(router);
+    const powerController = new PowerController();
+    powerController.initRoutes(router);
 
-      this.express.use('/api/v1/', router);
+    const fsController = new FSController();
+    fsController.initRoutes(router);
+
+    const gameServerController = new GameserverController();
+    gameServerController.initRoutes(router);
+
+    this.express.use("/api/v1/", router);
   };
 }
