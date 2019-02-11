@@ -69,7 +69,7 @@ export class GameserverController implements IController {
         check("name").isString(),
         check("name").isAlphanumeric()
       ],
-      this.changePreset
+      this.addServer
     );
     router.get(
       "/server/:server/remove",
@@ -229,7 +229,6 @@ export class GameserverController implements IController {
 
     // THIS IS THE CODE THAT GETS A RANDOMIZED NODE THAT HAS FREE DISK STORAGE ON IT
     // THIS IS JANKY AF SO HELP PLZ
-
     const shuffledNodes = nodes
       .map(a => [Math.random(), a])
       .sort((a, b) => a[0] - b[0])
