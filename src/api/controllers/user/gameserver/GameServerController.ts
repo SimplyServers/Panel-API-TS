@@ -52,6 +52,28 @@ export class GameserverController implements IController {
       this.removeSubuser
     );
     router.post(
+      "/server/:server/installPlugin",
+      [
+        AuthMiddleware.jwtAuth.required,
+        GetServerMiddleware.serverBasicAccess,
+        check("plugin").exists(),
+        check("plugin").isLength({ max: 50 }),
+        check("plugin").isString()
+      ],
+      this.installPlugin
+    );
+    router.post(
+      "/server/:server/removePlugin",
+      [
+        AuthMiddleware.jwtAuth.required,
+        GetServerMiddleware.serverBasicAccess,
+        check("plugin").exists(),
+        check("plugin").isLength({ max: 50 }),
+        check("plugin").isString()
+      ],
+      this.removePlugin
+    );
+    router.post(
       "/server/add",
       [
         AuthMiddleware.jwtAuth.required,
@@ -77,6 +99,74 @@ export class GameserverController implements IController {
       this.removeServer
     );
   }
+
+  public installPlugin = async (req, res, next) => {
+    let node;
+    try {
+      node = await Storage.getItem({
+        model: Models.Node,
+        id: req.server.nodeInstalled
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    // Contact node
+    const nodeInterface = new NodeInterface(node);
+
+    try {
+      await nodeInterface.installPlugin(req.server, req.body.plugin);
+    } catch (e) {
+      switch (NodeInterface.niceHandle(e)) {
+        case "PLUGIN_INSTALLED":
+          return next(new ActionFailed("Plugin already installed.", true));
+        case "INVALID_PLUGIN":
+          return next(new ActionFailed("Plugin does not exist.", true));
+        case "PLUGIN_NOT_SUPPORTED":
+          return next(new ActionFailed("Plugin not supported.", true));
+        case "SERVER_NOT_OFF":
+          return next(new ActionFailed("Server is not off.", true));
+        case "SERVER_LOCKED":
+          return next(new ActionFailed("Server is locked.", true));
+        default:
+          return next(new ActionFailed("Unknown error.", true));
+      }
+    }
+
+    return res.json({});
+  };
+
+  public removePlugin = async (req, res, next) => {
+    let node;
+    try {
+      node = await Storage.getItem({
+        model: Models.Node,
+        id: req.server.nodeInstalled
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    // Contact node
+    const nodeInterface = new NodeInterface(node);
+
+    try {
+      await nodeInterface.removePlugin(req.server, req.body.plugin);
+    } catch (e) {
+      switch (NodeInterface.niceHandle(e)) {
+        case "PLUGIN_NOT_INSTALLED":
+          return next(new ActionFailed("Plugin is not installed.", true));
+        case "SERVER_NOT_OFF":
+          return next(new ActionFailed("Server is not off.", true));
+        case "SERVER_LOCKED":
+          return next(new ActionFailed("Server is locked.", true));
+        default:
+          return next(new ActionFailed("Unknown error.", true));
+      }
+    }
+
+    return res.json({});
+  };
 
   public removeSubuser = async (req, res, next) => {
     let targetUser;
