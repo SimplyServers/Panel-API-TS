@@ -131,7 +131,7 @@ export class Storage {
   };
 
   // https://github.com/vkarpov15/mongo-sanitize/blob/master/index.js
-  public static mongoSterlize(condition: object) {
+  public static mongoSterlize(condition: any) {
     if (condition instanceof Object) {
       for (const key in condition) {
         if (/^\$/.test(key)) {

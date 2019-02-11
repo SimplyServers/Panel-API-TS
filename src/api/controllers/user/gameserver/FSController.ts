@@ -12,6 +12,21 @@ import { IController } from "../../IController";
 import * as path from "path";
 
 export class FSController implements IController {
+
+  public static checkViolations = (cPath: string, preset: Preset) => {
+    // The path should always start with a /
+    if (!cPath.startsWith("/")) {
+      cPath = "/" + cPath;
+    }
+
+    // The path should never end with a /
+    if (cPath.endsWith("/")) {
+      cPath = cPath.slice(0, -1);
+    }
+
+    // Check to ensure we're not violating any fs rules
+    return preset.special.fs.find(rule => rule.path === cPath) === undefined;
+  };
   public initRoutes(router: Router): void {
     router.post(
       "/server/:server/fs/checkAllowed",
@@ -109,7 +124,7 @@ export class FSController implements IController {
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!this.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
@@ -158,7 +173,7 @@ export class FSController implements IController {
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!this.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
@@ -210,7 +225,7 @@ export class FSController implements IController {
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!this.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
@@ -258,7 +273,7 @@ export class FSController implements IController {
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!this.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
@@ -306,7 +321,7 @@ export class FSController implements IController {
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!this.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
@@ -355,7 +370,7 @@ export class FSController implements IController {
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!this.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
@@ -389,20 +404,5 @@ export class FSController implements IController {
     });
 
     return res.json({ files });
-  };
-
-  private checkViolations = (cPath: string, preset: Preset) => {
-    // The path should always start with a /
-    if (!cPath.startsWith("/")) {
-      cPath = "/" + cPath;
-    }
-
-    // The path should never end with a /
-    if (cPath.endsWith("/")) {
-      cPath = cPath.slice(0, -1);
-    }
-
-    // Check to ensure we're not violating any fs rules
-    return preset.special.fs.find(rule => rule.path === cPath) === undefined;
   };
 }

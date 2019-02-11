@@ -39,7 +39,7 @@ export class SimplyServersAPI{
 
         // Start updater
         const nodeUpdater = new NodeUpdater();
-        // nodeUpdater.start();
+        nodeUpdater.start();
 
         // Start API
         const apiServer = new APIServer();
