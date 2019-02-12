@@ -94,6 +94,11 @@ export default class User extends Typegoose {
   }
 
   @instanceMethod
+  public checkVerified(){
+    return this.account_info.accountVerify.accountVerified
+  }
+
+  @instanceMethod
   public generateJWT() {
     const today = new Date();
     const expirationDate = new Date(today);

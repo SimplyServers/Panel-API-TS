@@ -10,6 +10,7 @@ import { Models } from "../../../types/Models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { IController } from "../IController";
+import { Mailer } from "../../../util/Mailer";
 
 export class AuthController implements IController {
 
@@ -38,7 +39,6 @@ export class AuthController implements IController {
   }
 
   public register = async (req, res, next) => {
-    console.log("hello");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
@@ -108,7 +108,7 @@ export class AuthController implements IController {
 
     // TODO: GMAIL ARE DUMB
     // // Send them the verify email
-    // const mailer = new Mailer();
+    const mailer = new Mailer();
     // try{
     //   await mailer.sendVerify(newUser.account_info.email, verifyToken)
     // }catch (e) {

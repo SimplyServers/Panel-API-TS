@@ -307,6 +307,11 @@ export class GameserverController implements IController {
       return next(e);
     }
 
+    // Make sure the user is verified
+    if(!user.checkVerified()){
+      return next(new ActionFailed("You must first verify your account.", true));
+    }
+
     // Check if the user has access to preset
     if (!(group.presetsAllowed.indexOf(req.body.payload) > -1)) {
       return next(new ActionFailed("You don't have permissions.", true));
