@@ -17,6 +17,7 @@ import { PowerController } from "./controllers/user/gameserver/PowerController";
 import { ProfileController } from "./controllers/user/ProfileController";
 import { Passport } from "./Passport";
 import { SocketServer } from "./SocketServer";
+import { AnalyticsController } from "./controllers/user/AnalyticsController";
 
 export class APIServer {
   public express;
@@ -202,6 +203,9 @@ export class APIServer {
 
     const gameServerController = new GameserverController();
     gameServerController.initRoutes(router);
+
+    const analyticsController = new AnalyticsController();
+    analyticsController.initRoutes(router);
 
     this.express.use("/api/v1/", router);
   };
