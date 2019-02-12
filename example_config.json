@@ -21,6 +21,7 @@
     "port": 696,
     "from": "change@me.com"
   },
+  "simpleCoreSecret": "CHANGE THIS",
   "defaultGroup": "5bf1194965ee972712fb5a03",
   "socket":  {
     "maxFileSize": 3

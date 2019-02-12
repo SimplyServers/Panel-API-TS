@@ -23,6 +23,7 @@ export interface IConfig {
     }
     defaultGroup: string;
     socket: {
-        maxFileSize: number
-    }
+        maxFileSize: number;
+    },
+    simpleCoreSecret: string;
 }
