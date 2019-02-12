@@ -241,14 +241,14 @@ export class GameserverController implements IController {
       );
     }
 
-    let exisitngServers;
+    let existingServers;
     let decidedNode;
     let preset;
     let nodes;
     let group;
     let user;
     try {
-      exisitngServers = await Storage.getItems({
+      existingServers = await Storage.getItems({
         model: Models.GameServer,
         condition: {
           $or: [
@@ -265,8 +265,8 @@ export class GameserverController implements IController {
       return next(e);
     }
 
-    if (exisitngServers.length !== 0) {
-      if (exisitngServers[0].name.toString() === req.body.name.toString()) {
+    if (existingServers.length !== 0) {
+      if (existingServers[0].name.toString() === req.body.name.toString()) {
         return next(
           new ValidationError({
             location: "body",
@@ -275,7 +275,7 @@ export class GameserverController implements IController {
           })
         );
       } else if (
-        exisitngServers[0].owner.toString() === req.payload.id.toString()
+        existingServers[0].owner.toString() === req.payload.id.toString()
       ) {
         return next(new ActionFailed("You already own a server.", true));
       }
@@ -365,7 +365,9 @@ export class GameserverController implements IController {
       return next(new ActionFailed("No available nodes for game", true));
     }
 
-    // Generate new password
+    // Generate SFTP new password.
+    // This needs to be decently secure but it's not a huge deal.
+    // TODO: unused
     const sftpPwd = crypto
       .randomBytes(Math.ceil(15 / 2))
       .toString("hex")

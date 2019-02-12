@@ -4,6 +4,4 @@ class MinecraftTemplateController implements IController {
   public initRoutes = (): void => {
 
   };
-
-
 }
