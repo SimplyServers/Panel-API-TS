@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { IController } from "../../IController";
-import { SimplecoreAuthMiddleware } from "../../../middleware/SimplecoreAuthMiddleware";
 import { check } from "express-validator/check";
+import { SimplecoreAuthMiddleware } from "../../../middleware/SimplecoreAuthMiddleware";
+import { IController } from "../../IController";
 
 export class SimpleCoreController implements IController{
   public initRoutes = (router: Router): void => {

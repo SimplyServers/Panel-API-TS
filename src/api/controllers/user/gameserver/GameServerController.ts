@@ -1,4 +1,3 @@
-import * as crypto from "crypto";
 import { Router } from "express";
 import { check } from "express-validator/check";
 import GameServer from "../../../../database/models/GameServer";
@@ -11,6 +10,7 @@ import { Captcha } from "../../../../util/Captcha";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";
+import { Util } from "../../../../util/Util";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -368,10 +368,7 @@ export class GameserverController implements IController {
     // Generate SFTP new password.
     // This needs to be decently secure but it's not a huge deal.
     // TODO: unused
-    const sftpPwd = crypto
-      .randomBytes(Math.ceil(15 / 2))
-      .toString("hex")
-      .slice(0, 15);
+    const sftpPwd = Util.generateRandom();
 
     // Create the user
     const ServerModal = new GameServer().getModelForClass(GameServer);

@@ -1,6 +1,6 @@
 import { IController } from "../../IController";
 
-class MinecraftPluginsShop implements IController{
+class MinecraftPluginsShopController implements IController{
   public initRoutes = (): void => {
 
   }
