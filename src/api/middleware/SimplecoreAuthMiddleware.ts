@@ -1,7 +1,7 @@
 import { UnauthorizedError } from "express-jwt";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
 
-export class AuthMiddleware {
+export class SimplecoreAuthMiddleware {
   public static checkToken = async (req, res, next) => {
     const {
       headers: { authorization }

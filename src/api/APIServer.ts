@@ -18,6 +18,7 @@ import { ProfileController } from "./controllers/user/ProfileController";
 import { Passport } from "./Passport";
 import { SocketServer } from "./SocketServer";
 import { AnalyticsController } from "./controllers/user/AnalyticsController";
+import { SimpleCoreController } from "./controllers/user/specialized/SimpleCoreController";
 
 export class APIServer {
   public express;
@@ -206,6 +207,9 @@ export class APIServer {
 
     const analyticsController = new AnalyticsController();
     analyticsController.initRoutes(router);
+
+    const simpleCoreController = new SimpleCoreController();
+    simpleCoreController.initRoutes(router);
 
     this.express.use("/api/v1/", router);
   };
