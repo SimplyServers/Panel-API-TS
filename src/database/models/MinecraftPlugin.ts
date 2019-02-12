@@ -1,14 +1,13 @@
 import { Types } from "mongoose";
 import { instanceMethod, pre, prop, Typegoose } from "typegoose";
 
-@pre<MinecraftPlugin>('save', async function (next) {
+@pre<MinecraftPlugin>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-
-export default class MinecraftPlugin extends Typegoose{
+export default class MinecraftPlugin extends Typegoose {
   @prop()
   /* tslint:disable:variable-name */
   public _id?: Types.ObjectId;
@@ -23,11 +22,13 @@ export default class MinecraftPlugin extends Typegoose{
   @prop()
   public description: string;
   @instanceMethod
-  public checkComp(game: any){
+  public checkComp(game: any) {
     let works = false;
 
     this.games.map(value => {
-      if (value === game) { works = true; }
+      if (value === game) {
+        works = true;
+      }
     });
 
     return works;

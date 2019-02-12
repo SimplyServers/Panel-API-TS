@@ -94,8 +94,8 @@ export default class User extends Typegoose {
   }
 
   @instanceMethod
-  public checkVerified(){
-    return this.account_info.accountVerify.accountVerified
+  public checkVerified() {
+    return this.account_info.accountVerify.accountVerified;
   }
 
   @instanceMethod

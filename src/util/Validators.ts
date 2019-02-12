@@ -2,7 +2,7 @@ import { Storage } from "../database/Storage";
 import { ValidationError } from "./errors/ValidationError";
 
 export class Validators {
-  public static checkJsonArray = (value) => {
+  public static checkJsonArray = value => {
     const returnArr = [];
     let arr;
     try {
@@ -11,7 +11,7 @@ export class Validators {
       throw new ValidationError(value + " is not valid JSON.");
     }
 
-    if(!(Object.prototype.toString.call(arr) === '[object Array]')){
+    if (!(Object.prototype.toString.call(arr) === "[object Array]")) {
       throw new ValidationError(value + " is not an array.");
     }
 

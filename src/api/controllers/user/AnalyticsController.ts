@@ -2,9 +2,9 @@ import { IController } from "../IController";
 import { Router } from "express";
 import { SimplyServersAPI } from "../../../SimplyServersAPI";
 
-export class AnalyticsController implements IController{
+export class AnalyticsController implements IController {
   public initRoutes = (router: Router): void => {
-    router.get('analytics/load', this.getStatus);
+    router.get("analytics/load", this.getStatus);
   };
 
   public getStatus = async (req, res, next) => {
@@ -13,6 +13,6 @@ export class AnalyticsController implements IController{
       maxFileSize: SimplyServersAPI.config.socket.maxFileSize,
       motd: SimplyServersAPI.config.web.motd,
       codename: "fuck"
-    })
-  }
+    });
+  };
 }

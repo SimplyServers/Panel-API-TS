@@ -36,7 +36,7 @@ export class GameserverController implements IController {
         check("email").exists(),
         check("email").isLength({ max: 50 }),
         check("email").isEmail(),
-        check("email").normalizeEmail(),
+        check("email").normalizeEmail()
       ],
       this.addSubuser
     );
@@ -170,18 +170,18 @@ export class GameserverController implements IController {
 
   public removeSubuser = async (req, res, next) => {
     let targetUser;
-    try{
+    try {
       targetUser = await Storage.getItem({
         model: Models.User,
         id: req.body.id
       });
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
 
     const userIndex = req.server.sub_owners.indexOf(targetUser._id);
     if (!(userIndex > -1)) {
-      return next(new ActionFailed('User is not an subuser.', true));
+      return next(new ActionFailed("User is not an subuser.", true));
     }
 
     req.server.sub_owners.splice(userIndex, 1);
@@ -189,7 +189,7 @@ export class GameserverController implements IController {
     try {
       await req.server.save();
     } catch (e) {
-      return next(new ActionFailed('Failed save server.', false));
+      return next(new ActionFailed("Failed save server.", false));
     }
 
     return res.json({});
@@ -197,23 +197,25 @@ export class GameserverController implements IController {
 
   public addSubuser = async (req, res, next) => {
     let targetUser;
-    try{
+    try {
       targetUser = await Storage.getItemByCon({
         model: Models.User,
         condition: {
           "account_info.email": req.body.email
         }
       });
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
 
     if (req.server.sub_owners.indexOf(targetUser._id) > -1) {
-      return next(new ActionFailed('User is already an subuser.', true));
+      return next(new ActionFailed("User is already an subuser.", true));
     }
 
     if (req.server.owner === targetUser._id.toString()) {
-      return next(new ActionFailed('The server owner is not a valid subuser.', true));
+      return next(
+        new ActionFailed("The server owner is not a valid subuser.", true)
+      );
     }
 
     req.server.sub_owners.push(targetUser._id);
@@ -221,7 +223,7 @@ export class GameserverController implements IController {
     try {
       await req.server.save();
     } catch (e) {
-      return next(new ActionFailed('Failed save server.', false));
+      return next(new ActionFailed("Failed save server.", false));
     }
 
     return res.json({});
@@ -308,8 +310,10 @@ export class GameserverController implements IController {
     }
 
     // Make sure the user is verified
-    if(!user.checkVerified()){
-      return next(new ActionFailed("You must first verify your account.", true));
+    if (!user.checkVerified()) {
+      return next(
+        new ActionFailed("You must first verify your account.", true)
+      );
     }
 
     // Check if the user has access to preset

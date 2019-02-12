@@ -12,7 +12,6 @@ import { IController } from "../../IController";
 import * as path from "path";
 
 export class FSController implements IController {
-
   public static checkViolations = (cPath: string, preset: Preset) => {
     // The path should always start with a /
     if (!cPath.startsWith("/")) {
@@ -60,7 +59,7 @@ export class FSController implements IController {
         GetServerMiddleware.serverBasicAccess,
         check("path").exists(),
         check("path").isLength({ max: 50 }),
-        check("path").isString(),
+        check("path").isString()
       ],
       this.removeFile
     );
@@ -71,7 +70,7 @@ export class FSController implements IController {
         GetServerMiddleware.serverBasicAccess,
         check("path").exists(),
         check("path").isLength({ max: 50 }),
-        check("path").isString(),
+        check("path").isString()
       ],
       this.removeFolder
     );
@@ -82,7 +81,7 @@ export class FSController implements IController {
         GetServerMiddleware.serverBasicAccess,
         check("path").exists(),
         check("path").isLength({ max: 50 }),
-        check("path").isString(),
+        check("path").isString()
       ],
       this.fileContents
     );
@@ -93,7 +92,7 @@ export class FSController implements IController {
         GetServerMiddleware.serverBasicAccess,
         check("path").exists(),
         check("path").isLength({ max: 50 }),
-        check("path").isString(),
+        check("path").isString()
       ],
       this.listDir
     );

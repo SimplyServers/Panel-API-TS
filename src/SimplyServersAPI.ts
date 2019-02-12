@@ -1,5 +1,5 @@
-import * as mongoose from "mongoose";
 import * as fs from "fs-extra";
+import * as mongoose from "mongoose";
 
 import * as configData from "../config.json";
 import { APIServer } from "./api/APIServer";
@@ -28,6 +28,8 @@ export class SimplyServersAPI {
       })
       .catch(err => {
         SimplyServersAPI.logger.error("Bootstrap failed: " + err);
+        process.exit(1);
+        return;
       });
   }
   private bootstrap = async (): Promise<void> => {
@@ -76,8 +78,10 @@ export class SimplyServersAPI {
       );
     } catch (e) {
       SimplyServersAPI.logger.error("Failed to connect to database: " + e);
+      process.exit(1);
       return;
     }
+
     SimplyServersAPI.logger.info("Connected to database");
 
     // Start updater

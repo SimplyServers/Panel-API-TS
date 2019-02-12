@@ -157,7 +157,6 @@ export class APIServer {
     const socketServer = new SocketServer(this.io);
     socketServer.bootstrap();
 
-
     // Listen on the HTTP/HTTPS port
     this.http.listen(SimplyServersAPI.config.web.ports.http);
     if (this.https) {

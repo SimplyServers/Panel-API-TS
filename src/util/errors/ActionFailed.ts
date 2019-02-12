@@ -1,11 +1,10 @@
-export class ActionFailed extends Error{
+export class ActionFailed extends Error {
+  public showInProd;
 
-    public showInProd;
-
-    constructor(message, prod) {
-        super();
-        this.showInProd = prod;
-        this.message = message;
-        this.name = "ActionFailed";
-    }
+  constructor(message, prod) {
+    super();
+    this.showInProd = prod;
+    this.message = message;
+    this.name = "ActionFailed";
+  }
 }

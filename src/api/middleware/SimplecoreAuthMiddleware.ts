@@ -11,8 +11,12 @@ export class SimplecoreAuthMiddleware {
       return authorization.split(" ")[1];
     }
 
-    if(authorization !== SimplyServersAPI.config.simpleCoreSecret){
-      return next(new UnauthorizedError('invalid_token', {message: "Invalid SimpleCore Token"}));
+    if (authorization !== SimplyServersAPI.config.simpleCoreSecret) {
+      return next(
+        new UnauthorizedError("invalid_token", {
+          message: "Invalid SimpleCore Token"
+        })
+      );
     }
 
     return next();
