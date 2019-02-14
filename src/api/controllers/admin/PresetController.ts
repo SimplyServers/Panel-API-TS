@@ -169,7 +169,7 @@ export class PresetController implements IController {
   public getPreset = async (req, res, next) => {
     let preset;
     try {
-      preset = await Storage.getItem({
+      preset = await Storage.getItemByID({
         model: Models.Preset,
         id: req.params.preset
       });

@@ -104,11 +104,11 @@ export class FSController implements IController {
     let preset;
 
     try {
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });
@@ -153,11 +153,11 @@ export class FSController implements IController {
     let preset;
 
     try {
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });
@@ -205,11 +205,11 @@ export class FSController implements IController {
     let preset;
 
     try {
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });
@@ -253,11 +253,11 @@ export class FSController implements IController {
     let preset;
 
     try {
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });
@@ -301,11 +301,11 @@ export class FSController implements IController {
     let preset;
 
     try {
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });
@@ -350,11 +350,11 @@ export class FSController implements IController {
     let preset;
 
     try {
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });

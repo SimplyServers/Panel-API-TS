@@ -41,7 +41,7 @@ export class SocketServer {
 
         let server;
         try {
-          server = await Storage.getItem({
+          server = await Storage.getItemByID({
             model: Models.GameServer,
             id: Storage.mongoSterlize(socket.handshake.query.server)
           });
@@ -60,7 +60,7 @@ export class SocketServer {
 
         let node;
         try {
-          node = await Storage.getItem({
+          node = await Storage.getItemByID({
             model: Models.Node,
             id: server.nodeInstalled
           });

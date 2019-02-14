@@ -79,7 +79,7 @@ export default class User extends Typegoose {
     };
 
     if (this.account_info.group && this.account_info.group !== "") {
-      returnData.group = await Storage.getItem({
+      returnData.group = await Storage.getItemByID({
         model: Models.Group,
         id: this.account_info.group
       });

@@ -21,7 +21,7 @@ export class PowerController implements IController {
     let node;
 
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });

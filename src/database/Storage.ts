@@ -55,7 +55,7 @@ export class Storage {
     return modelData;
   };
 
-  public static getItem = async (options: IIDOptions) => {
+  public static getItemByID = async (options: IIDOptions) => {
     const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     let modelData;
@@ -109,7 +109,7 @@ export class Storage {
     return modelData;
   };
 
-  public static getItemByCon = async (options: IConditionOptions) => {
+  public static getOneItem = async (options: IConditionOptions) => {
     const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     mongooseModel.findOne({});

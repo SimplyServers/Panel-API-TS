@@ -14,7 +14,7 @@ export class Passport {
         async (usr, pass, done) => {
           let user;
           try {
-            user = await Storage.getItemByCon({
+            user = await Storage.getOneItem({
               model: Models.User,
               condition: { "account_info.email": usr }
             });

@@ -103,7 +103,7 @@ export class GameserverController implements IController {
   public installPlugin = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
@@ -139,7 +139,7 @@ export class GameserverController implements IController {
   public removePlugin = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
@@ -171,7 +171,7 @@ export class GameserverController implements IController {
   public removeSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await Storage.getItem({
+      targetUser = await Storage.getItemByID({
         model: Models.User,
         id: req.body.id
       });
@@ -198,7 +198,7 @@ export class GameserverController implements IController {
   public addSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await Storage.getItemByCon({
+      targetUser = await Storage.getOneItem({
         model: Models.User,
         condition: {
           "account_info.email": req.body.email
@@ -285,11 +285,11 @@ export class GameserverController implements IController {
     }
 
     try {
-      const getUser = Storage.getItem({
+      const getUser = Storage.getItemByID({
         model: Models.User,
         id: req.payload.id
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.body.preset
       });
@@ -301,7 +301,7 @@ export class GameserverController implements IController {
       preset = await getPreset;
       nodes = await getNodes;
 
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: user.account_info.group
       });
@@ -494,19 +494,19 @@ export class GameserverController implements IController {
     let newPreset;
 
     try {
-      const getUsers = Storage.getItem({
+      const getUsers = Storage.getItemByID({
         model: Models.User,
         id: req.payload.id
       });
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });
-      const getNewPreset = Storage.getItem({
+      const getNewPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.body.preset
       });
@@ -516,7 +516,7 @@ export class GameserverController implements IController {
       user = await getUsers;
       newPreset = await getNewPreset;
 
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: user.account_info.group
       });
@@ -578,7 +578,7 @@ export class GameserverController implements IController {
   public removeServer = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });

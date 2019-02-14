@@ -43,7 +43,7 @@ export class ControlsController implements IController {
 
     let node;
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
@@ -67,7 +67,7 @@ export class ControlsController implements IController {
   public install = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
@@ -95,7 +95,7 @@ export class ControlsController implements IController {
   public reinstall = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });

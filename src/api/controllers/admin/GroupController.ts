@@ -100,7 +100,7 @@ export class GroupController implements IController {
   public getGroup = async (req, res, next) => {
     let group;
     try {
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: req.params.group
       });

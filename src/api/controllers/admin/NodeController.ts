@@ -86,7 +86,7 @@ export class NodeController implements IController {
   public getNode = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem({ model: Models.Node, id: req.params.node });
+      node = await Storage.getItemByID({ model: Models.Node, id: req.params.node });
     } catch (e) {
       return next(e);
     }
