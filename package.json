@@ -41,7 +41,7 @@
     "@types/request-promise": "^4.1.42",
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.32",
-    "@types/socketio-jwt": "0.0.0",
+    "@types/socketio-jwt": "github:SimplyServers/socketio-jwt-types",
     "@types/url-join": "^4.0.0",
     "@types/uuid": "^3.4.4",
     "@types/winston": "^2.4.4",
