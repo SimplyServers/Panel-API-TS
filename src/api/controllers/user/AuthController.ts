@@ -38,8 +38,8 @@ export class AuthController implements IController {
   }
 
   public register = async (req, res, next) => {
-    console.log("hello");
     const errors = validationResult(req);
+    console.log("errors caught:" + JSON.stringify(errors.array()));
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
     }

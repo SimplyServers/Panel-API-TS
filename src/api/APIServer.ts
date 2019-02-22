@@ -49,9 +49,10 @@ export class APIServer {
       next();
     });
 
-    // Body Parser
-    this.express.use(bodyParser.urlencoded({ extended: false })); // Allow Express to handle json in bodies
-    this.express.use(bodyParser.json()); //                                ^
+    // // Body Parser
+    // this.express.use(bodyParser.urlencoded({ extended: false })); // Allow Express to handle json in bodies
+    // this.express.use(bodyParser.json()); //                                ^
+    this.express.use(express.json);
 
     // Basic home page
     this.express.get("/", (req, res) => {
