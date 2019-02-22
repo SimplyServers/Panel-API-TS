@@ -1,4 +1,3 @@
-import * as crypto from "crypto";
 import { Router } from "express";
 import { check } from "express-validator/check";
 import GameServer from "../../../../database/models/GameServer";
@@ -11,6 +10,7 @@ import { Captcha } from "../../../../util/Captcha";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";
+import { Util } from "../../../../util/Util";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -52,6 +52,28 @@ export class GameserverController implements IController {
       this.removeSubuser
     );
     router.post(
+      "/server/:server/installPlugin",
+      [
+        AuthMiddleware.jwtAuth.required,
+        GetServerMiddleware.serverBasicAccess,
+        check("plugin").exists(),
+        check("plugin").isLength({ max: 50 }),
+        check("plugin").isString()
+      ],
+      this.installPlugin
+    );
+    router.post(
+      "/server/:server/removePlugin",
+      [
+        AuthMiddleware.jwtAuth.required,
+        GetServerMiddleware.serverBasicAccess,
+        check("plugin").exists(),
+        check("plugin").isLength({ max: 50 }),
+        check("plugin").isString()
+      ],
+      this.removePlugin
+    );
+    router.post(
       "/server/add",
       [
         AuthMiddleware.jwtAuth.required,
@@ -78,10 +100,78 @@ export class GameserverController implements IController {
     );
   }
 
+  public installPlugin = async (req, res, next) => {
+    let node;
+    try {
+      node = await Storage.getItemByID({
+        model: Models.Node,
+        id: req.server.nodeInstalled
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    // Contact node
+    const nodeInterface = new NodeInterface(node);
+
+    try {
+      await nodeInterface.installPlugin(req.server, req.body.plugin);
+    } catch (e) {
+      switch (NodeInterface.niceHandle(e)) {
+        case "PLUGIN_INSTALLED":
+          return next(new ActionFailed("Plugin already installed.", true));
+        case "INVALID_PLUGIN":
+          return next(new ActionFailed("Plugin does not exist.", true));
+        case "PLUGIN_NOT_SUPPORTED":
+          return next(new ActionFailed("Plugin not supported.", true));
+        case "SERVER_NOT_OFF":
+          return next(new ActionFailed("Server is not off.", true));
+        case "SERVER_LOCKED":
+          return next(new ActionFailed("Server is locked.", true));
+        default:
+          return next(new ActionFailed("Unknown error.", true));
+      }
+    }
+
+    return res.json({});
+  };
+
+  public removePlugin = async (req, res, next) => {
+    let node;
+    try {
+      node = await Storage.getItemByID({
+        model: Models.Node,
+        id: req.server.nodeInstalled
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    // Contact node
+    const nodeInterface = new NodeInterface(node);
+
+    try {
+      await nodeInterface.removePlugin(req.server, req.body.plugin);
+    } catch (e) {
+      switch (NodeInterface.niceHandle(e)) {
+        case "PLUGIN_NOT_INSTALLED":
+          return next(new ActionFailed("Plugin is not installed.", true));
+        case "SERVER_NOT_OFF":
+          return next(new ActionFailed("Server is not off.", true));
+        case "SERVER_LOCKED":
+          return next(new ActionFailed("Server is locked.", true));
+        default:
+          return next(new ActionFailed("Unknown error.", true));
+      }
+    }
+
+    return res.json({});
+  };
+
   public removeSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await Storage.getItem({
+      targetUser = await Storage.getItemByID({
         model: Models.User,
         id: req.body.id
       });
@@ -108,7 +198,7 @@ export class GameserverController implements IController {
   public addSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await Storage.getItemByCon({
+      targetUser = await Storage.getOneItem({
         model: Models.User,
         condition: {
           "account_info.email": req.body.email
@@ -153,14 +243,14 @@ export class GameserverController implements IController {
       );
     }
 
-    let exisitngServers;
+    let existingServers;
     let decidedNode;
     let preset;
     let nodes;
     let group;
     let user;
     try {
-      exisitngServers = await Storage.getItems({
+      existingServers = await Storage.getItems({
         model: Models.GameServer,
         condition: {
           $or: [
@@ -177,8 +267,8 @@ export class GameserverController implements IController {
       return next(e);
     }
 
-    if (exisitngServers.length !== 0) {
-      if (exisitngServers[0].name.toString() === req.body.name.toString()) {
+    if (existingServers.length !== 0) {
+      if (existingServers[0].name.toString() === req.body.name.toString()) {
         return next(
           new ValidationError({
             location: "body",
@@ -187,7 +277,7 @@ export class GameserverController implements IController {
           })
         );
       } else if (
-        exisitngServers[0].owner.toString() === req.payload.id.toString()
+        existingServers[0].owner.toString() === req.payload.id.toString()
       ) {
         return next(new ActionFailed("You already own a server.", true));
       }
@@ -195,11 +285,11 @@ export class GameserverController implements IController {
     }
 
     try {
-      const getUser = Storage.getItem({
+      const getUser = Storage.getItemByID({
         model: Models.User,
         id: req.payload.id
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.body.preset
       });
@@ -211,12 +301,19 @@ export class GameserverController implements IController {
       preset = await getPreset;
       nodes = await getNodes;
 
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: user.account_info.group
       });
     } catch (e) {
       return next(e);
+    }
+
+    // Make sure the user is verified
+    if (!user.checkVerified()) {
+      return next(
+        new ActionFailed("You must first verify your account.", true)
+      );
     }
 
     // Check if the user has access to preset
@@ -231,7 +328,6 @@ export class GameserverController implements IController {
 
     // THIS IS THE CODE THAT GETS A RANDOMIZED NODE THAT HAS FREE DISK STORAGE ON IT
     // THIS IS JANKY AF SO HELP PLZ
-
     const shuffledNodes = nodes
       .map(a => [Math.random(), a])
       .sort((a, b) => a[0] - b[0])
@@ -273,11 +369,10 @@ export class GameserverController implements IController {
       return next(new ActionFailed("No available nodes for game", true));
     }
 
-    // Generate new password
-    const sftpPwd = crypto
-      .randomBytes(Math.ceil(15 / 2))
-      .toString("hex")
-      .slice(0, 15);
+    // Generate SFTP new password.
+    // This needs to be decently secure but it's not a huge deal.
+    // TODO: unused
+    const sftpPwd = Util.generateRandom();
 
     // Create the user
     const ServerModal = new GameServer().getModelForClass(GameServer);
@@ -399,19 +494,19 @@ export class GameserverController implements IController {
     let newPreset;
 
     try {
-      const getUsers = Storage.getItem({
+      const getUsers = Storage.getItemByID({
         model: Models.User,
         id: req.payload.id
       });
-      const getNode = Storage.getItem({
+      const getNode = Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
-      const getPreset = Storage.getItem({
+      const getPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.server.preset
       });
-      const getNewPreset = Storage.getItem({
+      const getNewPreset = Storage.getItemByID({
         model: Models.Preset,
         id: req.body.preset
       });
@@ -421,7 +516,7 @@ export class GameserverController implements IController {
       user = await getUsers;
       newPreset = await getNewPreset;
 
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: user.account_info.group
       });
@@ -483,7 +578,7 @@ export class GameserverController implements IController {
   public removeServer = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
@@ -514,88 +609,5 @@ export class GameserverController implements IController {
     }
 
     return res.json({});
-  };
-
-  public getServer = async (req, res, next) => {
-    let node;
-    let preset;
-
-    try {
-      const getPreset = Storage.getItem({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      const getNode = Storage.getItem({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      preset = await getPreset;
-      node = await getNode;
-    } catch (e) {
-      return next(e);
-    }
-
-    const nodeInterface = new NodeInterface(node);
-
-    let statusData;
-    try {
-      statusData = nodeInterface.serverStatus(req.server);
-    } catch (e) {
-      return next(new ActionFailed("Unknown error.", true));
-    }
-
-    if (!statusData.server || !statusData.server.stauts) {
-      return;
-    }
-
-    req.server.preset = preset;
-
-    return res.json({
-      server: req.server,
-      nodeStatus: statusData.server.status
-    });
-  };
-
-  public installPlugin = async (req, res, next) => {
-    let preset;
-    let node;
-
-    try {
-      const getPreset = Storage.getItem({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      const getNode = Storage.getItem({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-
-      preset = await getPreset;
-      node = await getNode;
-    } catch (e) {
-      return next(e);
-    }
-
-    // Check to ensure this endpoint is enabled
-    if (preset.special.views.indexOf("no_plugin_viewer") > -1) {
-      return next(
-        new ActionFailed(
-          "This endpoint is disabled for this server.",
-          true
-        )
-      );
-    }
-    
-    const nodeInterface = new NodeInterface(node);
-    try{
-      await nodeInterface.installPlugin(req.server, req.body.plugin);
-    }catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        
-      }
-    }
-    
-
-
   };
 }

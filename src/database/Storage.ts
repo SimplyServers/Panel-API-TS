@@ -11,17 +11,17 @@ import User from "./models/User";
 import * as mongoose from "mongoose";
 
 export interface IConditionOptions {
-  model: Models,
-  condition: any,
-  rule?: any,
-  allowEmpty?: boolean
+  model: Models;
+  condition: any;
+  rule?: any;
+  allowEmpty?: boolean;
 }
 
 export interface IIDOptions {
-  model: Models,
-  id: string,
-  rule?: any,
-  allowEmpty?: boolean
+  model: Models;
+  id: string;
+  rule?: any;
+  allowEmpty?: boolean;
 }
 
 export interface IGeneralOptions {
@@ -41,30 +41,47 @@ export class Storage {
         modelData = await mongooseModel.find(options.condition);
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + "s.",
+        true
+      );
     }
     if (!modelData) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + "s.",
+        true
+      );
     }
     return modelData;
   };
 
-  public static getItem = async (options: IIDOptions) => {
+  public static getItemByID = async (options: IIDOptions) => {
     const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     let modelData;
     try {
       if (options.rule) {
-        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(options.id)}, options.rule)
+        modelData = await mongooseModel.findOne(
+          { _id: new mongoose.Types.ObjectId(options.id) },
+          options.rule
+        );
       } else {
-        modelData = await mongooseModel.findOne({_id: new mongoose.Types.ObjectId(options.id)})
+        modelData = await mongooseModel.findOne({
+          _id: new mongoose.Types.ObjectId(options.id)
+        });
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + ".",
+        true
+      );
     }
 
     if (!modelData) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + ".",
+        true
+      );
     }
     return modelData;
   };
@@ -74,7 +91,9 @@ export class Storage {
 
     let modelData;
     try {
-      modelData = await mongooseModel.deleteOne({_id: new mongoose.Types.ObjectId(options.id)});
+      modelData = await mongooseModel.deleteOne({
+        _id: new mongoose.Types.ObjectId(options.id)
+      });
     } catch (e) {
       throw new ActionFailed(
         "Failed to remove " + options.model.toString() + ".",
@@ -90,7 +109,7 @@ export class Storage {
     return modelData;
   };
 
-  public static getItemByCon = async (options: IConditionOptions) => {
+  public static getOneItem = async (options: IConditionOptions) => {
     const mongooseModel: InstanceType<any> = Storage.getModel(options.model);
 
     mongooseModel.findOne({});
@@ -98,15 +117,24 @@ export class Storage {
     let modelData;
     try {
       if (options.rule) {
-        modelData = await mongooseModel.findOne(options.condition, options.rule);
+        modelData = await mongooseModel.findOne(
+          options.condition,
+          options.rule
+        );
       } else {
         modelData = await mongooseModel.findOne(options.condition);
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + ".",
+        true
+      );
     }
     if (!modelData) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + ".", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + ".",
+        true
+      );
     }
     return modelData;
   };
@@ -122,16 +150,22 @@ export class Storage {
         modelData = await mongooseModel.find({});
       }
     } catch (e) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + "s.",
+        true
+      );
     }
     if (!modelData) {
-      throw new ActionFailed("Failed to find " + options.model.toString() + "s.", true);
+      throw new ActionFailed(
+        "Failed to find " + options.model.toString() + "s.",
+        true
+      );
     }
     return modelData;
   };
 
   // https://github.com/vkarpov15/mongo-sanitize/blob/master/index.js
-  public static mongoSterlize(condition: object) {
+  public static mongoSterlize(condition: any) {
     if (condition instanceof Object) {
       for (const key in condition) {
         if (/^\$/.test(key)) {

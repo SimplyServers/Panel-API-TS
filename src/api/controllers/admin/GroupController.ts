@@ -100,7 +100,7 @@ export class GroupController implements IController {
   public getGroup = async (req, res, next) => {
     let group;
     try {
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: req.params.group
       });
@@ -141,9 +141,12 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await Storage.getItems({model: Models.Group, condition: {
-        name: req.body.name
-      }});
+      existingGroups = await Storage.getItems({
+        model: Models.Group,
+        condition: {
+          name: req.body.name
+        }
+      });
     } catch (e) {
       return next(e);
     }
@@ -188,9 +191,12 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await Storage.getItems({model: Models.Group, condition: {
-        name: req.body.name
-      }});
+      existingGroups = await Storage.getItems({
+        model: Models.Group,
+        condition: {
+          name: req.body.name
+        }
+      });
     } catch (e) {
       return next(new ActionFailed("Failed checking existing groups.", false));
     }

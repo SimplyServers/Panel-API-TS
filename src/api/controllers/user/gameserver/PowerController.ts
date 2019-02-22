@@ -11,10 +11,7 @@ export class PowerController implements IController {
   public initRoutes(router: Router): void {
     router.get(
       "/server/:server/power/:power",
-      [
-        AuthMiddleware.jwtAuth.required,
-        GetServerMiddleware.serverBasicAccess,
-      ],
+      [AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess],
       this.setPower
     );
   }
@@ -24,7 +21,7 @@ export class PowerController implements IController {
     let node;
 
     try {
-      node = await Storage.getItem({
+      node = await Storage.getItemByID({
         model: Models.Node,
         id: req.server.nodeInstalled
       });
@@ -66,6 +63,6 @@ export class PowerController implements IController {
       }
     }
 
-    return res.json({ });
+    return res.json({});
   };
 }

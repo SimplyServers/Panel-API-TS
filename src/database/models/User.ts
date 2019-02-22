@@ -79,7 +79,7 @@ export default class User extends Typegoose {
     };
 
     if (this.account_info.group && this.account_info.group !== "") {
-      returnData.group = await Storage.getItem({
+      returnData.group = await Storage.getItemByID({
         model: Models.Group,
         id: this.account_info.group
       });
@@ -91,6 +91,11 @@ export default class User extends Typegoose {
   @instanceMethod
   public async validatePassword(password: string) {
     return await bcrypt.compare(password, this.account_info.password.hash);
+  }
+
+  @instanceMethod
+  public checkVerified() {
+    return this.account_info.accountVerify.accountVerified;
   }
 
   @instanceMethod

@@ -4,19 +4,16 @@ import urlJoin = require("url-join");
 import GameServer from "../database/models/GameServer";
 import ServerNode from "../database/models/ServerNode";
 
-import { ActionFailed } from "./errors/ActionFailed";
-
 export class NodeInterface {
-
-  public static niceHandle(e){
-    if(!e.error){
+  public static niceHandle(e) {
+    if (!e.error) {
       return "Unknown error.";
     }
 
     let msg;
-    try{
+    try {
       msg = JSON.parse(e.error).msg;
-    }catch (e) {
+    } catch (e) {
       msg = "Unknown error.";
     }
 

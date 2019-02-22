@@ -29,8 +29,8 @@ export class NodeUpdater {
     SimplyServersAPI.logger.info("Test");
 
     // We ignore the promise but that's fine
-    // this.checkInterval = setInterval(this.check, 1000 * 60 * 3);
-    this.checkInterval = setInterval(this.check, 1000 * 10);
+    this.checkInterval = setInterval(this.check, 1000 * 60 * 3);
+    // this.checkInterval = setInterval(this.check, 1000 * 10);
   };
 
   private check = async () => {

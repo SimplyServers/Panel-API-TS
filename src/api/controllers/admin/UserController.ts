@@ -37,7 +37,7 @@ export class UserController implements IController {
   public getUser = async (req, res, next) => {
     let user;
     try {
-      user = await Storage.getItem({ model: Models.User, id: req.params.user });
+      user = await Storage.getItemByID({ model: Models.User, id: req.params.user });
     } catch (e) {
       return next(e);
     }

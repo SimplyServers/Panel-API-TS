@@ -9,7 +9,7 @@ export class AuthMiddleware {
     let user;
     let group;
     try {
-      user = await Storage.getItem({ model: Models.User, id: req.payload.id });
+      user = await Storage.getItemByID({ model: Models.User, id: req.payload.id });
       if (!user.account_info.group || user.account_info.group === "") {
         return next(
           new ActionFailed(
@@ -18,7 +18,7 @@ export class AuthMiddleware {
           )
         );
       }
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: user.account_info.group
       });
@@ -37,7 +37,7 @@ export class AuthMiddleware {
     let user;
     let group;
     try {
-      user = await Storage.getItem({ model: Models.User, id: req.payload.id });
+      user = await Storage.getItemByID({ model: Models.User, id: req.payload.id });
       if (!user.account_info.group || user.account_info.group === "") {
         return next(
           new ActionFailed(
@@ -46,7 +46,7 @@ export class AuthMiddleware {
           )
         );
       }
-      group = await Storage.getItem({
+      group = await Storage.getItemByID({
         model: Models.Group,
         id: user.account_info.group
       });

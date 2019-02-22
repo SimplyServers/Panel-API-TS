@@ -1,5 +1,5 @@
 import { IController } from "../../IController";
 
-class MinecraftPluginsController implements IController {
+class MinecraftTemplateController implements IController {
   public initRoutes = (): void => {};
 }

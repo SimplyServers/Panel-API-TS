@@ -14,15 +14,18 @@ export class Passport {
         async (usr, pass, done) => {
           let user;
           try {
-            user = await Storage.getItemByCon({model: Models.User, condition: {"account_info.email": usr}});
-          }catch (e) {
-            return done(null, false, { message: 'Server error' });
+            user = await Storage.getOneItem({
+              model: Models.User,
+              condition: { "account_info.email": usr }
+            });
+          } catch (e) {
+            return done(null, false, { message: "Server error" });
           }
 
-          if(await user.validatePassword(pass)){
+          if (await user.validatePassword(pass)) {
             return done(null, user);
-          }else{
-            return done(null, false, { message: 'Invalid username/password' });
+          } else {
+            return done(null, false, { message: "Invalid username/password" });
           }
         }
       )

@@ -20,7 +20,7 @@ export class ProfileController implements IController {
     let group;
 
     try {
-      const getUser = Storage.getItem({
+      const getUser = Storage.getItemByID({
         model: Models.User,
         id: req.payload.id
       });
@@ -47,7 +47,7 @@ export class ProfileController implements IController {
           ]
         }
       });
-      const getGroup = Storage.getItem({
+      const getGroup = Storage.getItemByID({
         model: Models.Group,
         id: user.account_info.group
       });

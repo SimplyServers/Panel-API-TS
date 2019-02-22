@@ -10,31 +10,39 @@ import { Models } from "../../../types/Models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { IController } from "../IController";
+import { Mailer } from "../../../util/Mailer";
 
 export class AuthController implements IController {
-
   public initRoutes(router: Router): void {
-    router.post("/auth/login", [
-      check("email").exists(),
-      check("email").isLength({ max: 50 }),
-      check("email").isEmail(),
-      check("password").exists(),
-      check("password").isLength({ max: 50 }),
-      check("password").isString()
-    ], this.login);
+    router.post(
+      "/auth/login",
+      [
+        check("email").exists(),
+        check("email").isLength({ max: 50 }),
+        check("email").isEmail(),
+        check("password").exists(),
+        check("password").isLength({ max: 50 }),
+        check("password").isString()
+      ],
+      this.login
+    );
 
-    router.post("/auth/register", [
-      check("email").exists(),
-      check("email").isLength({ max: 50 }),
-      check("email").isEmail(),
-      check("email").normalizeEmail(),
-      check("password").exists(),
-      check("password").isLength({ max: 50 }),
-      check("username").exists(),
-      check("username").isLength({ max: 50 }),
-      check("password").isString(),
-      check("username").isString()
-    ], this.register);
+    router.post(
+      "/auth/register",
+      [
+        check("email").exists(),
+        check("email").isLength({ max: 50 }),
+        check("email").isEmail(),
+        check("email").normalizeEmail(),
+        check("password").exists(),
+        check("password").isLength({ max: 50 }),
+        check("username").exists(),
+        check("username").isLength({ max: 50 }),
+        check("password").isString(),
+        check("username").isString()
+      ],
+      this.register
+    );
   }
 
   public register = async (req, res, next) => {
@@ -46,11 +54,13 @@ export class AuthController implements IController {
 
     const passwordResults = zxcvbn(req.body.password);
     if (passwordResults.score < 2) {
-      return next(new ValidationError({
-        "location": "body",
-        "param": "password",
-        "msg": "Password not strong enough"
-      }));
+      return next(
+        new ValidationError({
+          location: "body",
+          param: "password",
+          msg: "Password not strong enough"
+        })
+      );
     }
 
     // Check for existing users
@@ -59,30 +69,39 @@ export class AuthController implements IController {
       // existingUsers = await Storage.getItems(Models.User, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
       existingUsers = await Storage.getItems({
         model: Models.User,
-        condition: { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] }
+        condition: {
+          $or: [
+            { "account_info.email": req.body.email },
+            { "account_info.username": req.body.username }
+          ]
+        }
       });
     } catch (e) {
       return next(e);
     }
     if (existingUsers.length !== 0) {
       if (existingUsers[0].account_info.username === req.body.username) {
-        return next(new ValidationError({
-          "location": "body",
-          "param": "username",
-          "msg": "Username is taken"
-        }));
+        return next(
+          new ValidationError({
+            location: "body",
+            param: "username",
+            msg: "Username is taken"
+          })
+        );
       } else if (existingUsers[0].account_info.email === req.body.email) {
-        return next(new ValidationError({
-          "location": "body",
-          "param": "email",
-          "msg": "Email is taken"
-        }));
+        return next(
+          new ValidationError({
+            location: "body",
+            param: "email",
+            msg: "Email is taken"
+          })
+        );
       }
       return next(new ActionFailed("Value already exists", true));
     }
 
     // Create the verify token
-    const verifyToken = (0 | Math.random() * 9e6).toString(36); // Wow so secure!
+    const verifyToken = (0 | (Math.random() * 9e6)).toString(36); // Wow so secure!
 
     // Create the user
     const UserModal = new User().getModelForClass(User);
@@ -102,13 +121,16 @@ export class AuthController implements IController {
       balance: 0
     });
 
-    if (SimplyServersAPI.config.defaultGroup && SimplyServersAPI.config.defaultGroup !== "") {
+    if (
+      SimplyServersAPI.config.defaultGroup &&
+      SimplyServersAPI.config.defaultGroup !== ""
+    ) {
       newUser.account_info.group = SimplyServersAPI.config.defaultGroup;
     }
 
     // TODO: GMAIL ARE DUMB
     // // Send them the verify email
-    // const mailer = new Mailer();
+    const mailer = new Mailer();
     // try{
     //   await mailer.sendVerify(newUser.account_info.email, verifyToken)
     // }catch (e) {
@@ -155,17 +177,21 @@ export class AuthController implements IController {
     // }
     try {
       user = await new Promise((resolve, reject) => {
-        passport.authenticate("local", { session: false }, (err, passportUser) => {
-          if (err) {
-            return reject(err);
-          }
+        passport.authenticate(
+          "local",
+          { session: false },
+          (err, passportUser) => {
+            if (err) {
+              return reject(err);
+            }
 
-          if (passportUser) {
-            return resolve(passportUser);
-          } else {
-            return reject(new ActionFailed("Failed to authenticate", true));
+            if (passportUser) {
+              return resolve(passportUser);
+            } else {
+              return reject(new ActionFailed("Failed to authenticate", true));
+            }
           }
-        })(req, res);
+        )(req, res);
       });
     } catch (e) {
       return next(e);

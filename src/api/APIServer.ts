@@ -16,6 +16,9 @@ import { GameserverController } from "./controllers/user/gameserver/GameServerCo
 import { PowerController } from "./controllers/user/gameserver/PowerController";
 import { ProfileController } from "./controllers/user/ProfileController";
 import { Passport } from "./Passport";
+import { SocketServer } from "./SocketServer";
+import { AnalyticsController } from "./controllers/user/AnalyticsController";
+import { SimpleCoreController } from "./controllers/user/specialized/SimpleCoreController";
 
 export class APIServer {
   public express;
@@ -116,7 +119,7 @@ export class APIServer {
       // Create dev server
       this.http = http.createServer(this.express);
 
-      // Create SocketIO
+      // Create SocketServer
       this.io = SocketIO(this.http, {
         path: "/s"
       });
@@ -141,7 +144,7 @@ export class APIServer {
 
       this.https = https.createServer(creds, this.express);
 
-      // Create SocketIO
+      // Create SocketServer
       this.io = SocketIO(this.https, {
         path: "/s"
       });
@@ -150,7 +153,10 @@ export class APIServer {
     this.io.origins((origin, callback) => {
       callback(null, true);
     });
-    // TODO: socket namespace
+
+    // TODO: test shit
+    const socketServer = new SocketServer(this.io);
+    socketServer.bootstrap();
 
     // Listen on the HTTP/HTTPS port
     this.http.listen(SimplyServersAPI.config.web.ports.http);
@@ -198,6 +204,12 @@ export class APIServer {
 
     const gameServerController = new GameserverController();
     gameServerController.initRoutes(router);
+
+    const analyticsController = new AnalyticsController();
+    analyticsController.initRoutes(router);
+
+    const simpleCoreController = new SimpleCoreController();
+    simpleCoreController.initRoutes(router);
 
     this.express.use("/api/v1/", router);
   };
