@@ -1,5 +1,6 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
+import * as ExpressValidator from "express-validator";
 import * as fs from "fs-extra";
 import * as http from "http";
 import * as https from "https";
@@ -9,16 +10,16 @@ import { GroupController } from "./controllers/admin/GroupController";
 import { NodeController } from "./controllers/admin/NodeController";
 import { PresetController } from "./controllers/admin/PresetController";
 import { UserController } from "./controllers/admin/UserController";
+import { AnalyticsController } from "./controllers/user/AnalyticsController";
 import { AuthController } from "./controllers/user/AuthController";
 import { ControlsController } from "./controllers/user/gameserver/ControlsController";
 import { FSController } from "./controllers/user/gameserver/FSController";
 import { GameserverController } from "./controllers/user/gameserver/GameServerController";
 import { PowerController } from "./controllers/user/gameserver/PowerController";
 import { ProfileController } from "./controllers/user/ProfileController";
+import { SimpleCoreController } from "./controllers/user/specialized/SimpleCoreController";
 import { Passport } from "./Passport";
 import { SocketServer } from "./SocketServer";
-import { AnalyticsController } from "./controllers/user/AnalyticsController";
-import { SimpleCoreController } from "./controllers/user/specialized/SimpleCoreController";
 
 export class APIServer {
   public express;
@@ -52,10 +53,12 @@ export class APIServer {
       next();
     });
 
-    // // Body Parser
-    // this.express.use(bodyParser.urlencoded({ extended: false })); // Allow Express to handle json in bodies
-    // this.express.use(bodyParser.json()); //                                ^
-    this.express.use(express.json);
+    // Body Parser
+    this.express.use(bodyParser.urlencoded({ extended: false })); // Allow Express to handle json in bodies
+    this.express.use(bodyParser.json()); //                                ^
+
+    // Validation
+    this.express.use(ExpressValidator());
 
     // Basic home page
     this.express.get("/", (req, res) => {

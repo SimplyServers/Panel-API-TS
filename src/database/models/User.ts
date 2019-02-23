@@ -72,11 +72,18 @@ export default class User extends Typegoose {
       token: this.generateJWT(),
       email: this.account_info.email,
       username: this.account_info.username,
-      mcUUID: this.game_info.minecraft.uuid,
       id: this._id,
       credits: this.balance,
-      group: ""
+      group: "",
+      mcUUID: ""
     };
+
+    if (this.game_info &&
+      this.game_info.minecraft &&
+      this.game_info.minecraft &&
+      this.game_info.minecraft.uuid){
+      returnData.mcUUID = this.game_info.minecraft.uuid;
+    }
 
     if (this.account_info.group && this.account_info.group !== "") {
       returnData.group = await Storage.getItemByID({

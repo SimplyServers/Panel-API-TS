@@ -164,10 +164,13 @@ export class AuthController implements IController {
   };
 
   public login = async (req, res, next) => {
+    console.log("not even here?!");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
     }
+
+    console.log("wtf");
     let user;
     // TODO: make passport async
     // try{
@@ -201,7 +204,10 @@ export class AuthController implements IController {
       return next(new ActionFailed("Failed to authenticate", true));
     }
 
+    console.log("end of login... getting json!");
+
     try {
+      console.log("got json! " + await user.getAuthJSON());
       return res.json({
         user: await user.getAuthJSON()
       });
