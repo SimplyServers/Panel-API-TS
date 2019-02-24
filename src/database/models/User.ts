@@ -10,6 +10,12 @@ import { Storage } from "../Storage";
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
+  if (this.game_info === undefined || this.game_info === null){
+    this.game_info = {
+      minecraft: {},
+      steam: {}
+    }
+  }
   next();
 })
 export default class User extends Typegoose {

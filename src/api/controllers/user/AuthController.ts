@@ -47,6 +47,7 @@ export class AuthController implements IController {
 
   public register = async (req, res, next) => {
     const errors = validationResult(req);
+    console.log("body: " + JSON.stringify(req.body.username));
     console.log("errors caught:" + JSON.stringify(errors.array()));
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
@@ -164,7 +165,6 @@ export class AuthController implements IController {
   };
 
   public login = async (req, res, next) => {
-    console.log("not even here?!");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));

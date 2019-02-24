@@ -11,7 +11,76 @@ export class ProfileController implements IController {
       [AuthMiddleware.jwtAuth.required],
       this.getServers
     );
+    router.get(
+      "/profile",
+      [AuthMiddleware.jwtAuth.required],
+      this.profile
+    );
+    router.get(
+      "/profile/presets",
+      [AuthMiddleware.jwtAuth.required],
+      this.getPresets
+    );
+
   }
+
+  public profile = async (req, res, next) => {
+    let user;
+    try{
+      user = await Storage.getItemByID({
+        model: Models.User,
+        id: req.payload.id,
+        rule: {"account_info.password": 0}
+      });
+    }catch (e) {
+      return next(e);
+    }
+
+    return res.json({ user });
+  };
+
+  public getPresets = async (req, res, next) => {
+    let user;
+    let presets;
+    let group;
+
+    try {
+      const getUser = Storage.getItemByID({
+        model: Models.User,
+        id: req.payload.id
+      });
+      const getPresets = Storage.getAll({
+        model: Models.Preset,
+        rule: { "special.fs": 0 }
+      });
+
+      user = await getUser;
+      presets = await getPresets;
+
+      const getGroup = Storage.getItemByID({
+        model: Models.Group,
+        id: user.account_info.group
+      });
+
+      group = await getGroup;
+    } catch (e) {
+      return next(e);
+    }
+
+    const returnPresets = [];
+    group.presetsAllowed.forEach(groupPresetID => {
+      const preset = presets.find(presetData => presetData.id === groupPresetID);
+      if (preset === undefined) {
+        return;
+      }
+
+      returnPresets.push(preset);
+    });
+
+    return res.json({
+      presets: returnPresets
+    })
+  };
 
   public getServers = async (req, res, next) => {
     let user;
