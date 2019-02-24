@@ -172,7 +172,7 @@ export class NodeInterface {
   private get = async (urlExt: string) => {
     // Typings are weird... we can use a string as a url and its ok
     // @ts-ignore
-    const res = await request("https://" + urlJoin(this.node.ip, urlExt), {
+    const res = await request(urlJoin("https://" + this.node.ip + ":" + this.node.port, urlExt), {
       // Merge the node IP with the url extension
       headers: {
         authorization: "Token " + this.node.secret
@@ -189,7 +189,7 @@ export class NodeInterface {
     const formData = querystring.stringify(body);
 
     // @ts-ignore
-    const res = await request(urlJoin(this.node.ip, urlExt), {
+    const res = await request(urlJoin("https://" + this.node.ip + ":" + this.node.port, urlExt), {
       // Merge the node IP with the url extension
       headers: {
         authorization: "Token " + this.node.secret,

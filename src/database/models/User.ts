@@ -1,6 +1,6 @@
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { Types } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { instanceMethod, pre, prop, Typegoose } from "typegoose";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
 import { Models } from "../../types/Models";
@@ -10,11 +10,11 @@ import { Storage } from "../Storage";
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
-  if (this.game_info === undefined || this.game_info === null){
+  if (this.game_info === undefined || this.game_info === null) {
     this.game_info = {
       minecraft: {},
       steam: {}
-    }
+    };
   }
   next();
 })
@@ -84,10 +84,12 @@ export default class User extends Typegoose {
       mcUUID: ""
     };
 
-    if (this.game_info &&
+    if (
+      this.game_info &&
       this.game_info.minecraft &&
       this.game_info.minecraft &&
-      this.game_info.minecraft.uuid){
+      this.game_info.minecraft.uuid
+    ) {
       returnData.mcUUID = this.game_info.minecraft.uuid;
     }
 

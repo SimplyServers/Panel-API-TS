@@ -36,6 +36,7 @@ export class NodeUpdater {
   private check = async () => {
     SimplyServersAPI.logger.verbose("Updating nodes");
     const nodes = await Storage.getAll({ model: Models.Node });
+
     await Promise.all(
       nodes.map(async node => {
         const nodeInterface = new NodeInterface(node);
@@ -43,19 +44,31 @@ export class NodeUpdater {
         let queryResults: any;
         try {
           queryResults = await nodeInterface.query();
+
+          SimplyServersAPI.logger.verbose("Updated node info:" + JSON.stringify(queryResults));
+
           node.plugins = await nodeInterface.getPlugins();
           node.games = await nodeInterface.games();
         } catch (e) {
+          console.log("here!");
           SimplyServersAPI.logger.error("Failed to ping node: " + e);
           return;
         }
 
-        node.status.lastOnline = Date.now().valueOf();
-        node.status.cpu = queryResults.cpu;
-        node.status.totalmem = queryResults.totalmem;
-        node.status.freemem = queryResults.freemem;
-        node.status.totaldisk = queryResults.totaldisk;
-        node.status.freedisk = queryResults.freedisk;
+        node.status = {
+          lastOnline: Date.now().valueOf(),
+          cpu: queryResults.cpu,
+          totalmem: queryResults.totalmem,
+          totaldisk: queryResults.totaldisk,
+          freedisk: queryResults.freedisk
+        };
+
+        try {
+          await node.save();
+        }catch (e) {
+          SimplyServersAPI.logger.error("Failed to save node update: "  + e);
+          return;
+        }
 
         SimplyServersAPI.logger.verbose("Updated info for node " + node._id);
       })

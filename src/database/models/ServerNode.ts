@@ -21,12 +21,12 @@ export default class ServerNode extends Typegoose {
   public name: string;
   @prop()
   public status: {
-    lastOnline: Date;
-    cpu: string;
-    totalmem: number;
-    freemem: number;
-    totaldisk: number;
-    freedisk: number;
+    lastOnline?: Date;
+    cpu?: string;
+    totalmem?: number;
+    freemem?: number;
+    totaldisk?: number;
+    freedisk?: number;
   };
   @prop()
   public games: any;
