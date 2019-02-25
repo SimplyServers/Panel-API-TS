@@ -15,20 +15,8 @@ export class PowerController implements IController {
   }
 
   public setPower = async (req, res, next) => {
-    // Get server
-    let node;
-
-    try {
-      node = await Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-    } catch (e) {
-      return next(e);
-    }
-
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       switch (req.params.power) {

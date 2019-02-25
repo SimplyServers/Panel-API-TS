@@ -1,32 +1,28 @@
 import * as jwt from "express-jwt";
-import { Storage } from "../../database/Storage";
+import { UserModel } from "../../database/models/User";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
-import { Models } from "../../types/Models";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class AuthMiddleware {
   public static isStaff = async (req, res, next) => {
     let user;
-    let group;
     try {
-      user = await Storage.getItemByID({ model: Models.User, id: req.payload.id, populate:  });
-      // if (!user.account_info.group || user.account_info.group === "") {
-      //   return next(
-      //     new ActionFailed(
-      //       "You must be assigned to a group to access this endpoint",
-      //       true
-      //     )
-      //   );
-      // }
-      // group = await Storage.getItemByID({
-      //   model: Models.Group,
-      //   id: user.account_info.group
-      // });
+      user = await UserModel.findById(req.payload.id).populate("_group", [
+        "id"
+      ]);
     } catch (e) {
       return next(e);
     }
+    if (!user._group) {
+      return next(
+        new ActionFailed(
+          "You must be assigned to a group to access this endpoint",
+          true
+        )
+      );
+    }
 
-    if (group.isAdmin || group.isStaff) {
+    if (user._group.isAdmin || user._group.isStaff) {
       return next();
     } else {
       return next(new ActionFailed("You don't have permissions.", true));
@@ -35,26 +31,24 @@ export class AuthMiddleware {
 
   public static isAdmin = async (req, res, next) => {
     let user;
-    let group;
     try {
-      user = await Storage.getItemByID({ model: Models.User, id: req.payload.id });
-      if (!user.account_info.group || user.account_info.group === "") {
-        return next(
-          new ActionFailed(
-            "You must be assigned to a group to access this endpoint",
-            true
-          )
-        );
-      }
-      group = await Storage.getItemByID({
-        model: Models.Group,
-        id: user.account_info.group
-      });
+      user = await UserModel.findById(req.payload.id).populate("_group", [
+        "id"
+      ]);
     } catch (e) {
       return next(e);
     }
 
-    if (group.isAdmin) {
+    if (!user._group) {
+      return next(
+        new ActionFailed(
+          "You must be assigned to a group to access this endpoint",
+          true
+        )
+      );
+    }
+
+    if (user._group.isAdmin) {
       return next();
     } else {
       return next(new ActionFailed("You don't have permissions.", true));

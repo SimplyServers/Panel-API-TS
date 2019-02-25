@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
-import GameServer from "../../../../database/models/GameServer";
+import GameServer, { GameServerModel } from "../../../../database/models/GameServer";
 import MinecraftProperties from "../../../../database/models/MinecraftProperties";
-import Node from "../../../../database/models/ServerNode";
+import { PresetModel } from "../../../../database/models/Preset";
+import Node, { ServerNodeModel } from "../../../../database/models/ServerNode";
+import { UserModel } from "../../../../database/models/User";
 import { SimplyServersAPI } from "../../../../SimplyServersAPI";
 import { Captcha } from "../../../../util/Captcha";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
@@ -99,18 +101,8 @@ export class GameserverController implements IController {
   }
 
   public installPlugin = async (req, res, next) => {
-    let node;
-    try {
-      node = await Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-    } catch (e) {
-      return next(e);
-    }
-
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       await nodeInterface.installPlugin(req.server, req.body.plugin);
@@ -135,18 +127,8 @@ export class GameserverController implements IController {
   };
 
   public removePlugin = async (req, res, next) => {
-    let node;
-    try {
-      node = await Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-    } catch (e) {
-      return next(e);
-    }
-
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       await nodeInterface.removePlugin(req.server, req.body.plugin);
@@ -169,15 +151,12 @@ export class GameserverController implements IController {
   public removeSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await Storage.getItemByID({
-        model: Models.User,
-        id: req.body.id
-      });
+      targetUser = await UserModel.findById(req.body.id);
     } catch (e) {
       return next(e);
     }
 
-    const userIndex = req.server.sub_owners.indexOf(targetUser._id);
+    const userIndex = req.server.sub_owners.indexOf(targetUser.id);
     if (!(userIndex > -1)) {
       return next(new ActionFailed("User is not an subuser.", true));
     }
@@ -196,27 +175,22 @@ export class GameserverController implements IController {
   public addSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await Storage.getOneItem({
-        model: Models.User,
-        condition: {
-          "account_info.email": req.body.email
-        }
-      });
+      targetUser = await UserModel.findOne({ "account_info.email": req.body.email });
     } catch (e) {
       return next(e);
     }
 
-    if (req.server.sub_owners.indexOf(targetUser._id) > -1) {
+    if (req.server.sub_owners.indexOf(targetUser.id) > -1) {
       return next(new ActionFailed("User is already an subuser.", true));
     }
 
-    if (req.server.owner === targetUser._id.toString()) {
+    if (req.server.owner === targetUser.id.toString()) {
       return next(
         new ActionFailed("The server owner is not a valid subuser.", true)
       );
     }
 
-    req.server.sub_owners.push(targetUser._id);
+    req.server.sub_owners.push(targetUser.id);
 
     try {
       await req.server.save();
@@ -245,21 +219,17 @@ export class GameserverController implements IController {
     let decidedNode;
     let preset;
     let nodes;
-    let group;
     let user;
     try {
-      existingServers = await Storage.getItems({
-        model: Models.GameServer,
-        condition: {
-          $or: [
-            {
-              name: req.body.name
-            },
-            {
-              owner: req.payload.id
-            }
-          ]
-        }
+      existingServers = await GameServerModel.find({
+        $or: [
+          {
+            name: req.body.name
+          },
+          {
+            owner: req.payload.id
+          }
+        ]
       });
     } catch (e) {
       return next(e);
@@ -283,26 +253,15 @@ export class GameserverController implements IController {
     }
 
     try {
-      const getUser = Storage.getItemByID({
-        model: Models.User,
-        id: req.payload.id
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.body.preset
-      });
-      const getNodes = Storage.getAll({
-        model: Models.Node
-      });
+      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+        "id"
+      ]);
+      const getPreset = PresetModel.findById(req.body.preset);
+      const getNodes = ServerNodeModel.find({});
 
       user = await getUser;
       preset = await getPreset;
       nodes = await getNodes;
-
-      group = await Storage.getItemByID({
-        model: Models.Group,
-        id: user.account_info.group
-      });
     } catch (e) {
       return next(e);
     }
@@ -315,7 +274,7 @@ export class GameserverController implements IController {
     }
 
     // Check if the user has access to preset
-    if (!(group.presetsAllowed.indexOf(req.body.preset) > -1)) {
+    if (!(user._group.presetsAllowed.indexOf(req.body.preset) > -1)) {
       return next(new ActionFailed("You don't have permissions.", true));
     }
 
@@ -345,7 +304,7 @@ export class GameserverController implements IController {
         console.log("passed!"); // TODO: remove
         if (!nodeModal.status.freedisk || !nodeModal.status.totaldisk) {
           SimplyServersAPI.logger.info(
-            "Node " + nodeModal._id + " is too new."
+            "Node " + nodeModal.id + " is too new."
           );
         } else {
           if (nodeModal.status.freedisk / nodeModal.status.totaldisk < 0.9) {
@@ -357,7 +316,7 @@ export class GameserverController implements IController {
           } else {
             SimplyServersAPI.logger.info(
               "Node " +
-                nodeModal._id +
+                nodeModal.id +
                 " is stressed (" +
                 nodeModal.status.freedisk / nodeModal.status.totaldisk +
                 ")"
@@ -386,7 +345,7 @@ export class GameserverController implements IController {
       preset: req.body.preset,
       timeOnline: 0,
       online: false,
-      nodeInstalled: decidedNode._id, // ITS BEEN INITIALIZED DUMBASS
+      nodeInstalled: decidedNode.id, // ITS BEEN INITIALIZED DUMBASS
       motd: req.body.motd,
       sftpPassword: sftpPwd,
       port: 0,
@@ -403,7 +362,7 @@ export class GameserverController implements IController {
     }
 
     const serverTemplateConfig = {
-      id: newServer._id,
+      id: newServer.id,
       game: preset.game,
       port: -1,
       build: {
@@ -451,7 +410,7 @@ export class GameserverController implements IController {
       );
 
       const serverProperties = new MinecraftPropertiesModal({
-        server: newServer._id,
+        server: newServer.id,
         settings: {
           spawnprotection: 16,
           allownether: true,
@@ -478,7 +437,7 @@ export class GameserverController implements IController {
       await Promise.all(
         preset.preinstalledPlugins.map(async value => {
           try {
-            await nodeInterface.installPlugin(newServer._id, value);
+            await nodeInterface.installPlugin(newServer.id, value);
           } catch (e) {
             SimplyServersAPI.logger.error("Server plugin install failed: " + e);
           }
@@ -490,49 +449,27 @@ export class GameserverController implements IController {
   };
 
   public changePreset = async (req, res, next) => {
-    let node;
-    let preset;
     let user;
-    let group;
     let newPreset;
 
     try {
-      const getUsers = Storage.getItemByID({
-        model: Models.User,
-        id: req.payload.id
-      });
-      const getNode = Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      const getNewPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.body.preset
-      });
+      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+        "id"
+      ]);
+      const getNewPreset = PresetModel.findById(req.body.preset).orFail();
 
-      node = await getNode;
-      preset = await getPreset;
-      user = await getUsers;
+      user = await getUser;
       newPreset = await getNewPreset;
-
-      group = await Storage.getItemByID({
-        model: Models.Group,
-        id: user.account_info.group
-      });
     } catch (e) {
       return next(e);
     }
 
     // Check to see if preset is compatible.
-    if (!(preset.allowSwitchingTo.indexOf(req.body.preset) > -1)) {
+    if (!(req.server._preset.allowSwitchingTo.indexOf(req.body.preset) > -1)) {
       return next(new ActionFailed("Preset not allowed.", true));
     }
 
-    if (!(group.presetsAllowed.indexOf(req.body.preset) > -1)) {
+    if (!(user._group.presetsAllowed.indexOf(req.body.preset) > -1)) {
       return next(new ActionFailed("You don't have permissions.", true));
     }
 
@@ -541,7 +478,7 @@ export class GameserverController implements IController {
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       await nodeInterface.edit(
@@ -579,18 +516,8 @@ export class GameserverController implements IController {
   };
 
   public removeServer = async (req, res, next) => {
-    let node;
-    try {
-      node = await Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-    } catch (e) {
-      return next(e);
-    }
-
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       await nodeInterface.remove(req.server);

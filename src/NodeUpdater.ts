@@ -1,6 +1,5 @@
-import { Storage } from "./database/Storage";
+import { ServerNodeModel } from "./database/models/ServerNode";
 import { SimplyServersAPI } from "./SimplyServersAPI";
-import { Models } from "./types/Models";
 import { NodeInterface } from "./util/NodeInterface";
 
 export class NodeUpdater {
@@ -35,7 +34,7 @@ export class NodeUpdater {
 
   private check = async () => {
     SimplyServersAPI.logger.verbose("Updating nodes");
-    const nodes = await Storage.getAll({ model: Models.Node });
+    const nodes = await ServerNodeModel.find({});
 
     await Promise.all(
       nodes.map(async node => {

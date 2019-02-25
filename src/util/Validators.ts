@@ -1,4 +1,3 @@
-import { Storage } from "../database/Storage";
 import { ValidationError } from "./errors/ValidationError";
 
 export class Validators {
@@ -16,7 +15,7 @@ export class Validators {
     }
 
     // Make sure the JSON is safe
-    arr = Storage.mongoSterlize(arr);
+    arr = Validators.mongoSterlize(arr);
 
     console.log(arr);
 
@@ -26,4 +25,15 @@ export class Validators {
 
     return returnArr;
   };
+  // https://github.com/vkarpov15/mongo-sanitize/blob/master/index.js
+  public static mongoSterlize(condition: any) {
+    if (condition instanceof Object) {
+      for (const key in condition) {
+        if (/^\$/.test(key)) {
+          delete condition[key];
+        }
+      }
+    }
+    return condition;
+  }
 }

@@ -1,9 +1,9 @@
 import socketClient = require("socket.io-client");
 import * as socketJwt from "socketio-jwt";
+import { GameServerModel } from "../database/models/GameServer";
 
-import { Storage } from "../database/Storage";
 import { SimplyServersAPI } from "../SimplyServersAPI";
-import { Models } from "../types/Models";
+import { Validators } from "../util/Validators";
 
 export class SocketServer {
   private consoleSocket: any;
@@ -41,10 +41,9 @@ export class SocketServer {
 
         let server;
         try {
-          server = await Storage.getItemByID({
-            model: Models.GameServer,
-            id: Storage.mongoSterlize(socket.handshake.query.server)
-          });
+          server = await GameServerModel.findById(socket.handshake.query.server)
+            .populate('_nodeInstalled', ["_id"])
+            .populate('_preset', ["_id"])
         } catch (e) {
           socket.disconnect();
           return;
@@ -58,28 +57,17 @@ export class SocketServer {
           return;
         }
 
-        let node;
-        try {
-          node = await Storage.getItemByID({
-            model: Models.Node,
-            id: server.nodeInstalled
-          });
-        } catch (e) {
-          socket.disconnect();
-          return;
-        }
-
         // Make a stream to the node
         // Stupid typings error. Ignore
         // @ts-ignore
         const serverSocket = socketClient(
-          "https://" + node.ip + ":" + node.port + "/server/" + server._id,
+          "https://" + server._node.ip + ":" + server._node.port + "/server/" + server.id,
           {
             path: "/s/",
             transports: ["websocket", "flashsocket", "polling"],
             rejectUnauthorized: false,
             query: {
-              authentication: node.secret
+              authentication: server._node.secret
             }
           }
         );

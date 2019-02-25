@@ -37,8 +37,8 @@ export default class Preset extends Typegoose {
   };
   @prop()
   public preinstalledPlugins: string[];
-  @prop()
-  public allowSwitchingTo: string[];
+  @prop({ref: 'presets'})
+  public _allowSwitchingTo: Types.ObjectId[];
   @prop()
   public creditsPerDay: number;
 }

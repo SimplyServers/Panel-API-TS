@@ -170,10 +170,7 @@ export class NodeController implements IController {
       return next(new ActionFailed("Name already assigned to node.", true));
     }
 
-    // Create the user
-    const NodeModal = new Node().getModelForClass(Node);
-
-    const newNode = new NodeModal({
+    const newNode = new ServerNodeModel({
       ip: req.body.ip,
       name: req.body.name,
       secret: req.body.secret,

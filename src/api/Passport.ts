@@ -1,7 +1,6 @@
 import * as passport from "passport";
 import passportLocal = require("passport-local");
-import { Storage } from "../database/Storage";
-import { Models } from "../types/Models";
+import { UserModel } from "../database/models/User";
 
 export class Passport {
   public static bootstrap = () => {
@@ -14,10 +13,7 @@ export class Passport {
         async (usr, pass, done) => {
           let user;
           try {
-            user = await Storage.getOneItem({
-              model: Models.User,
-              condition: { "account_info.email": usr }
-            });
+            user = await UserModel.findOne({"account_info.email": usr});
           } catch (e) {
             return done(null, false, { message: "Server error" });
           }

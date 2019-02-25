@@ -1,5 +1,4 @@
-import { Storage } from "../../database/Storage";
-import { Models } from "../../types/Models";
+import { GameServerModel } from "../../database/models/GameServer";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class GetServerMiddleware {
@@ -7,10 +6,11 @@ export class GetServerMiddleware {
     console.log("gere");
     let server;
     try {
-      server = await Storage.getItemByID({
-        model: Models.GameServer,
-        id: req.params.server
-      });
+      server = await GameServerModel.findById(req.params.server)
+        .populate('_nodeInstalled', ["id"])
+        .populate('_preset', ["id"])
+        .populate('_owner', ["id"]);
+      console.log("populated server: " + JSON.stringify(server));
     } catch (e) {
       return next(e);
     }
@@ -33,10 +33,11 @@ export class GetServerMiddleware {
   public static serverOwnerAccess = async (req, res, next) => {
     let server;
     try {
-      server = await Storage.getItemByID({
-        model: Models.GameServer,
-        id: req.params.server
-      });
+      server = await GameServerModel.findById(req.params.server)
+        .populate('_nodeInstalled', ["id"])
+        .populate('_preset', ["id"])
+        .populate('_owner', ["id"]);
+      console.log("populated server: " + JSON.stringify(server));
     } catch (e) {
       return next(e);
     }
@@ -54,10 +55,11 @@ export class GetServerMiddleware {
   public static getServer = async (req, res, next) => {
     let server;
     try {
-      server = await Storage.getItemByID({
-        model: Models.GameServer,
-        id: req.params.server
-      });
+      server = await GameServerModel.findById(req.params.server)
+        .populate('_nodeInstalled', ["id"])
+        .populate('_preset', ["id"])
+        .populate('_owner', ["id"]);
+      console.log("populated server: " + JSON.stringify(server));
     } catch (e) {
       return next(e);
     }

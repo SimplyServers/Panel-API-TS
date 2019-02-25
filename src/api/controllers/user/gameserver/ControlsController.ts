@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { check, validationResult } from "express-validator/check";
+import { ServerNodeModel } from "../../../../database/models/ServerNode";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";
@@ -39,17 +40,7 @@ export class ControlsController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    let node;
-    try {
-      node = await Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-    } catch (e) {
-      return next(e);
-    }
-
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.execute(req.server, req.body.command);
     } catch (e) {
@@ -63,17 +54,7 @@ export class ControlsController implements IController {
   };
 
   public install = async (req, res, next) => {
-    let node;
-    try {
-      node = await Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-    } catch (e) {
-      return next(e);
-    }
-
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.install(req.server);
     } catch (e) {
@@ -91,17 +72,7 @@ export class ControlsController implements IController {
   };
 
   public reinstall = async (req, res, next) => {
-    let node;
-    try {
-      node = await Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-    } catch (e) {
-      return next(e);
-    }
-
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.reinstall(req.server);
     } catch (e) {

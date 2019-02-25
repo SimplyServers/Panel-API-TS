@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { Storage } from "../../../database/Storage";
-import { Models } from "../../../types/Models";
+import { GameServerModel } from "../../../database/models/GameServer";
+import { PresetModel } from "../../../database/models/Preset";
+import { UserModel } from "../../../database/models/User";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
@@ -27,11 +28,9 @@ export class ProfileController implements IController {
   public profile = async (req, res, next) => {
     let user;
     try{
-      user = await Storage.getItemByID({
-        model: Models.User,
-        id: req.payload.id,
-        rule: {"account_info.password": 0, "account_info.resetPassword": 0}
-      });
+      user = await UserModel.findById(req.payload.id, {"account_info.password": 0, "account_info.resetPassword": 0}).populate("_group", [
+        "id"
+      ]).orFail();
     }catch (e) {
       return next(e);
     }
@@ -42,33 +41,21 @@ export class ProfileController implements IController {
   public getPresets = async (req, res, next) => {
     let user;
     let presets;
-    let group;
 
     try {
-      const getUser = Storage.getItemByID({
-        model: Models.User,
-        id: req.payload.id
-      });
-      const getPresets = Storage.getAll({
-        model: Models.Preset,
-        rule: { "special.fs": 0 }
-      });
+      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+        "id"
+      ]);
+      const getPresets = PresetModel.find({}, { "special.fs": 0 });
 
       user = await getUser;
       presets = await getPresets;
-
-      const getGroup = Storage.getItemByID({
-        model: Models.Group,
-        id: user.account_info.group
-      });
-
-      group = await getGroup;
     } catch (e) {
       return next(e);
     }
 
     const returnPresets = [];
-    group.presetsAllowed.forEach(groupPresetID => {
+    user._group.presetsAllowed.forEach(groupPresetID => {
       const preset = presets.find(presetData => presetData.id === groupPresetID);
       if (preset === undefined) {
         return;
@@ -83,15 +70,34 @@ export class ProfileController implements IController {
   };
 
   public getServers = async (req, res, next) => {
-    let user, presets, servers, group;
+    let user;
+    let servers;
     try {
-      user = Storage.getItemByID({
-        model: Models.User,
-        id: req.payload.id
-      });
+      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+        "id"
+      ]);
 
+      user = await getUser;
+
+      servers = await GameServerModel.find({
+        $or: [
+          {
+            sub_owners: user.id
+          },
+          {
+            owner: user.id
+          }
+        ]
+      })
+        .populate({ path: "_presets", populate: { path: "_allowSwitchingTo" }})
+        .populate("_sub_owners", [
+          "id"
+        ])
+    }catch (e) {
+      return next(e);
     }
 
+    return res.json(servers);
 
     // let user;
     // let presets;
@@ -118,10 +124,10 @@ export class ProfileController implements IController {
     //     condition: {
     //       $or: [
     //         {
-    //           sub_owners: user._id
+    //           sub_owners: user.id
     //         },
     //         {
-    //           owner: user._id
+    //           owner: user.id
     //         }
     //       ]
     //     }
@@ -161,7 +167,7 @@ export class ProfileController implements IController {
     //     console.log("t2: " + typeof obsServer.preset);
     //
     //
-    //     obsServer.isOwner = !(server.sub_owners.indexOf(user._id) > -1);
+    //     obsServer.isOwner = !(server.sub_owners.indexOf(user.id) > -1);
     //
     //     // Get the data for the allowSwitchingTo field.
     //     const allowSwitchingTo = [];
@@ -187,7 +193,7 @@ export class ProfileController implements IController {
     //       try {
     //         subUsers = await Storage.getItems({
     //           model: Models.User,
-    //           condition: { _id: { $all: server.sub_owners } },
+    //           condition: { id: { $all: server.sub_owners } },
     //           rule: { "account_info.username": 1 }
     //         });
     //       } catch (e) {

@@ -23,7 +23,7 @@ export default class ServerNode extends Typegoose {
   public name: string;
   @prop()
   public status: {
-    lastOnline?: Date;
+    lastOnline?: any; // TODO: talk with Andrew
     cpu?: string;
     totalmem?: number;
     freemem?: number;

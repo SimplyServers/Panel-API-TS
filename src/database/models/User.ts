@@ -6,22 +6,21 @@ import { instanceMethod, pre, prop, Typegoose } from "typegoose";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
 import { GroupModel } from "./Group";
 
-@pre<User>("save", async function(next) {
-  if (this._id === undefined || this._id === null) {
-    this._id = Types.ObjectId();
-  }
-  if (this.game_info === undefined || this.game_info === null) {
-    this.game_info = {
-      minecraft: {},
-      steam: {}
-    };
-  }
-  next();
-})
+// @pre<User>("save", async function(next) {
+//   if (this._id === undefined || this._id === null) {
+//     this._id = Types.ObjectId();
+//   }
+//   if (this.game_info === undefined || this.game_info === null) {
+//     this.game_info = {
+//       minecraft: {},
+//       steam: {}
+//     };
+//   }
+//   next();
+// })
 export default class User extends Typegoose {
   @prop()
-  /* tslint:disable:variable-name */
-  public _id?: Types.ObjectId;
+  public id?: mongoose.Types.ObjectId;
   @prop()
   public game_info?: {
     minecraft?: {
@@ -80,7 +79,7 @@ export default class User extends Typegoose {
       token: this.generateJWT(),
       email: this.account_info.email,
       username: this.account_info.username,
-      id: this._id,
+      id: this.id,
       credits: this.balance,
       mcUUID: "",
       group: undefined
@@ -128,7 +127,7 @@ export default class User extends Typegoose {
       {
         email: this.account_info.email,
         username: this.account_info.username,
-        id: this._id,
+        id: this.id,
         exp: parseInt((expirationDate.getTime() / 1000).toString(), 10)
       },
       SimplyServersAPI.config.web.JWTSecret

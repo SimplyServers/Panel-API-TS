@@ -16,7 +16,7 @@ export default class GameServer extends Typegoose {
   @prop({ref: 'users'})
   public _owner: Types.ObjectId;
   @prop({ref: 'users'})
-  public sub_owners: Types.ObjectId[];
+  public _sub_owners: Types.ObjectId[];
   @prop({ref: 'presets'})
   public _preset: Types.ObjectId;
   @prop()

@@ -183,7 +183,7 @@ export class PresetController implements IController {
   public getPreset = async (req, res, next) => {
     let preset;
     try {
-      preset = PresetModel.findById(req.params.preset).orFail();
+      preset = await PresetModel.findById(req.params.preset).orFail();
     } catch (e) {
       return next(e);
     }
@@ -273,7 +273,7 @@ export class PresetController implements IController {
     // Make sure the name isn't already assigned
     let existingPresets;
     try {
-      existingPresets = PresetModel.find({ name: req.body.name });
+      existingPresets = await PresetModel.find({ name: req.body.name });
     } catch (e) {
       return next(new ActionFailed("Failed checking existing presets.", false));
     }
@@ -281,10 +281,7 @@ export class PresetController implements IController {
       return next(new ActionFailed("Name already assigned to preset.", true));
     }
 
-    // Create the user
-    const PresetModal = new Preset().getModelForClass(Preset);
-
-    const newPreset = new PresetModal({
+    const newPreset = new PresetModel({
       name: req.body.name,
       game: req.body.game,
       autoShutdown: req.body.autoShutdown,

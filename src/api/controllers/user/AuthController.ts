@@ -3,7 +3,7 @@ import { check, validationResult } from "express-validator/check";
 import { Types } from "mongoose";
 import * as passport from "passport";
 import * as zxcvbn from "zxcvbn";
-import User from "../../../database/models/User";
+import User, { UserModel } from "../../../database/models/User";
 
 import { SimplyServersAPI } from "../../../SimplyServersAPI";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
@@ -67,19 +67,17 @@ export class AuthController implements IController {
     let existingUsers;
     try {
       // existingUsers = await Storage.getItems(Models.User, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
-      existingUsers = await Storage.getItems({
-        model: Models.User,
-        condition: {
-          $or: [
-            { "account_info.email": req.body.email },
-            { "account_info.username": req.body.username }
-          ]
-        }
+      existingUsers = await UserModel.find({
+        $or: [
+          { "account_info.email": req.body.email },
+          { "account_info.username": req.body.username }
+        ]
       });
     } catch (e) {
       return next(e);
     }
-    if (existingUsers.length !== 0) {
+    console.log("the fuck? " + JSON.stringify(existingUsers));
+    if (existingUsers && existingUsers.length !== 0) {
       if (existingUsers[0].account_info.username === req.body.username) {
         return next(
           new ValidationError({
@@ -103,10 +101,7 @@ export class AuthController implements IController {
     // Create the verify token
     const verifyToken = (0 | (Math.random() * 9e6)).toString(36); // Wow so secure!
 
-    // Create the user
-    const UserModal = new User().getModelForClass(User);
-
-    const newUser = new UserModal({
+    const newUser = new UserModel({
       game_info: {
         minecraft: {},
         steam: {}

@@ -97,36 +97,17 @@ export class FSController implements IController {
   }
 
   public checkPath = async (req, res, next) => {
-    // Get server
-    let node;
-    let preset;
-
-    try {
-      const getNode = Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      node = await getNode;
-      preset = await getPreset;
-    } catch (e) {
-      return next(e);
-    }
-
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, req.server._preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     let data;
     try {
@@ -146,36 +127,17 @@ export class FSController implements IController {
   };
 
   public writeFile = async (req, res, next) => {
-    // Get server
-    let node;
-    let preset;
-
-    try {
-      const getNode = Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      node = await getNode;
-      preset = await getPreset;
-    } catch (e) {
-      return next(e);
-    }
-
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, req.server._preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       await nodeInterface.createFile(
@@ -198,36 +160,17 @@ export class FSController implements IController {
   };
 
   public removeFile = async (req, res, next) => {
-    // Get server
-    let node;
-    let preset;
-
-    try {
-      const getNode = Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      node = await getNode;
-      preset = await getPreset;
-    } catch (e) {
-      return next(e);
-    }
-
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, req.server._preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       await nodeInterface.removeFile(req.server, req.body.path);
@@ -246,36 +189,17 @@ export class FSController implements IController {
   };
 
   public removeFolder = async (req, res, next) => {
-    // Get server
-    let node;
-    let preset;
-
-    try {
-      const getNode = Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      node = await getNode;
-      preset = await getPreset;
-    } catch (e) {
-      return next(e);
-    }
-
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, req.server._preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     try {
       await nodeInterface.removeFolder(req.server, req.body.path);
@@ -294,36 +218,17 @@ export class FSController implements IController {
   };
 
   public fileContents = async (req, res, next) => {
-    // Get server
-    let node;
-    let preset;
-
-    try {
-      const getNode = Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      node = await getNode;
-      preset = await getPreset;
-    } catch (e) {
-      return next(e);
-    }
-
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, req.server._preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     let data;
     try {
@@ -343,36 +248,17 @@ export class FSController implements IController {
   };
 
   public listDir = async (req, res, next) => {
-    // Get server
-    let node;
-    let preset;
-
-    try {
-      const getNode = Storage.getItemByID({
-        model: Models.Node,
-        id: req.server.nodeInstalled
-      });
-      const getPreset = Storage.getItemByID({
-        model: Models.Preset,
-        id: req.server.preset
-      });
-      node = await getNode;
-      preset = await getPreset;
-    } catch (e) {
-      return next(e);
-    }
-
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, preset)) {
+    if (!FSController.checkViolations(nPath, req.server._preset)) {
       return next(new ActionFailed("Restricted file target.", false));
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(node);
+    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
 
     let data;
     try {
@@ -392,7 +278,7 @@ export class FSController implements IController {
 
     data.contents.map(value => {
       if (
-        preset.special.fs.find(rule => {
+        req.server._preset.special.fs.find(rule => {
           return rule.path === path.join(nPath, value.name) && !rule.canSee;
         }) === undefined
       ) {
