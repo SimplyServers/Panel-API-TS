@@ -1,5 +1,7 @@
+import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
+import MinecraftProperties from "./MinecraftProperties";
 
 @pre<Group>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -21,6 +23,11 @@ export default class Group extends Typegoose {
   public isAdmin: boolean;
   @prop()
   public isStaff: boolean;
-  @prop()
-  public presetsAllowed: string[];
+  @prop({ref: 'presets'})
+  public _presetsAllowed: Types.ObjectId[];
 }
+
+export const GroupModel = new Group().getModelForClass(Group, {
+  existingMongoose: mongoose,
+  schemaOptions: {collection: 'groups'}
+});

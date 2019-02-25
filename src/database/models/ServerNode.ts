@@ -1,5 +1,7 @@
+import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
+import User from "./User";
 
 @pre<ServerNode>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -33,3 +35,8 @@ export default class ServerNode extends Typegoose {
   @prop()
   public plugins: any;
 }
+
+export const ServerNodeModel = new ServerNode().getModelForClass(ServerNode, {
+  existingMongoose: mongoose,
+  schemaOptions: {collection: 'servernodes'}
+});

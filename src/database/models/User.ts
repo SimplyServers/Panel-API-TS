@@ -1,10 +1,10 @@
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { Schema, Types } from "mongoose";
+import { Types } from "mongoose";
+import * as mongoose from "mongoose";
 import { instanceMethod, pre, prop, Typegoose } from "typegoose";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
-import { Models } from "../../types/Models";
-import { Storage } from "../Storage";
+import { GroupModel } from "./Group";
 
 @pre<User>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -23,23 +23,25 @@ export default class User extends Typegoose {
   /* tslint:disable:variable-name */
   public _id?: Types.ObjectId;
   @prop()
-  public game_info: {
-    minecraft: {
+  public game_info?: {
+    minecraft?: {
       uuid?: string;
       username?: string;
       boughtPlugins?: string[];
     };
-    steam: {
+    steam?: {
       steamID?: string;
       username?: string;
     };
   };
 
+  @prop({ ref: "groups" })
+  public _group?: Types.ObjectId;
+
   @prop()
   public account_info: {
     username: string;
     email: string;
-    group?: string;
     primaryName?: string;
     password: {
       hash?: string;
@@ -80,8 +82,8 @@ export default class User extends Typegoose {
       username: this.account_info.username,
       id: this._id,
       credits: this.balance,
-      group: "",
-      mcUUID: ""
+      mcUUID: "",
+      group: undefined
     };
 
     if (
@@ -93,11 +95,15 @@ export default class User extends Typegoose {
       returnData.mcUUID = this.game_info.minecraft.uuid;
     }
 
-    if (this.account_info.group && this.account_info.group !== "") {
-      returnData.group = await Storage.getItemByID({
-        model: Models.Group,
-        id: this.account_info.group
-      });
+    if (this._group) {
+      try {
+        returnData.group = await GroupModel.findById(this._group);
+      } catch (e) {
+        // Ignore this safely
+        returnData.group = "";
+      }
+    }else{
+      returnData.group = "";
     }
 
     return returnData;
@@ -129,3 +135,8 @@ export default class User extends Typegoose {
     );
   }
 }
+
+export const UserModel = new User().getModelForClass(User, {
+  existingMongoose: mongoose,
+  schemaOptions: { collection: "users" }
+});

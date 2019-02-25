@@ -3,9 +3,7 @@ import { check } from "express-validator/check";
 import GameServer from "../../../../database/models/GameServer";
 import MinecraftProperties from "../../../../database/models/MinecraftProperties";
 import Node from "../../../../database/models/ServerNode";
-import { Storage } from "../../../../database/Storage";
 import { SimplyServersAPI } from "../../../../SimplyServersAPI";
-import { Models } from "../../../../types/Models";
 import { Captcha } from "../../../../util/Captcha";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
@@ -317,7 +315,7 @@ export class GameserverController implements IController {
     }
 
     // Check if the user has access to preset
-    if (!(group.presetsAllowed.indexOf(req.body.payload) > -1)) {
+    if (!(group.presetsAllowed.indexOf(req.body.preset) > -1)) {
       return next(new ActionFailed("You don't have permissions.", true));
     }
 
@@ -339,18 +337,23 @@ export class GameserverController implements IController {
       if (found) {
         return;
       }
+      console.log("node json: " + JSON.stringify(nodeModal)); // TODO: remove
+      console.log("preset game: " + preset.game); // TODO: remove
       if (
         nodeModal.games.find(game => game.name === preset.game) !== undefined
       ) {
+        console.log("passed!"); // TODO: remove
         if (!nodeModal.status.freedisk || !nodeModal.status.totaldisk) {
           SimplyServersAPI.logger.info(
             "Node " + nodeModal._id + " is too new."
           );
         } else {
-          if (nodeModal.status.freedisk / nodeModal.status.totaldisk < 0.8) {
+          if (nodeModal.status.freedisk / nodeModal.status.totaldisk < 0.9) {
+            console.log("we're ok!");
             // At 80%
-            decidedNode = new nodeModal();
+            decidedNode = nodeModal;
             found = true;
+            console.log("found node yay: " + JSON.stringify(decidedNode));
           } else {
             SimplyServersAPI.logger.info(
               "Node " +

@@ -1,8 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Preset from "../../../database/models/Preset";
-import { Storage } from "../../../database/Storage";
-import { Models } from "../../../types/Models";
+import Preset, { PresetModel } from "../../../database/models/Preset";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { Validators } from "../../../util/Validators";
@@ -24,17 +22,19 @@ export class PresetController implements IController {
     }
 
     arr.map(rule => {
+      console.log("pulled rule: " + JSON.stringify(rule));
       if (!rule.path) {
         throw new ActionFailed(
           "Fs value " + JSON.stringify(rule) + " is missing path",
           true
         );
-      } else if (!rule.canChange) {
+      } else if (rule.canChange === undefined) {
+        console.log("WTF!");
         throw new ActionFailed(
           "Fs value " + JSON.stringify(rule) + " is missing canChange",
           true
         );
-      } else if (!rule.canSee) {
+      } else if (rule.canSee === undefined) {
         throw new ActionFailed(
           "Fs value " + JSON.stringify(rule) + " is missing canSee",
           true
@@ -61,6 +61,10 @@ export class PresetController implements IController {
           .exists()
           .isString()
           .isLength({ max: 30 }),
+        check("game")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
         check("mem")
           .exists()
           .toInt(),
@@ -82,6 +86,9 @@ export class PresetController implements IController {
         check("views")
           .exists()
           .customSanitizer(Validators.checkJsonArray),
+        check("allowSwitchingTo")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
         check("preinstalledPlugins")
           .exists()
           .customSanitizer(Validators.checkJsonArray),
@@ -100,6 +107,10 @@ export class PresetController implements IController {
         AuthMiddleware.jwtAuth.required,
         AuthMiddleware.isAdmin,
         check("name")
+          .exists()
+          .isString()
+          .isLength({ max: 30 }),
+        check("game")
           .exists()
           .isString()
           .isLength({ max: 30 }),
@@ -132,7 +143,10 @@ export class PresetController implements IController {
           .toBoolean(),
         check("fs")
           .exists()
-          .customSanitizer(this.fsValidator)
+          .customSanitizer(this.fsValidator),
+        check("allowSwitchingTo")
+          .exists()
+          .customSanitizer(Validators.checkJsonArray),
       ],
       this.editPreset
     );
@@ -156,7 +170,7 @@ export class PresetController implements IController {
   public getPresets = async (req, res, next) => {
     let presets;
     try {
-      presets = await Storage.getAll({ model: Models.Preset });
+      presets = await PresetModel.find({});
     } catch (e) {
       return next(e);
     }
@@ -169,10 +183,7 @@ export class PresetController implements IController {
   public getPreset = async (req, res, next) => {
     let preset;
     try {
-      preset = await Storage.getItemByID({
-        model: Models.Preset,
-        id: req.params.preset
-      });
+      preset = PresetModel.findById(req.params.preset).orFail();
     } catch (e) {
       return next(e);
     }
@@ -185,10 +196,7 @@ export class PresetController implements IController {
   public removePreset = async (req, res, next) => {
     let preset;
     try {
-      preset = await Storage.removeItem({
-        model: Models.Preset,
-        id: req.params.preset
-      });
+      preset = await PresetModel.findByIdAndDelete(req.params.preset).orFail();
     } catch (e) {
       return next(e);
     }
@@ -210,12 +218,7 @@ export class PresetController implements IController {
     // Make sure the name isn't already assigned
     let existingPresets;
     try {
-      existingPresets = await Storage.getItems({
-        model: Models.Preset,
-        condition: {
-          name: req.body.name
-        }
-      });
+      existingPresets = await PresetModel.find({ name: req.body.name });
     } catch (e) {
       return next(e);
     }
@@ -270,12 +273,7 @@ export class PresetController implements IController {
     // Make sure the name isn't already assigned
     let existingPresets;
     try {
-      existingPresets = await Storage.getItems({
-        model: Models.Preset,
-        condition: {
-          name: req.body.name
-        }
-      });
+      existingPresets = PresetModel.find({ name: req.body.name });
     } catch (e) {
       return next(new ActionFailed("Failed checking existing presets.", false));
     }

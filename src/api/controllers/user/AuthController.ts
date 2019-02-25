@@ -1,16 +1,15 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
+import { Types } from "mongoose";
 import * as passport from "passport";
 import * as zxcvbn from "zxcvbn";
 import User from "../../../database/models/User";
 
-import { Storage } from "../../../database/Storage";
 import { SimplyServersAPI } from "../../../SimplyServersAPI";
-import { Models } from "../../../types/Models";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
-import { IController } from "../IController";
 import { Mailer } from "../../../util/Mailer";
+import { IController } from "../IController";
 
 export class AuthController implements IController {
   public initRoutes(router: Router): void {
@@ -126,7 +125,7 @@ export class AuthController implements IController {
       SimplyServersAPI.config.defaultGroup &&
       SimplyServersAPI.config.defaultGroup !== ""
     ) {
-      newUser.account_info.group = SimplyServersAPI.config.defaultGroup;
+      newUser._group = Types.ObjectId(SimplyServersAPI.config.defaultGroup);
     }
 
     // TODO: GMAIL ARE DUMB

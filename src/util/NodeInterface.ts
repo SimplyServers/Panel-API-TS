@@ -27,7 +27,7 @@ export class NodeInterface {
   }
 
   public games = async () => {
-    return await this.get("game");
+    return (await this.get("game")).games;
   };
 
   public query = async () => {
@@ -109,7 +109,7 @@ export class NodeInterface {
   };
 
   public getPlugins = async () => {
-    return await this.get("/plugin");
+    return (await this.get("/plugin")).plugins;
   };
 
   public add = async (config: any, password: string) => {

@@ -1,8 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Node from "../../../database/models/ServerNode";
-import { Storage } from "../../../database/Storage";
-import { Models } from "../../../types/Models";
+import Node, { ServerNodeModel } from "../../../database/models/ServerNode";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
@@ -73,7 +71,7 @@ export class NodeController implements IController {
   public getNodes = async (req, res, next) => {
     let nodes;
     try {
-      nodes = await Storage.getAll({ model: Models.Node });
+      nodes = await ServerNodeModel.find({});
     } catch (e) {
       return next(e);
     }
@@ -86,7 +84,7 @@ export class NodeController implements IController {
   public getNode = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.getItemByID({ model: Models.Node, id: req.params.node });
+      node = await ServerNodeModel.findById(req.params.node).orFail();
     } catch (e) {
       return next(e);
     }
@@ -99,10 +97,7 @@ export class NodeController implements IController {
   public removeNode = async (req, res, next) => {
     let node;
     try {
-      node = await Storage.removeItem({
-        model: Models.Node,
-        id: req.params.node
-      });
+      node = await ServerNodeModel.findByIdAndDelete(req.params.node).orFail();
     } catch (e) {
       return next(e);
     }
@@ -124,12 +119,7 @@ export class NodeController implements IController {
     // Make sure the name isn't already assigned
     let existingNodes;
     try {
-      existingNodes = await Storage.getItems({
-        model: Models.Node,
-        condition: {
-          name: req.body.name
-        }
-      });
+      existingNodes = await ServerNodeModel.find({ name: req.body.name });
     } catch (e) {
       return next(e);
     }
@@ -172,12 +162,7 @@ export class NodeController implements IController {
     // Make sure the name isn't already assigned
     let existingNodes;
     try {
-      existingNodes = await Storage.getItems({
-        model: Models.Node,
-        condition: {
-          name: req.body.name
-        }
-      });
+      existingNodes = await ServerNodeModel.find({ name: req.body.name });
     } catch (e) {
       return next(new ActionFailed("Failed checking existing nodes.", false));
     }

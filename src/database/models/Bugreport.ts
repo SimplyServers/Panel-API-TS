@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
+import * as mongoose from 'mongoose';
 
 @pre<Bugreport>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -26,3 +27,9 @@ export default class Bugreport extends Typegoose {
     credits: number;
   };
 }
+
+
+export const BugreportModel = new Bugreport().getModelForClass(Bugreport, {
+  existingMongoose: mongoose,
+  schemaOptions: {collection: 'bugreports'}
+});

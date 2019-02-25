@@ -9,19 +9,19 @@ export class AuthMiddleware {
     let user;
     let group;
     try {
-      user = await Storage.getItemByID({ model: Models.User, id: req.payload.id });
-      if (!user.account_info.group || user.account_info.group === "") {
-        return next(
-          new ActionFailed(
-            "You must be assigned to a group to access this endpoint",
-            true
-          )
-        );
-      }
-      group = await Storage.getItemByID({
-        model: Models.Group,
-        id: user.account_info.group
-      });
+      user = await Storage.getItemByID({ model: Models.User, id: req.payload.id, populate:  });
+      // if (!user.account_info.group || user.account_info.group === "") {
+      //   return next(
+      //     new ActionFailed(
+      //       "You must be assigned to a group to access this endpoint",
+      //       true
+      //     )
+      //   );
+      // }
+      // group = await Storage.getItemByID({
+      //   model: Models.Group,
+      //   id: user.account_info.group
+      // });
     } catch (e) {
       return next(e);
     }

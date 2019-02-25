@@ -1,5 +1,7 @@
+import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
+import ServerNode from "./ServerNode";
 
 @pre<Preset>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -40,3 +42,8 @@ export default class Preset extends Typegoose {
   @prop()
   public creditsPerDay: number;
 }
+
+export const PresetModel = new Preset().getModelForClass(Preset, {
+  existingMongoose: mongoose,
+  schemaOptions: {collection: 'presets'}
+});

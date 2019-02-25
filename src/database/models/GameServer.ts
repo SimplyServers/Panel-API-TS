@@ -1,5 +1,7 @@
-import { Types } from "mongoose";
+import * as mongoose from "mongoose";
+import { Schema, Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
+import Group from "./Group";
 
 @pre<GameServer>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -11,18 +13,18 @@ export default class GameServer extends Typegoose {
   @prop()
   /* tslint:disable:variable-name */
   public _id?: Types.ObjectId;
-  @prop()
-  public owner: string;
-  @prop()
-  public sub_owners: string[];
-  @prop()
-  public preset: string;
+  @prop({ref: 'users'})
+  public _owner: Types.ObjectId;
+  @prop({ref: 'users'})
+  public sub_owners: Types.ObjectId[];
+  @prop({ref: 'presets'})
+  public _preset: Types.ObjectId;
   @prop()
   public timeOnline: number;
   @prop()
   public motd: string;
-  @prop()
-  public nodeInstalled: string;
+  @prop({ref: 'servernodes'})
+  public _nodeInstalled: Types.ObjectId;
   @prop()
   public sftpPassword: string;
   @prop()
@@ -36,3 +38,8 @@ export default class GameServer extends Typegoose {
     minecraftPlugins: string[];
   };
 }
+
+export const GameServerModel = new GameServer().getModelForClass(GameServer, {
+  existingMongoose: mongoose,
+  schemaOptions: {collection: 'gameservers'}
+});

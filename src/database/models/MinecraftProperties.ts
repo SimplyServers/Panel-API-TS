@@ -1,5 +1,7 @@
+import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
+import Preset from "./Preset";
 
 @pre<MinecraftProperties>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -27,3 +29,9 @@ export default class MinecraftProperties extends Typegoose {
     whitelist: boolean;
   };
 }
+
+export const MinecraftPropertiesModel = new MinecraftProperties().getModelForClass(MinecraftProperties, {
+  existingMongoose: mongoose,
+  schemaOptions: {collection: 'minecraftproperties'}
+});
+

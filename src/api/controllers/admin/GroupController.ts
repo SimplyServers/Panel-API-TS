@@ -1,8 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Group from "../../../database/models/Group";
-import { Storage } from "../../../database/Storage";
-import { Models } from "../../../types/Models";
+import Group, { GroupModel } from "../../../database/models/Group";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { Validators } from "../../../util/Validators";
@@ -87,7 +85,7 @@ export class GroupController implements IController {
   public getGroups = async (req, res, next) => {
     let groups;
     try {
-      groups = await Storage.getAll({ model: Models.Group });
+      groups = await GroupModel.find({});
     } catch (e) {
       return next(e);
     }
@@ -100,10 +98,7 @@ export class GroupController implements IController {
   public getGroup = async (req, res, next) => {
     let group;
     try {
-      group = await Storage.getItemByID({
-        model: Models.Group,
-        id: req.params.group
-      });
+      group = await GroupModel.findById(req.params.group).orFail();
     } catch (e) {
       return next(e);
     }
@@ -116,10 +111,7 @@ export class GroupController implements IController {
   public removeGroup = async (req, res, next) => {
     let group;
     try {
-      group = await Storage.removeItem({
-        model: Models.Group,
-        id: req.params.group
-      });
+      group = await GroupModel.findByIdAndDelete(req.params.group).orFail();
     } catch (e) {
       return next(e);
     }
@@ -141,12 +133,7 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await Storage.getItems({
-        model: Models.Group,
-        condition: {
-          name: req.body.name
-        }
-      });
+      existingGroups = await GroupModel.find({name: req.body.name });
     } catch (e) {
       return next(e);
     }
@@ -191,12 +178,7 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await Storage.getItems({
-        model: Models.Group,
-        condition: {
-          name: req.body.name
-        }
-      });
+      existingGroups = await GroupModel.find({name: req.body.name});
     } catch (e) {
       return next(new ActionFailed("Failed checking existing groups.", false));
     }
@@ -204,10 +186,7 @@ export class GroupController implements IController {
       return next(new ActionFailed("Name already assigned to group.", true));
     }
 
-    // Create the user
-    const GroupModal = new Group().getModelForClass(Group);
-
-    const newGroup = new GroupModal({
+    const newGroup = new GroupModel({
       color: req.body.color,
       displayName: req.body.displayName,
       name: req.body.name,
