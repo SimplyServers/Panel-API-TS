@@ -7,7 +7,7 @@ export class AuthMiddleware {
   public static isStaff = async (req, res, next) => {
     let user;
     try {
-      user = await UserModel.findById(req.payload.id).populate("_group", [
+      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
         "id"
       ]);
     } catch (e) {
@@ -32,7 +32,7 @@ export class AuthMiddleware {
   public static isAdmin = async (req, res, next) => {
     let user;
     try {
-      user = await UserModel.findById(req.payload.id).populate("_group", [
+      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
         "id"
       ]);
     } catch (e) {

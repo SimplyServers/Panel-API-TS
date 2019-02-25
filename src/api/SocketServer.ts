@@ -50,8 +50,8 @@ export class SocketServer {
         }
 
         if (
-          server.owner !== socket.decoded_token.id &&
-          !(server.sub_owners.indexOf(socket.decoded_token.id) > -1)
+          server.owner !== socket.decoded_token._id &&
+          !(server.sub_owners.indexOf(socket.decoded_token._id) > -1)
         ) {
           socket.disconnect();
           return;
@@ -61,7 +61,7 @@ export class SocketServer {
         // Stupid typings error. Ignore
         // @ts-ignore
         const serverSocket = socketClient(
-          "https://" + server._node.ip + ":" + server._node.port + "/server/" + server.id,
+          "https://" + server._node.ip + ":" + server._node.port + "/server/" + server._id,
           {
             path: "/s/",
             transports: ["websocket", "flashsocket", "polling"],

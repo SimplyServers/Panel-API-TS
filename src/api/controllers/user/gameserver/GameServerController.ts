@@ -151,12 +151,12 @@ export class GameserverController implements IController {
   public removeSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await UserModel.findById(req.body.id);
+      targetUser = await UserModel.findById(req.body._id);
     } catch (e) {
       return next(e);
     }
 
-    const userIndex = req.server.sub_owners.indexOf(targetUser.id);
+    const userIndex = req.server.sub_owners.indexOf(targetUser._id);
     if (!(userIndex > -1)) {
       return next(new ActionFailed("User is not an subuser.", true));
     }
@@ -180,17 +180,17 @@ export class GameserverController implements IController {
       return next(e);
     }
 
-    if (req.server.sub_owners.indexOf(targetUser.id) > -1) {
+    if (req.server.sub_owners.indexOf(targetUser._id) > -1) {
       return next(new ActionFailed("User is already an subuser.", true));
     }
 
-    if (req.server.owner === targetUser.id.toString()) {
+    if (req.server.owner === targetUser._id.toString()) {
       return next(
         new ActionFailed("The server owner is not a valid subuser.", true)
       );
     }
 
-    req.server.sub_owners.push(targetUser.id);
+    req.server.sub_owners.push(targetUser._id);
 
     try {
       await req.server.save();
@@ -227,7 +227,7 @@ export class GameserverController implements IController {
             name: req.body.name
           },
           {
-            owner: req.payload.id
+            owner: Types.ObjectId(req.payload.id)
           }
         ]
       });
@@ -245,7 +245,7 @@ export class GameserverController implements IController {
           })
         );
       } else if (
-        existingServers[0].owner.toString() === req.payload.id.toString()
+        existingServers[0].owner.toString() === Types.ObjectId(req.payload.id).toString()
       ) {
         return next(new ActionFailed("You already own a server.", true));
       }
@@ -253,7 +253,7 @@ export class GameserverController implements IController {
     }
 
     try {
-      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
         "id"
       ]);
       const getPreset = PresetModel.findById(req.body.preset);
@@ -304,7 +304,7 @@ export class GameserverController implements IController {
         console.log("passed!"); // TODO: remove
         if (!nodeModal.status.freedisk || !nodeModal.status.totaldisk) {
           SimplyServersAPI.logger.info(
-            "Node " + nodeModal.id + " is too new."
+            "Node " + nodeModal._id + " is too new."
           );
         } else {
           if (nodeModal.status.freedisk / nodeModal.status.totaldisk < 0.9) {
@@ -316,7 +316,7 @@ export class GameserverController implements IController {
           } else {
             SimplyServersAPI.logger.info(
               "Node " +
-                nodeModal.id +
+                nodeModal._id +
                 " is stressed (" +
                 nodeModal.status.freedisk / nodeModal.status.totaldisk +
                 ")"
@@ -340,12 +340,12 @@ export class GameserverController implements IController {
     const ServerModal = new GameServer().getModelForClass(GameServer);
 
     const newServer = new ServerModal({
-      owner: req.payload.id,
+      owner: Types.ObjectId(req.payload.id),
       sub_owners: [],
       preset: req.body.preset,
       timeOnline: 0,
       online: false,
-      nodeInstalled: decidedNode.id, // ITS BEEN INITIALIZED DUMBASS
+      nodeInstalled: decidedNode._id, // ITS BEEN INITIALIZED DUMBASS
       motd: req.body.motd,
       sftpPassword: sftpPwd,
       port: 0,
@@ -362,7 +362,7 @@ export class GameserverController implements IController {
     }
 
     const serverTemplateConfig = {
-      id: newServer.id,
+      id: newServer._id,
       game: preset.game,
       port: -1,
       build: {
@@ -410,7 +410,7 @@ export class GameserverController implements IController {
       );
 
       const serverProperties = new MinecraftPropertiesModal({
-        server: newServer.id,
+        server: newServer._id,
         settings: {
           spawnprotection: 16,
           allownether: true,
@@ -437,7 +437,7 @@ export class GameserverController implements IController {
       await Promise.all(
         preset.preinstalledPlugins.map(async value => {
           try {
-            await nodeInterface.installPlugin(newServer.id, value);
+            await nodeInterface.installPlugin(newServer._id, value);
           } catch (e) {
             SimplyServersAPI.logger.error("Server plugin install failed: " + e);
           }
@@ -453,7 +453,7 @@ export class GameserverController implements IController {
     let newPreset;
 
     try {
-      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
         "id"
       ]);
       const getNewPreset = PresetModel.findById(req.body.preset).orFail();

@@ -16,8 +16,8 @@ export class GetServerMiddleware {
     }
 
     if (
-      server.owner === req.payload.id ||
-      server.sub_owners.indexOf(req.payload.id) > -1
+      server.owner === Types.ObjectId(req.payload.id) ||
+      server.sub_owners.indexOf(Types.ObjectId(req.payload.id)) > -1
     ) {
       req.server = server; // Assign the server to a value in the request
       console.log("gere2");
@@ -42,7 +42,7 @@ export class GetServerMiddleware {
       return next(e);
     }
 
-    if (server.owner === req.payload.id) {
+    if (server.owner === Types.ObjectId(req.payload.id)) {
       req.server = server;
       return next();
     } else {

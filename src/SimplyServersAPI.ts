@@ -3,6 +3,7 @@ import * as mongoose from "mongoose";
 
 import * as configData from "../config.json";
 import { APIServer } from "./api/APIServer";
+import { GroupModel } from "./database/models/Group";
 import { NodeUpdater } from "./NodeUpdater";
 
 import { IConfig } from "./types/IConfig";
@@ -76,6 +77,9 @@ export class SimplyServersAPI {
         SimplyServersAPI.config.database,
         { useNewUrlParser: true }
       );
+
+      new GroupModel();
+
     } catch (e) {
       SimplyServersAPI.logger.error("Failed to connect to database: " + e);
       process.exit(1);

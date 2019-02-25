@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { Types } from "mongoose";
 import { GameServerModel } from "../../../database/models/GameServer";
 import { PresetModel } from "../../../database/models/Preset";
 import { UserModel } from "../../../database/models/User";
@@ -26,9 +27,12 @@ export class ProfileController implements IController {
   }
 
   public profile = async (req, res, next) => {
+    console.log("debug: " + JSON.stringify(await UserModel.find({})));
+    console.log('ID: ' + Types.ObjectId(req.payload.id));
+    console.log("payload:" + JSON.stringify(req.payload));
     let user;
     try{
-      user = await UserModel.findById(req.payload.id, {"account_info.password": 0, "account_info.resetPassword": 0}).populate("_group", [
+      user = await UserModel.findById(Types.ObjectId(req.payload.id), {"account_info.password": 0, "account_info.resetPassword": 0}).populate("_group", [
         "id"
       ]).orFail();
     }catch (e) {
@@ -43,7 +47,7 @@ export class ProfileController implements IController {
     let presets;
 
     try {
-      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
         "id"
       ]);
       const getPresets = PresetModel.find({}, { "special.fs": 0 });
@@ -56,7 +60,7 @@ export class ProfileController implements IController {
 
     const returnPresets = [];
     user._group.presetsAllowed.forEach(groupPresetID => {
-      const preset = presets.find(presetData => presetData.id === groupPresetID);
+      const preset = presets.find(presetData => presetData._id === groupPresetID);
       if (preset === undefined) {
         return;
       }
@@ -73,7 +77,7 @@ export class ProfileController implements IController {
     let user;
     let servers;
     try {
-      const getUser = UserModel.findById(req.payload.id).populate("_group", [
+      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
         "id"
       ]);
 
@@ -82,10 +86,10 @@ export class ProfileController implements IController {
       servers = await GameServerModel.find({
         $or: [
           {
-            sub_owners: user.id
+            sub_owners: user._id
           },
           {
-            owner: user.id
+            owner: user._id
           }
         ]
       })
@@ -107,7 +111,7 @@ export class ProfileController implements IController {
     // try {
     //   const getUser = Storage.getItemByID({
     //     model: Models.User,
-    //     id: req.payload.id
+    //     id: Types.ObjectId(req.payload.id)
     //   });
     //   const getPresets = Storage.getAll({
     //     model: Models.Preset,
@@ -124,10 +128,10 @@ export class ProfileController implements IController {
     //     condition: {
     //       $or: [
     //         {
-    //           sub_owners: user.id
+    //           sub_owners: user._id
     //         },
     //         {
-    //           owner: user.id
+    //           owner: user._id
     //         }
     //       ]
     //     }
@@ -148,9 +152,9 @@ export class ProfileController implements IController {
     // await Promise.all(
     //   servers.map(async server => {
     //
-    //     console.log(typeof presets.find(preset => preset.id === server.preset));
+    //     console.log(typeof presets.find(preset => preset._id === server.preset));
     //
-    //     const presetData = presets.find(preset => preset.id === server.preset);
+    //     const presetData = presets.find(preset => preset._id === server.preset);
     //
     //     if (presetData === undefined) {
     //       return; // Plugin was removed but its still affiliated with the user
@@ -167,13 +171,13 @@ export class ProfileController implements IController {
     //     console.log("t2: " + typeof obsServer.preset);
     //
     //
-    //     obsServer.isOwner = !(server.sub_owners.indexOf(user.id) > -1);
+    //     obsServer.isOwner = !(server.sub_owners.indexOf(user._id) > -1);
     //
     //     // Get the data for the allowSwitchingTo field.
     //     const allowSwitchingTo = [];
     //     presetData.allowSwitchingTo.map(presetSwitched => {
     //       const presetSwitchedData = presets.find(
-    //         preset => preset.id === presetSwitched
+    //         preset => preset._id === presetSwitched
     //       );
     //       if (!presetSwitchedData) {
     //         return; // Preset has been removed

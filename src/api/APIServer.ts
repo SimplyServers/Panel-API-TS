@@ -74,6 +74,7 @@ export class APIServer {
 
     // Error handling
     this.express.use((err, req, res, next) => {
+      console.log(err);
       console.log("error handler triggered");
       if (err.name === "UnauthorizedError") {
         res.status(401);
