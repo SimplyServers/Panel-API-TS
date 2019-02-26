@@ -88,7 +88,7 @@ export class PresetController implements IController {
           .customSanitizer(Validators.checkJsonArray),
         check("allowSwitchingTo")
           .exists()
-          .customSanitizer(Validators.checkJsonArray),
+          .customSanitizer(Validators.toObjectIDArray),
         check("preinstalledPlugins")
           .exists()
           .customSanitizer(Validators.checkJsonArray),
@@ -146,7 +146,7 @@ export class PresetController implements IController {
           .customSanitizer(this.fsValidator),
         check("allowSwitchingTo")
           .exists()
-          .customSanitizer(Validators.checkJsonArray),
+          .customSanitizer(Validators.toObjectIDArray),
       ],
       this.editPreset
     );
@@ -245,7 +245,8 @@ export class PresetController implements IController {
     existingPreset.special.views = req.body.views;
     existingPreset.autoShutdown = req.body.autoShutdown;
     existingPreset.creditsPerDay = req.body.creditsPerDay;
-    existingPreset.allowSwitchingTo = req.body.allowSwitchingTo;
+    existingPreset.preinstalledPlugins = req.body.preinstalledPlugins;
+    existingPreset._allowSwitchingTo = req.body.allowSwitchingTo;
     existingPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
     existingPreset.maxPlayers = req.body.maxPlayers;
 
@@ -297,7 +298,7 @@ export class PresetController implements IController {
         minecraft: {}
       },
       preinstalledPlugins: req.body.preinstalledPlugins,
-      allowSwitchingTo: req.body.allowSwitchingTo,
+      _allowSwitchingTo: req.body.allowSwitchingTo,
       creditsPerDay: req.body.creditsPerDay
     });
 
@@ -308,6 +309,7 @@ export class PresetController implements IController {
     try {
       await newPreset.save();
     } catch (e) {
+      console.log(e);
       return next(new ActionFailed("Failed to save preset.", false));
     }
 

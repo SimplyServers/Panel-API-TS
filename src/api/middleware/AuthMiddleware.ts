@@ -1,4 +1,5 @@
 import * as jwt from "express-jwt";
+import { Types } from "mongoose";
 import { UserModel } from "../../database/models/User";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
 import { ActionFailed } from "../../util/errors/ActionFailed";
@@ -7,9 +8,7 @@ export class AuthMiddleware {
   public static isStaff = async (req, res, next) => {
     let user;
     try {
-      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "id"
-      ]);
+      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group");
     } catch (e) {
       return next(e);
     }
@@ -32,12 +31,12 @@ export class AuthMiddleware {
   public static isAdmin = async (req, res, next) => {
     let user;
     try {
-      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "id"
-      ]);
+      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group");
     } catch (e) {
       return next(e);
     }
+
+    console.log("auth middleware: " + JSON.stringify(user));
 
     if (!user._group) {
       return next(

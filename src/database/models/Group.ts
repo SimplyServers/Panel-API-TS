@@ -1,8 +1,9 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
-import { pre, prop, Ref, Typegoose } from "typegoose";
+import { arrayProp, pre, prop, Ref, Typegoose } from "typegoose";
 import MinecraftProperties from "./MinecraftProperties";
 import Preset from "./Preset";
+import User from "./User";
 
 @pre<Group>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -24,8 +25,8 @@ export default class Group extends Typegoose {
   public isAdmin: boolean;
   @prop()
   public isStaff: boolean;
-  @prop({ref: Preset})
-  public _presetsAllowed: Array<Ref<Preset>>;
+  @arrayProp({ itemsRef: Preset })
+  public _presetsAllowed: Ref<Preset[]>;
 }
 
 export const GroupModel = new Group().getModelForClass(Group, {

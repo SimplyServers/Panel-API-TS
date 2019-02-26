@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
-import { pre, prop, Ref, Typegoose } from "typegoose";
+import { arrayProp, pre, prop, Ref, Typegoose } from "typegoose";
 import ServerNode from "./ServerNode";
 
 @pre<Preset>("save", async function(next) {
@@ -37,8 +37,8 @@ export default class Preset extends Typegoose {
   };
   @prop()
   public preinstalledPlugins: string[];
-  @prop({ref: Preset})
-  public _allowSwitchingTo: Array<Ref<Preset>>;
+  @arrayProp({ itemsRef: Preset, })
+  public _allowSwitchingTo: Ref<Preset[]>;
   @prop()
   public creditsPerDay: number;
 }

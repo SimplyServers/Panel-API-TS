@@ -1,7 +1,8 @@
 import * as mongoose from "mongoose";
 import { Schema, Types } from "mongoose";
-import { pre, prop, Ref, Typegoose } from "typegoose";
+import { arrayProp, pre, prop, Ref, Typegoose } from "typegoose";
 import Group from "./Group";
+import MinecraftPlugin from "./MinecraftPlugin";
 import Preset from "./Preset";
 import ServerNode from "./ServerNode";
 import User from "./User";
@@ -18,8 +19,8 @@ export default class GameServer extends Typegoose {
   public _id?: Types.ObjectId;
   @prop({ref: User})
   public _owner: Ref<User>;
-  @prop({ref: User})
-  public _sub_owners: Array<Ref<User>>;
+  @arrayProp({ itemsRef: User })
+  public _sub_owners?: Ref<User[]>;
   @prop({ref: Preset})
   public _preset: Ref<Preset>;
   @prop()
@@ -36,10 +37,8 @@ export default class GameServer extends Typegoose {
   public name: string;
   @prop()
   public port: number;
-  @prop()
-  public special: {
-    minecraftPlugins: string[];
-  };
+  @arrayProp({ itemsRef: MinecraftPlugin })
+  public _minecraftPlugins?: Ref<MinecraftPlugin[]>;
 }
 
 export const GameServerModel = new GameServer().getModelForClass(GameServer, {

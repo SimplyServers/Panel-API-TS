@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { GameServerModel } from "../../database/models/GameServer";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 

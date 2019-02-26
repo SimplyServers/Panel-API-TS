@@ -33,7 +33,7 @@ export class ProfileController implements IController {
     let user;
     try{
       user = await UserModel.findById(Types.ObjectId(req.payload.id), {"account_info.password": 0, "account_info.resetPassword": 0}).populate("_group", [
-        "id"
+        "_id"
       ]).orFail();
     }catch (e) {
       return next(e);
@@ -44,32 +44,18 @@ export class ProfileController implements IController {
 
   public getPresets = async (req, res, next) => {
     let user;
-    let presets;
 
     try {
-      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "id"
-      ]);
-      const getPresets = PresetModel.find({}, { "special.fs": 0 });
+      const getUser = UserModel.findById(Types.ObjectId(req.payload.id))
+        .populate({ path: "_group", populate: { path: "_presetsAllowed", select: "-special.fs" }});
 
       user = await getUser;
-      presets = await getPresets;
     } catch (e) {
       return next(e);
     }
 
-    const returnPresets = [];
-    user._group.presetsAllowed.forEach(groupPresetID => {
-      const preset = presets.find(presetData => presetData._id === groupPresetID);
-      if (preset === undefined) {
-        return;
-      }
-
-      returnPresets.push(preset);
-    });
-
     return res.json({
-      presets: returnPresets
+      presets: user._group._presetsAllowed
     })
   };
 
@@ -77,11 +63,9 @@ export class ProfileController implements IController {
     let user;
     let servers;
     try {
-      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "id"
-      ]);
+      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group").exec();
 
-      user = await getUser;
+      console.log("user: " + JSON.stringify(user));
 
       servers = await GameServerModel.find({
         $or: [
@@ -95,13 +79,15 @@ export class ProfileController implements IController {
       })
         .populate({ path: "_presets", populate: { path: "_allowSwitchingTo" }})
         .populate("_sub_owners", [
-          "id"
-        ])
+        "_id"
+      ])
     }catch (e) {
       return next(e);
     }
 
-    return res.json(servers);
+    console.log("pulled server list: " + JSON.stringify(servers));
+
+    return res.json({servers});
 
     // let user;
     // let presets;

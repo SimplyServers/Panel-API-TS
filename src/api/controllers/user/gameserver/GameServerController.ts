@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
+import { Types } from "mongoose";
 import GameServer, { GameServerModel } from "../../../../database/models/GameServer";
 import MinecraftProperties from "../../../../database/models/MinecraftProperties";
 import { PresetModel } from "../../../../database/models/Preset";
@@ -254,7 +255,7 @@ export class GameserverController implements IController {
 
     try {
       const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "id"
+        "_id"
       ]);
       const getPreset = PresetModel.findById(req.body.preset);
       const getNodes = ServerNodeModel.find({});
@@ -454,7 +455,7 @@ export class GameserverController implements IController {
 
     try {
       const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "id"
+        "_id"
       ]);
       const getNewPreset = PresetModel.findById(req.body.preset).orFail();
 
