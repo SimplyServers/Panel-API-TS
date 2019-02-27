@@ -11,18 +11,12 @@ import Preset from "./Preset";
   next();
 })
 @post<Group>("findOne", async (doc) => {
-  console.log("fef")
-  await doc.populate("_presetsAllowed").execPopulate();
-  console.log("af");
+  await doc.populate("_presetsAllowed", "-special.fs").execPopulate();
 })
 @post<Group>("find", async (docs) => {
-  console.log("fef")
-
   for(const doc of docs) {
-    await doc.populate("_presetsAllowed").execPopulate();
+    await doc.populate("_presetsAllowed", "-special.fs").execPopulate();
   }
-  console.log("af");
-
 })
 
 export default class Group extends Typegoose {

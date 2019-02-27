@@ -86,7 +86,7 @@ export class PresetController implements IController {
         check("views")
           .exists()
           .customSanitizer(Validators.checkJsonArray),
-        check("allowSwitchingTo")
+        check("_allowSwitchingTo")
           .exists()
           .customSanitizer(Validators.toObjectIDArray),
         check("preinstalledPlugins")
@@ -144,7 +144,7 @@ export class PresetController implements IController {
         check("fs")
           .exists()
           .customSanitizer(this.fsValidator),
-        check("allowSwitchingTo")
+        check("_allowSwitchingTo")
           .exists()
           .customSanitizer(Validators.toObjectIDArray),
       ],

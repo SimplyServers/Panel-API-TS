@@ -71,7 +71,7 @@ export class ProfileController implements IController {
             "_owner": Types.ObjectId(user._id)
           }
         ]
-      });
+      }, "-sftpPassword");
     }catch (e) {
       return next(e);
     }

@@ -178,18 +178,10 @@ export class GameserverController implements IController {
       return next(e);
     }
 
-    if (req.server.sub_owners.indexOf(targetUser._id) > -1) {
-      return next(new ActionFailed("User is already an subuser.", true));
-    }
+    if (req.server._sub_owners.forEach(subOwner => subOwner._id === targetUser._id) !== undefined) { return next(new ActionFailed("User is already an subuser.", true)); }
+    if (req.server._owner._id == targetUser._id) { return next(new ActionFailed("The server owner is not a valid subuser.", true)); }
 
-    if (req.server._owner._id === targetUser._id.toString()) {
-      return next(
-        new ActionFailed("The server owner is not a valid subuser.", true)
-      );
-    }
-
-    req.server._sub_owners.push(targetUser._id);
-
+    req.server._sub_owners.push(new Types.ObjectId(targetUser._id));
     try {
       await req.server.save();
     } catch (e) {
@@ -356,9 +348,7 @@ export class GameserverController implements IController {
       sftpPassword: sftpPwd,
       port: 0,
       name: req.body.name,
-      special: {
-        minecraftPlugins: []
-      }
+      _minecraftPlugins: []
     });
 
     try {

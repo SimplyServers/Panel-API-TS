@@ -12,12 +12,6 @@ import MinecraftPlugin from "./MinecraftPlugin";
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
-  // if (this.game_info === undefined || this.game_info === null) {
-  //   this.game_info = {
-  //     minecraft: {},
-  //     steam: {}
-  //   };
-  // }
   next();
 })
 @post<User>("find", async (docs) => {
@@ -30,7 +24,7 @@ import MinecraftPlugin from "./MinecraftPlugin";
 @post<User>("findOne", async (doc) => {
   console.log("addasasdf");
   await doc.populate("_minecraftBoughtPlugins").execPopulate();
-  console.log("step 2")
+  console.log("step 2");
   await doc.populate("_group").execPopulate();
 })
 export default class User extends Typegoose {

@@ -16,7 +16,7 @@ export class GroupController implements IController {
         AuthMiddleware.isAdmin,
         check("presetsAllowed")
           .exists()
-          .customSanitizer(Validators.checkJsonArray),
+          .customSanitizer(Validators.toObjectIDArray),
         check("color")
           .exists()
           .isHexColor(),
@@ -44,7 +44,7 @@ export class GroupController implements IController {
         AuthMiddleware.isAdmin,
         check("presetsAllowed")
           .exists()
-          .customSanitizer(Validators.checkJsonArray),
+          .customSanitizer(Validators.toObjectIDArray),
         check("color")
           .exists()
           .isHexColor(),
@@ -151,7 +151,7 @@ export class GroupController implements IController {
 
     const existingGroup = existingGroups[0];
 
-    existingGroup.presetsAllowed = req.body.presetsAllowed;
+    existingGroup._presetsAllowed = req.body.presetsAllowed;
     existingGroup.color = req.body.color;
     existingGroup.name = req.body.name;
     existingGroup.displayName = req.body.displayName;
@@ -192,7 +192,7 @@ export class GroupController implements IController {
       name: req.body.name,
       isAdmin: req.body.isAdmin,
       isStaff: req.body.isStaff,
-      presetsAllowed: req.body.presetsAllowed
+      _presetsAllowed: req.body.presetsAllowed
     });
 
     try {

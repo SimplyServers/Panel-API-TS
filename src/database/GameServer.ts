@@ -14,20 +14,17 @@ import User from "./User";
 })
 @post<GameServer>("find", async (docs) => {
   for(const doc of docs){
-    await doc.populate("_sub_owners").execPopulate();
-    await doc.populate({path : '_preset', populate : {path: '_allowSwitchingTo'}}).execPopulate();
-    // await doc.populate("_nodeInstalled").execPopulate();
+    await doc.populate("_sub_owners", "_id account_info.username").execPopulate();
+    await doc.populate("_preset", "-special.fs").execPopulate();
     await doc.populate("_minecraftPlugins").execPopulate();
-    await doc.populate("_owner").execPopulate();
-
+    await doc.populate("_owner", "_id account_info.username _minecraftBoughtPlugins balance").execPopulate();
   }
 })
 @post<GameServer>("findOne", async (doc) => {
-  await doc.populate("_sub_owners").execPopulate();
-  await doc.populate({path : '_preset', populate : {path: '_allowSwitchingTo'}}).execPopulate();
-  // await doc.populate("_nodeInstalled").execPopulate();
+  await doc.populate("_sub_owners", "_id account_info.username").execPopulate();
+  await doc.populate("_preset", "-special.fs").execPopulate();
   await doc.populate("_minecraftPlugins").execPopulate();
-  await doc.populate("_owner").execPopulate();
+  await doc.populate("_owner", "_id account_info.username _minecraftBoughtPlugins balance").execPopulate();
 
 })
 export default class GameServer extends Typegoose {
