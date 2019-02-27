@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { Types } from "mongoose";
-import { GameServerModel } from "../../../database/models/GameServer";
-import { PresetModel } from "../../../database/models/Preset";
-import { UserModel } from "../../../database/models/User";
+import { GameServerModel } from "../../../database/GameServer";
+import { PresetModel } from "../../../database/Preset";
+import { UserModel } from "../../../database/User";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
@@ -32,9 +32,7 @@ export class ProfileController implements IController {
     console.log("payload:" + JSON.stringify(req.payload));
     let user;
     try{
-      user = await UserModel.findById(Types.ObjectId(req.payload.id), {"account_info.password": 0, "account_info.resetPassword": 0}).populate("_group", [
-        "_id"
-      ]).orFail();
+      user = await UserModel.findById(Types.ObjectId(req.payload.id), {"account_info.password": 0, "account_info.resetPassword": 0}).orFail();
     }catch (e) {
       return next(e);
     }
@@ -46,10 +44,7 @@ export class ProfileController implements IController {
     let user;
 
     try {
-      const getUser = UserModel.findById(Types.ObjectId(req.payload.id))
-        .populate({ path: "_group", populate: { path: "_presetsAllowed", select: "-special.fs" }});
-
-      user = await getUser;
+      user = await UserModel.findById(Types.ObjectId(req.payload.id));
     } catch (e) {
       return next(e);
     }
@@ -63,24 +58,20 @@ export class ProfileController implements IController {
     let user;
     let servers;
     try {
-      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group").exec();
+      user = await UserModel.findById(Types.ObjectId(req.payload.id));
 
       console.log("user: " + JSON.stringify(user));
 
       servers = await GameServerModel.find({
         $or: [
           {
-            sub_owners: user._id
+            "_sub_owners": Types.ObjectId(user._id)
           },
           {
-            owner: user._id
+            "_owner": Types.ObjectId(user._id)
           }
         ]
-      })
-        .populate({ path: "_presets", populate: { path: "_allowSwitchingTo" }})
-        .populate("_sub_owners", [
-        "_id"
-      ])
+      });
     }catch (e) {
       return next(e);
     }

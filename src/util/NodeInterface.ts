@@ -1,8 +1,8 @@
 import * as querystring from "querystring";
 import * as request from "request-promise";
 import urlJoin = require("url-join");
-import GameServer from "../database/models/GameServer";
-import ServerNode from "../database/models/ServerNode";
+import GameServer from "../database/GameServer";
+import ServerNode from "../database/ServerNode";
 
 export class NodeInterface {
   public static niceHandle(e) {

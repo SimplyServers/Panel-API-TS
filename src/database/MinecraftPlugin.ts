@@ -9,19 +9,13 @@ import * as mongoose from 'mongoose';
   next();
 })
 export default class MinecraftPlugin extends Typegoose {
-  @prop()
   /* tslint:disable:variable-name */
-  public _id?: Types.ObjectId;
-  @prop()
-  public name: string;
-  @prop()
-  public games: any;
-  @prop()
-  public credits: number;
-  @prop()
-  public reloadRequired: boolean;
-  @prop()
-  public description: string;
+  @prop() public _id?: Types.ObjectId;
+  @prop() public name: string;
+  @prop() public games: any;
+  @prop() public credits: number;
+  @prop() public reloadRequired: boolean;
+  @prop() public description: string;
   @instanceMethod
   public checkComp(game: any) {
     let works = false;

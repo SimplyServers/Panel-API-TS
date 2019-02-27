@@ -1,4 +1,4 @@
-import { ServerNodeModel } from "./database/models/ServerNode";
+import { ServerNodeModel } from "./database/ServerNode";
 import { SimplyServersAPI } from "./SimplyServersAPI";
 import { NodeInterface } from "./util/NodeInterface";
 

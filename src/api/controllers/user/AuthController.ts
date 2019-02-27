@@ -3,7 +3,7 @@ import { check, validationResult } from "express-validator/check";
 import { Types } from "mongoose";
 import * as passport from "passport";
 import * as zxcvbn from "zxcvbn";
-import User, { UserModel } from "../../../database/models/User";
+import User, { UserModel } from "../../../database/User";
 
 import { SimplyServersAPI } from "../../../SimplyServersAPI";
 import { ActionFailed } from "../../../util/errors/ActionFailed";

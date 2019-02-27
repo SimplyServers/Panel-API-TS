@@ -1,6 +1,6 @@
 import * as jwt from "express-jwt";
 import { Types } from "mongoose";
-import { UserModel } from "../../database/models/User";
+import { UserModel } from "../../database/User";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
@@ -8,7 +8,7 @@ export class AuthMiddleware {
   public static isStaff = async (req, res, next) => {
     let user;
     try {
-      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group");
+      user = await UserModel.findById(Types.ObjectId(req.payload.id));
     } catch (e) {
       return next(e);
     }
@@ -31,7 +31,7 @@ export class AuthMiddleware {
   public static isAdmin = async (req, res, next) => {
     let user;
     try {
-      user = await UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group");
+      user = await UserModel.findById(Types.ObjectId(req.payload.id));
     } catch (e) {
       return next(e);
     }

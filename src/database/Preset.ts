@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
-import { arrayProp, pre, prop, Ref, Typegoose } from "typegoose";
+import { arrayProp, post, pre, prop, Ref, Typegoose } from "typegoose";
+import GameServer from "./GameServer";
 import ServerNode from "./ServerNode";
 
 @pre<Preset>("save", async function(next) {
@@ -10,37 +11,27 @@ import ServerNode from "./ServerNode";
   next();
 })
 export default class Preset extends Typegoose {
-  @prop()
   /* tslint:disable:variable-name */
-  public _id?: Types.ObjectId;
-  @prop()
-  public name: string;
-  @prop()
-  public game: string;
-  @prop()
-  public autoShutdown: boolean;
-  @prop()
-  public maxPlayers: number;
-  @prop()
-  public build: {
+  @prop() public _id?: Types.ObjectId;
+  @prop() public name: string;
+  @prop() public game: string;
+  @prop() public autoShutdown: boolean;
+  @prop() public maxPlayers: number;
+  @prop() public build: {
     mem: number;
     io: number;
     cpu: number;
   };
-  @prop()
-  public special: {
+  @prop() public special: {
     fs: any;
     views: string[];
     minecraft: {
       maxPlugins: number;
     };
   };
-  @prop()
-  public preinstalledPlugins: string[];
-  @arrayProp({ itemsRef: Preset, })
-  public _allowSwitchingTo: Ref<Preset[]>;
-  @prop()
-  public creditsPerDay: number;
+  @prop() public preinstalledPlugins: string[];
+  @arrayProp({ itemsRef: Preset, }) public _allowSwitchingTo: Ref<Preset[]>;
+  @prop() public creditsPerDay: number;
 }
 
 export const PresetModel = new Preset().getModelForClass(Preset, {

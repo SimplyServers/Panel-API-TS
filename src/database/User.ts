@@ -2,9 +2,11 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { Types } from "mongoose";
 import * as mongoose from "mongoose";
-import { instanceMethod, pre, prop, Ref, Typegoose } from "typegoose";
-import { SimplyServersAPI } from "../../SimplyServersAPI";
+import { instanceMethod, post, pre, prop, Ref, Typegoose } from "typegoose";
+import { SimplyServersAPI } from "../SimplyServersAPI";
+import GameServer from "./GameServer";
 import Group, { GroupModel } from "./Group";
+import MinecraftPlugin from "./MinecraftPlugin";
 
 @pre<User>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -18,27 +20,37 @@ import Group, { GroupModel } from "./Group";
   // }
   next();
 })
+@post<User>("find", async (docs) => {
+  console.log("addasasdf");
+  for(const doc of docs) {
+    await doc.populate("_minecraftBoughtPlugins").execPopulate();
+    await doc.populate("_group").execPopulate();
+  }
+})
+@post<User>("findOne", async (doc) => {
+  console.log("addasasdf");
+  await doc.populate("_minecraftBoughtPlugins").execPopulate();
+  console.log("step 2")
+  await doc.populate("_group").execPopulate();
+})
 export default class User extends Typegoose {
-  @prop()
-  public _id?: mongoose.Types.ObjectId;
-  @prop()
-  public game_info?: {
+  /* tslint:disable:variable-name */
+  @prop() public _id?: mongoose.Types.ObjectId;
+  @prop({ ref: MinecraftPlugin }) public _minecraftBoughtPlugins?: Array<
+    Ref<MinecraftPlugin>
+  >;
+  @prop() public game_info?: {
     minecraft?: {
       uuid?: string;
       username?: string;
-      boughtPlugins?: string[];
     };
     steam?: {
       steamID?: string;
       username?: string;
     };
   };
-
-  @prop({ ref: Group })
-  public _group?: Ref<Group>;
-
-  @prop()
-  public account_info: {
+  @prop({ ref: Group }) public _group?: Ref<Group>;
+  @prop() public account_info: {
     username: string;
     email: string;
     primaryName?: string;
@@ -54,9 +66,7 @@ export default class User extends Typegoose {
       verifyKey?: string;
     };
   };
-
-  @prop()
-  public balance: number;
+  @prop() public balance: number;
 
   @instanceMethod
   public removeCredits(credits: number) {
@@ -101,7 +111,7 @@ export default class User extends Typegoose {
         // Ignore this safely
         returnData.group = "";
       }
-    }else{
+    } else {
       returnData.group = "";
     }
 

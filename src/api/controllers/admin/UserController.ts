@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UserModel } from "../../../database/models/User";
+import { UserModel } from "../../../database/User";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 

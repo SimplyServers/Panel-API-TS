@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
 import { Types } from "mongoose";
-import GameServer, { GameServerModel } from "../../../../database/models/GameServer";
-import MinecraftProperties from "../../../../database/models/MinecraftProperties";
-import { PresetModel } from "../../../../database/models/Preset";
-import Node, { ServerNodeModel } from "../../../../database/models/ServerNode";
-import { UserModel } from "../../../../database/models/User";
+import GameServer, { GameServerModel } from "../../../../database/GameServer";
+import MinecraftProperties from "../../../../database/MinecraftProperties";
+import { PresetModel } from "../../../../database/Preset";
+import Node, { ServerNodeModel } from "../../../../database/ServerNode";
+import { UserModel } from "../../../../database/User";
 import { SimplyServersAPI } from "../../../../SimplyServersAPI";
 import { Captcha } from "../../../../util/Captcha";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
@@ -157,12 +157,7 @@ export class GameserverController implements IController {
       return next(e);
     }
 
-    const userIndex = req.server.sub_owners.indexOf(targetUser._id);
-    if (!(userIndex > -1)) {
-      return next(new ActionFailed("User is not an subuser.", true));
-    }
-
-    req.server.sub_owners.splice(userIndex, 1);
+    req.server._sub_owners.filter(subOwner => subOwner._id !== targetUser._id);
 
     try {
       await req.server.save();
@@ -176,7 +171,9 @@ export class GameserverController implements IController {
   public addSubuser = async (req, res, next) => {
     let targetUser;
     try {
-      targetUser = await UserModel.findOne({ "account_info.email": req.body.email });
+      targetUser = await UserModel.findOne({
+        "account_info.email": req.body.email
+      });
     } catch (e) {
       return next(e);
     }
@@ -185,13 +182,13 @@ export class GameserverController implements IController {
       return next(new ActionFailed("User is already an subuser.", true));
     }
 
-    if (req.server.owner === targetUser._id.toString()) {
+    if (req.server._owner._id === targetUser._id.toString()) {
       return next(
         new ActionFailed("The server owner is not a valid subuser.", true)
       );
     }
 
-    req.server.sub_owners.push(targetUser._id);
+    req.server._sub_owners.push(targetUser._id);
 
     try {
       await req.server.save();
@@ -228,7 +225,7 @@ export class GameserverController implements IController {
             name: req.body.name
           },
           {
-            owner: Types.ObjectId(req.payload.id)
+            "_owner": Types.ObjectId(req.payload.id)
           }
         ]
       });
@@ -246,7 +243,8 @@ export class GameserverController implements IController {
           })
         );
       } else if (
-        existingServers[0].owner.toString() === Types.ObjectId(req.payload.id).toString()
+        existingServers[0]._owner.toString() ===
+        Types.ObjectId(req.payload.id).toString()
       ) {
         return next(new ActionFailed("You already own a server.", true));
       }
@@ -254,10 +252,10 @@ export class GameserverController implements IController {
     }
 
     try {
-      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "_id"
-      ]);
-      const getPreset = PresetModel.findById(req.body.preset);
+      const getUser = UserModel.findById(
+        Types.ObjectId(req.payload.id)
+      );
+      const getPreset = PresetModel.findById(Types.ObjectId(req.body.preset)).orFail();
       const getNodes = ServerNodeModel.find({});
 
       user = await getUser;
@@ -275,7 +273,14 @@ export class GameserverController implements IController {
     }
 
     // Check if the user has access to preset
-    if (!(user._group.presetsAllowed.indexOf(req.body.preset) > -1)) {
+    if (
+      user._group._presetsAllowed.find(
+        groupPreset => groupPreset._id.toString() === req.body.preset.toString()
+      ) === undefined
+    ) {
+      console.log("debug:" + JSON.stringify(user._group._presetsAllowed[0]._id));
+      console.log("preset: " + req.body.preset);
+      // if (!(user._group._presetsAllowed.indexOf(req.body.preset) > -1)) {
       return next(new ActionFailed("You don't have permissions.", true));
     }
 
@@ -341,7 +346,7 @@ export class GameserverController implements IController {
     const ServerModal = new GameServer().getModelForClass(GameServer);
 
     const newServer = new ServerModal({
-      owner: Types.ObjectId(req.payload.id),
+      _owner: Types.ObjectId(req.payload.id),
       sub_owners: [],
       preset: req.body.preset,
       timeOnline: 0,
@@ -454,10 +459,10 @@ export class GameserverController implements IController {
     let newPreset;
 
     try {
-      const getUser = UserModel.findById(Types.ObjectId(req.payload.id)).populate("_group", [
-        "_id"
-      ]);
-      const getNewPreset = PresetModel.findById(req.body.preset).orFail();
+      const getUser = UserModel.findById(
+        Types.ObjectId(req.payload.id)
+      );
+      const getNewPreset = PresetModel.findById(Types.ObjectId(req.body.preset)).orFail();
 
       user = await getUser;
       newPreset = await getNewPreset;

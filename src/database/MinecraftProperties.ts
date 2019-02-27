@@ -10,13 +10,10 @@ import Preset from "./Preset";
   next();
 })
 export default class MinecraftProperties extends Typegoose {
-  @prop()
   /* tslint:disable:variable-name */
-  public _id?: Types.ObjectId;
-  @prop()
-  public server: string;
-  @prop()
-  public settings: {
+  @prop() public _id?: Types.ObjectId;
+  @prop() public server: string;
+  @prop() public settings: {
     spawnprotection: number;
     allownether: boolean;
     gamemode: number;

@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { check, validationResult } from "express-validator/check";
-import { ServerNodeModel } from "../../../../database/models/ServerNode";
+import { ServerNodeModel } from "../../../../database/ServerNode";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";

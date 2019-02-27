@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
-import Preset from "../../../../database/models/Preset";
+import Preset from "../../../../database/Preset";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { NodeInterface } from "../../../../util/NodeInterface";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";

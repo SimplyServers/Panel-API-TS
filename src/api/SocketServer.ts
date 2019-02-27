@@ -1,6 +1,6 @@
 import socketClient = require("socket.io-client");
 import * as socketJwt from "socketio-jwt";
-import { GameServerModel } from "../database/models/GameServer";
+import { GameServerModel } from "../database/GameServer";
 
 import { SimplyServersAPI } from "../SimplyServersAPI";
 import { Validators } from "../util/Validators";
@@ -41,17 +41,15 @@ export class SocketServer {
 
         let server;
         try {
-          server = await GameServerModel.findById(socket.handshake.query.server)
-            .populate('_nodeInstalled', ["_id"])
-            .populate('_preset', ["_id"])
+          server = await GameServerModel.findById(socket.handshake.query.server);
         } catch (e) {
           socket.disconnect();
           return;
         }
 
         if (
-          server.owner !== socket.decoded_token._id &&
-          !(server.sub_owners.indexOf(socket.decoded_token._id) > -1)
+          server.owner !== socket.decoded_token._id ||
+          server._sub_owners.find(subOwner => subOwner._id === socket.decoded_token._id) === undefined
         ) {
           socket.disconnect();
           return;
