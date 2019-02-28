@@ -48,9 +48,7 @@ export class NodeUpdater {
 
           node.plugins = await nodeInterface.getPlugins();
           node.games = await nodeInterface.games();
-          console.log("got games!!! " + JSON.stringify(node.games));
         } catch (e) {
-          console.log("here!");
           SimplyServersAPI.logger.error("Failed to ping node: " + e);
           return;
         }

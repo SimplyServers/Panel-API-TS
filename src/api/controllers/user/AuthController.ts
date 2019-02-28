@@ -46,8 +46,6 @@ export class AuthController implements IController {
 
   public register = async (req, res, next) => {
     const errors = validationResult(req);
-    console.log("body: " + JSON.stringify(req.body.username));
-    console.log("errors caught:" + JSON.stringify(errors.array()));
     if (!errors.isEmpty()) {
       return next(new ValidationError(errors.array()));
     }
@@ -76,7 +74,6 @@ export class AuthController implements IController {
     } catch (e) {
       return next(e);
     }
-    console.log("the fuck? " + JSON.stringify(existingUsers));
     if (existingUsers && existingUsers.length !== 0) {
       if (existingUsers[0].account_info.username === req.body.username) {
         return next(
@@ -164,7 +161,6 @@ export class AuthController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    console.log("wtf");
     let user;
     // TODO: make passport async
     // try{
@@ -198,10 +194,7 @@ export class AuthController implements IController {
       return next(new ActionFailed("Failed to authenticate", true));
     }
 
-    console.log("end of login... getting json!");
-
     try {
-      console.log("got json! " + await user.getAuthJSON());
       return res.json({
         user: await user.getAuthJSON()
       });

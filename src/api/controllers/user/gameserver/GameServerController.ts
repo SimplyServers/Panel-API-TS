@@ -179,7 +179,7 @@ export class GameserverController implements IController {
     }
 
     if (req.server._sub_owners.forEach(subOwner => subOwner._id === targetUser._id) !== undefined) { return next(new ActionFailed("User is already an subuser.", true)); }
-    if (req.server._owner._id == targetUser._id) { return next(new ActionFailed("The server owner is not a valid subuser.", true)); }
+    if (req.server._owner._id === targetUser._id) { return next(new ActionFailed("The server owner is not a valid subuser.", true)); }
 
     req.server._sub_owners.push(new Types.ObjectId(targetUser._id));
     try {
@@ -206,7 +206,6 @@ export class GameserverController implements IController {
     }
 
     let existingServers;
-    let decidedNode;
     let preset;
     let nodes;
     let user;
@@ -270,9 +269,6 @@ export class GameserverController implements IController {
         groupPreset => groupPreset._id.toString() === req.body.preset.toString()
       ) === undefined
     ) {
-      console.log("debug:" + JSON.stringify(user._group._presetsAllowed[0]._id));
-      console.log("preset: " + req.body.preset);
-      // if (!(user._group._presetsAllowed.indexOf(req.body.preset) > -1)) {
       return next(new ActionFailed("You don't have permissions.", true));
     }
 
@@ -281,69 +277,33 @@ export class GameserverController implements IController {
       return next(new ActionFailed("No available nodes", false));
     }
 
-    // THIS IS THE CODE THAT GETS A RANDOMIZED NODE THAT HAS FREE DISK STORAGE ON IT
-    // THIS IS JANKY AF SO HELP PLZ
     const shuffledNodes = nodes
       .map(a => [Math.random(), a])
       .sort((a, b) => a[0] - b[0])
       .map(a => a[1]);
+    const contenders = shuffledNodes.filter(shuffledNode => shuffledNode.games.find(game => game.name === preset.game) !== undefined);
 
-    let found = false;
+    if(!contenders) { return next(new ActionFailed("No available nodes that are contenders", true)); }
 
-    shuffledNodes.map(nodeModal => {
-      if (found) {
-        return;
-      }
-      console.log("node json: " + JSON.stringify(nodeModal)); // TODO: remove
-      console.log("preset game: " + preset.game); // TODO: remove
-      if (
-        nodeModal.games.find(game => game.name === preset.game) !== undefined
-      ) {
-        console.log("passed!"); // TODO: remove
-        if (!nodeModal.status.freedisk || !nodeModal.status.totaldisk) {
-          SimplyServersAPI.logger.info(
-            "Node " + nodeModal._id + " is too new."
-          );
-        } else {
-          if (nodeModal.status.freedisk / nodeModal.status.totaldisk < 0.9) {
-            console.log("we're ok!");
-            // At 80%
-            decidedNode = nodeModal;
-            found = true;
-            console.log("found node yay: " + JSON.stringify(decidedNode));
-          } else {
-            SimplyServersAPI.logger.info(
-              "Node " +
-                nodeModal._id +
-                " is stressed (" +
-                nodeModal.status.freedisk / nodeModal.status.totaldisk +
-                ")"
-            );
-          }
-        }
-      }
-    });
+    const decidedNode = contenders.find(contender => contender.status.freedisk &&
+      contender.status.totaldisk &&
+      (contender.status.freedisk / contender.status.totaldisk < 0.9));
 
     // Make sure node is not undefined.
-    if (!found || !decidedNode) {
-      return next(new ActionFailed("No available nodes for game", true));
-    }
+    if (!decidedNode) { return next(new ActionFailed("All nodes are at capacity.", true)); }
 
     // Generate SFTP new password.
     // This needs to be decently secure but it's not a huge deal.
     // TODO: unused
     const sftpPwd = Util.generateRandom();
 
-    // Create the user
-    const ServerModal = new GameServer().getModelForClass(GameServer);
-
-    const newServer = new ServerModal({
+    const newServer = new GameServerModel({
       _owner: Types.ObjectId(req.payload.id),
       sub_owners: [],
       _preset: req.body.preset,
       timeOnline: 0,
       online: false,
-      nodeInstalled: decidedNode._id, // ITS BEEN INITIALIZED DUMBASS
+      nodeInstalled: decidedNode._id,
       motd: req.body.motd,
       sftpPassword: sftpPwd,
       port: 0,

@@ -43,9 +43,7 @@ export class Validators {
     // Make sure the JSON is safe
     arr = Validators.mongoSterlize(arr);
 
-    console.log(arr);
-
-    arr.map(val => {
+    arr.forEach(val => {
       returnArr.push(val.toString());
     });
 

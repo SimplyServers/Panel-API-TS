@@ -36,7 +36,6 @@ export class AuthMiddleware {
       return next(e);
     }
 
-    console.log("auth middleware: " + JSON.stringify(user));
 
     if (!user._group) {
       return next(
@@ -58,8 +57,6 @@ export class AuthMiddleware {
     const {
       headers: { authorization }
     } = req;
-
-    console.log("got auth:" + authorization);
 
     if (authorization && authorization.split(" ")[0] === "Token") {
       return authorization.split(" ")[1];

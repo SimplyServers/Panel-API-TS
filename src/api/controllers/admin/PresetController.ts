@@ -22,14 +22,12 @@ export class PresetController implements IController {
     }
 
     arr.map(rule => {
-      console.log("pulled rule: " + JSON.stringify(rule));
       if (!rule.path) {
         throw new ActionFailed(
           "Fs value " + JSON.stringify(rule) + " is missing path",
           true
         );
       } else if (rule.canChange === undefined) {
-        console.log("WTF!");
         throw new ActionFailed(
           "Fs value " + JSON.stringify(rule) + " is missing canChange",
           true
@@ -225,7 +223,6 @@ export class PresetController implements IController {
 
     if (existingPresets.length !== 0) {
       // This is expected to be 1, especially if they aren't changing the name
-      console.log("ext:" + JSON.stringify(existingPresets[0]));
       if (existingPresets[0]._id.toString() !== req.params.preset) {
         // Only fire this if the preset we're editing is NOT this
         return next(new ActionFailed("Name already assigned to preset.", true));
