@@ -140,7 +140,6 @@ export class GroupController implements IController {
 
     if (existingGroups.length !== 0) {
       // This is expected to be 1, especially if they aren't changing the name
-      console.log("ext:" + JSON.stringify(existingGroups[0]));
       if (existingGroups[0]._id.toString() !== req.params.group) {
         // Only fire this if the group we're editing is NOT this
         return next(new ActionFailed("Name already assigned to group.", true));

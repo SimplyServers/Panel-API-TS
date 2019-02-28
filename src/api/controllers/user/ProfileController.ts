@@ -27,9 +27,6 @@ export class ProfileController implements IController {
   }
 
   public profile = async (req, res, next) => {
-    console.log("debug: " + JSON.stringify(await UserModel.find({})));
-    console.log('ID: ' + Types.ObjectId(req.payload.id));
-    console.log("payload:" + JSON.stringify(req.payload));
     let user;
     try{
       user = await UserModel.findById(Types.ObjectId(req.payload.id), {"account_info.password": 0, "account_info.resetPassword": 0}).orFail();
@@ -60,8 +57,6 @@ export class ProfileController implements IController {
     try {
       user = await UserModel.findById(Types.ObjectId(req.payload.id));
 
-      console.log("user: " + JSON.stringify(user));
-
       servers = await GameServerModel.find({
         $or: [
           {
@@ -75,8 +70,6 @@ export class ProfileController implements IController {
     }catch (e) {
       return next(e);
     }
-
-    console.log("pulled server list: " + JSON.stringify(servers));
 
     return res.json({servers});
 

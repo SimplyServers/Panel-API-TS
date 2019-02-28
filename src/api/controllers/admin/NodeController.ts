@@ -126,7 +126,6 @@ export class NodeController implements IController {
 
     if (existingNodes.length !== 0) {
       // This is expected to be 1, especially if they aren't changing the name
-      console.log("ext:" + JSON.stringify(existingNodes[0]));
       if (existingNodes[0]._id.toString() !== req.params.node) {
         // Only fire this if the node we're editing is NOT this
         return next(new ActionFailed("Name already assigned to node.", true));

@@ -15,16 +15,13 @@ import MinecraftPlugin from "./MinecraftPlugin";
   next();
 })
 @post<User>("find", async (docs) => {
-  console.log("addasasdf");
   for(const doc of docs) {
     await doc.populate("_minecraftBoughtPlugins").execPopulate();
     await doc.populate("_group").execPopulate();
   }
 })
 @post<User>("findOne", async (doc) => {
-  console.log("addasasdf");
   await doc.populate("_minecraftBoughtPlugins").execPopulate();
-  console.log("step 2");
   await doc.populate("_group").execPopulate();
 })
 export default class User extends Typegoose {

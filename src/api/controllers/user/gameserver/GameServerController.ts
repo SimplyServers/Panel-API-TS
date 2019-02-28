@@ -270,8 +270,6 @@ export class GameserverController implements IController {
         groupPreset => groupPreset._id.toString() === req.body.preset.toString()
       ) === undefined
     ) {
-      console.log("debug:" + JSON.stringify(user._group._presetsAllowed[0]._id));
-      console.log("preset: " + req.body.preset);
       // if (!(user._group._presetsAllowed.indexOf(req.body.preset) > -1)) {
       return next(new ActionFailed("You don't have permissions.", true));
     }
@@ -294,23 +292,18 @@ export class GameserverController implements IController {
       if (found) {
         return;
       }
-      console.log("node json: " + JSON.stringify(nodeModal)); // TODO: remove
-      console.log("preset game: " + preset.game); // TODO: remove
       if (
         nodeModal.games.find(game => game.name === preset.game) !== undefined
       ) {
-        console.log("passed!"); // TODO: remove
         if (!nodeModal.status.freedisk || !nodeModal.status.totaldisk) {
           SimplyServersAPI.logger.info(
             "Node " + nodeModal._id + " is too new."
           );
         } else {
           if (nodeModal.status.freedisk / nodeModal.status.totaldisk < 0.9) {
-            console.log("we're ok!");
             // At 80%
             decidedNode = nodeModal;
             found = true;
-            console.log("found node yay: " + JSON.stringify(decidedNode));
           } else {
             SimplyServersAPI.logger.info(
               "Node " +
