@@ -340,7 +340,7 @@ export class GameserverController implements IController {
     const newServer = new ServerModal({
       _owner: Types.ObjectId(req.payload.id),
       sub_owners: [],
-      preset: req.body.preset,
+      _preset: req.body.preset,
       timeOnline: 0,
       online: false,
       nodeInstalled: decidedNode._id, // ITS BEEN INITIALIZED DUMBASS
