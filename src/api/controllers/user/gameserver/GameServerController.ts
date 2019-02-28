@@ -282,14 +282,15 @@ export class GameserverController implements IController {
       .sort((a, b) => a[0] - b[0])
       .map(a => a[1]);
     const contenders = shuffledNodes.filter(shuffledNode => shuffledNode.games.find(game => game.name === preset.game) !== undefined);
+
+    if(!contenders) { return next(new ActionFailed("No available nodes that are contenders", true)); }
+
     const decidedNode = contenders.find(contender => contender.status.freedisk &&
       contender.status.totaldisk &&
       (contender.status.freedisk / contender.status.totaldisk < 0.9));
 
     // Make sure node is not undefined.
-    if (!decidedNode) {
-      return next(new ActionFailed("No available nodes for game", true));
-    }
+    if (!decidedNode) { return next(new ActionFailed("All nodes are at capacity.", true)); }
 
     // Generate SFTP new password.
     // This needs to be decently secure but it's not a huge deal.
