@@ -22,12 +22,12 @@ export class ControlsController implements IController {
       ],
       this.executeCommand
     );
-    router.post(
+    router.get(
       "/server/:server/control/install",
       [AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess],
       this.install
     );
-    router.post(
+    router.get(
       "/server/:server/control/reinstall",
       [AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess],
       this.reinstall
@@ -58,6 +58,7 @@ export class ControlsController implements IController {
     try {
       await nodeInterface.install(req.server);
     } catch (e) {
+      console.log(e);
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
           return next(new ActionFailed("Server is locked.", true));

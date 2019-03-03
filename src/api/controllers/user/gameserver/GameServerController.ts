@@ -299,11 +299,11 @@ export class GameserverController implements IController {
 
     const newServer = new GameServerModel({
       _owner: Types.ObjectId(req.payload.id),
-      sub_owners: [],
+      _sub_owners: [],
       _preset: req.body.preset,
       timeOnline: 0,
       online: false,
-      nodeInstalled: decidedNode._id,
+      _nodeInstalled: decidedNode._id,
       motd: req.body.motd,
       sftpPassword: sftpPwd,
       port: 0,
