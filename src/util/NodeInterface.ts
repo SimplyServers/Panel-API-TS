@@ -170,6 +170,7 @@ export class NodeInterface {
   };
 
   private get = async (urlExt: string) => {
+    console.log("NODE: " + JSON.stringify(this.node));
     // Typings are weird... we can use a string as a url and its ok
     // @ts-ignore
     const res = await request(urlJoin("https://" + this.node.ip + ":" + this.node.port, urlExt), {
