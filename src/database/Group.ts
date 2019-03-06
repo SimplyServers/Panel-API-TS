@@ -10,15 +10,14 @@ import Preset from "./Preset";
   }
   next();
 })
-@post<Group>("findOne", async (doc) => {
+@post<Group>("findOne", async doc => {
   await doc.populate("_presetsAllowed", "-special.fs").execPopulate();
 })
-@post<Group>("find", async (docs) => {
-  for(const doc of docs) {
+@post<Group>("find", async docs => {
+  for (const doc of docs) {
     await doc.populate("_presetsAllowed", "-special.fs").execPopulate();
   }
 })
-
 export default class Group extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: Types.ObjectId;
@@ -32,5 +31,5 @@ export default class Group extends Typegoose {
 
 export const GroupModel = new Group().getModelForClass(Group, {
   existingMongoose: mongoose,
-  schemaOptions: {collection: 'groups'}
+  schemaOptions: { collection: "groups" }
 });

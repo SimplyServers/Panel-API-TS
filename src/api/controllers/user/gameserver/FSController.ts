@@ -244,8 +244,6 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    console.log("path: " + req.body.path)
-
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -272,7 +270,7 @@ export class FSController implements IController {
       }
     }
 
-    return res.json({ allowed: data.allowed });
+    return res.json({ contents: data.contents });
   };
 
   public listDir = async (req, res, next) => {
@@ -281,7 +279,6 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    console.log("path: " + req.body.path)
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -309,8 +306,7 @@ export class FSController implements IController {
     }
 
     const files = [];
-
-    data.contents.map(value => {
+    data.contents.forEach(value => {
       if (
         req.server._preset.special.fs.find(rule => {
           return rule.path === path.join(nPath, value.name) && !rule.canSee;

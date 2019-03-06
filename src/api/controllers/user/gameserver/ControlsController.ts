@@ -60,7 +60,6 @@ export class ControlsController implements IController {
       await nodeInterface.install(req.server);
       return res.json({});
     } catch (e) {
-      console.log(e);
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
           return next(new ActionFailed("Server is locked.", true));

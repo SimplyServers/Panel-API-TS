@@ -6,15 +6,18 @@ export class GetServerMiddleware {
   public static serverBasicAccess = async (req, res, next) => {
     let server;
     try {
-      server = await GameServerModel.findById(Types.ObjectId(req.params.server)).populate("_nodeInstalled").orFail();
-      console.log("populated server: " + JSON.stringify(server));
+      server = await GameServerModel.findById(Types.ObjectId(req.params.server))
+        .populate("_nodeInstalled")
+        .orFail();
     } catch (e) {
       return next(e);
     }
 
     if (
       server._owner._id.toString() === req.payload.id ||
-      server._sub_owners.find(subOwner => subOwner._id.toString() === req.payload.id) !== undefined
+      server._sub_owners.find(
+        subOwner => subOwner._id.toString() === req.payload.id
+      ) !== undefined
     ) {
       req.server = server; // Assign the server to a value in the request
       return next();
@@ -28,8 +31,9 @@ export class GetServerMiddleware {
   public static serverOwnerAccess = async (req, res, next) => {
     let server;
     try {
-      server = await GameServerModel.findById(Types.ObjectId(req.params.server)).populate("_nodeInstalled").orFail();
-      console.log("populated server: " + JSON.stringify(server));
+      server = await GameServerModel.findById(Types.ObjectId(req.params.server))
+        .populate("_nodeInstalled")
+        .orFail();
     } catch (e) {
       return next(e);
     }
@@ -47,8 +51,9 @@ export class GetServerMiddleware {
   public static getServer = async (req, res, next) => {
     let server;
     try {
-      server = await GameServerModel.findById(Types.ObjectId(req.params.server)).populate("_nodeInstalled").orFail();
-      console.log("populated server: " + JSON.stringify(server));
+      server = await GameServerModel.findById(Types.ObjectId(req.params.server))
+        .populate("_nodeInstalled")
+        .orFail();
     } catch (e) {
       return next(e);
     }

@@ -133,7 +133,7 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await GroupModel.find({name: req.body.name });
+      existingGroups = await GroupModel.find({ name: req.body.name });
     } catch (e) {
       return next(e);
     }
@@ -177,7 +177,7 @@ export class GroupController implements IController {
     // Make sure the name isn't already assigned
     let existingGroups;
     try {
-      existingGroups = await GroupModel.find({name: req.body.name});
+      existingGroups = await GroupModel.find({ name: req.body.name });
     } catch (e) {
       return next(new ActionFailed("Failed checking existing groups.", false));
     }

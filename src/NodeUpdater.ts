@@ -44,7 +44,9 @@ export class NodeUpdater {
         try {
           queryResults = await nodeInterface.query();
 
-          SimplyServersAPI.logger.verbose("Updated node info:" + JSON.stringify(queryResults));
+          SimplyServersAPI.logger.verbose(
+            "Updated node info:" + JSON.stringify(queryResults)
+          );
 
           node.plugins = await nodeInterface.getPlugins();
           node.games = await nodeInterface.games();
@@ -63,8 +65,8 @@ export class NodeUpdater {
 
         try {
           await node.save();
-        }catch (e) {
-          SimplyServersAPI.logger.error("Failed to save node update: "  + e);
+        } catch (e) {
+          SimplyServersAPI.logger.error("Failed to save node update: " + e);
           return;
         }
 

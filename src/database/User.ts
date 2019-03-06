@@ -14,13 +14,13 @@ import MinecraftPlugin from "./MinecraftPlugin";
   }
   next();
 })
-@post<User>("find", async (docs) => {
-  for(const doc of docs) {
+@post<User>("find", async docs => {
+  for (const doc of docs) {
     await doc.populate("_minecraftBoughtPlugins").execPopulate();
     await doc.populate("_group").execPopulate();
   }
 })
-@post<User>("findOne", async (doc) => {
+@post<User>("findOne", async doc => {
   await doc.populate("_minecraftBoughtPlugins").execPopulate();
   await doc.populate("_group").execPopulate();
 })

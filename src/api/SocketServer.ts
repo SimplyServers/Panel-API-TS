@@ -35,46 +35,41 @@ export class SocketServer {
         })
       )
       .on("authenticated", async socket => {
-        console.log("Client has authenticated")
         if (!socket.handshake.query.server) {
-          console.log("Ehgre")
           socket.disconnect();
           return;
         }
-
-        console.log("querydata: " + typeof socket.handshake.query.server.toString());
-        console.log("qd: " + socket.handshake.query.server);
 
         let server;
         try {
-          server = await GameServerModel.findById(new Types.ObjectId(socket.handshake.query.server)).populate("_nodeInstalled");
+          server = await GameServerModel.findById(
+            new Types.ObjectId(socket.handshake.query.server)
+          ).populate("_nodeInstalled");
         } catch (e) {
-          console.log(e);
-          console.log("Ehgredadsdas")
           socket.disconnect();
           return;
         }
 
-        console.log("oass 1");
-        console.log("socket data: " + JSON.stringify(socket.decoded_token));
-        console.log("api oid: " + server._owner._id.toString() + ", seocket: " + socket.decoded_token.id);
-        console.log("fail check:" + (server._owner._id.toString() !== socket.decoded_token.id));
-        console.log("1: " + typeof server._owner._id + " 2: " + typeof socket.decoded_token.id);
-        if ((server._owner._id.toString() !== socket.decoded_token.id) &&
-          (server._sub_owners.find(subOwner => subOwner._id.toString() === socket.decoded_token.id) === undefined)
+        if (
+          server._owner._id.toString() !== socket.decoded_token.id &&
+          server._sub_owners.find(
+            subOwner => subOwner._id.toString() === socket.decoded_token.id
+          ) === undefined
         ) {
-          console.log("bad")
           socket.disconnect();
           return;
         }
-
-        console.log("oass 2");
 
         // Make a stream to the node
         // Stupid typings error. Ignore
         // @ts-ignore
         const serverSocket = socketClient(
-          "https://" + server._nodeInstalled.ip + ":" + server._nodeInstalled.port + "/server/" + server._id,
+          "https://" +
+            server._nodeInstalled.ip +
+            ":" +
+            server._nodeInstalled.port +
+            "/server/" +
+            server._id,
           {
             path: "/s/",
             transports: ["websocket", "flashsocket", "polling"],
@@ -85,7 +80,6 @@ export class SocketServer {
           }
         );
 
-        console.log("oass 3");
         // Kill it on disconnect
         socket.on("disconnect", () => {
           if (serverSocket) {

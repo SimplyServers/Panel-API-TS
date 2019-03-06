@@ -36,7 +36,6 @@ export class AuthMiddleware {
       return next(e);
     }
 
-
     if (!user._group) {
       return next(
         new ActionFailed(

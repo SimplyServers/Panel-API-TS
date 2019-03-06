@@ -34,7 +34,8 @@ export class APIServer {
 
   public bootstrapExpress = async (): Promise<void> => {
     Raven.config(
-      "https://bfbb378696fe46ffaf132cc1c6b24dfa:6e433d90864f47b5a165b460258d37e1@sentry.simplyservers.io/4");
+      "https://bfbb378696fe46ffaf132cc1c6b24dfa:6e433d90864f47b5a165b460258d37e1@sentry.simplyservers.io/4"
+    );
     this.express.use(Raven.requestHandler());
 
     // CORS

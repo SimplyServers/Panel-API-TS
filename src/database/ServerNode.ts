@@ -29,5 +29,5 @@ export default class ServerNode extends Typegoose {
 
 export const ServerNodeModel = new ServerNode().getModelForClass(ServerNode, {
   existingMongoose: mongoose,
-  schemaOptions: {collection: 'servernodes'}
+  schemaOptions: { collection: "servernodes" }
 });

@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
+import * as mongoose from "mongoose";
 import { instanceMethod, pre, prop, Typegoose } from "typegoose";
-import * as mongoose from 'mongoose';
 
 @pre<MinecraftPlugin>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -30,8 +30,10 @@ export default class MinecraftPlugin extends Typegoose {
   }
 }
 
-export const MinecraftPluginModel = new MinecraftPlugin().getModelForClass(MinecraftPlugin, {
-  existingMongoose: mongoose,
-  schemaOptions: {collection: 'minecraftplugins'}
-});
-
+export const MinecraftPluginModel = new MinecraftPlugin().getModelForClass(
+  MinecraftPlugin,
+  {
+    existingMongoose: mongoose,
+    schemaOptions: { collection: "minecraftplugins" }
+  }
+);
