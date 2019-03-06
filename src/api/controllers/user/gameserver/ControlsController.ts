@@ -43,6 +43,7 @@ export class ControlsController implements IController {
     const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.execute(req.server, req.body.command);
+      return res.json({});
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_NOT_OFF":
@@ -57,6 +58,7 @@ export class ControlsController implements IController {
     const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.install(req.server);
+      return res.json({});
     } catch (e) {
       console.log(e);
       switch (NodeInterface.niceHandle(e)) {
@@ -76,6 +78,7 @@ export class ControlsController implements IController {
     const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.reinstall(req.server);
+      return res.json({});
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":

@@ -248,6 +248,7 @@ export class FSController implements IController {
   };
 
   public listDir = async (req, res, next) => {
+    console.log("path: " + req.body.path)
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 

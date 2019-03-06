@@ -70,6 +70,10 @@ export class ProfileController implements IController {
     }catch (e) {
       return next(e);
     }
+    servers = servers.map(server => {
+      server._preset.special.fs = undefined;
+      return server;
+    });
 
     return res.json({servers});
 
