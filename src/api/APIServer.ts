@@ -4,6 +4,7 @@ import * as ExpressValidator from "express-validator";
 import * as fs from "fs-extra";
 import * as http from "http";
 import * as https from "https";
+import * as Raven from "raven";
 import * as SocketIO from "socket.io";
 import { SimplyServersAPI } from "../SimplyServersAPI";
 import { GroupController } from "./controllers/admin/GroupController";
@@ -32,6 +33,11 @@ export class APIServer {
   }
 
   public bootstrapExpress = async (): Promise<void> => {
+    Raven.config(
+      "https://bfbb378696fe46ffaf132cc1c6b24dfa:6e433d90864f47b5a165b460258d37e1@sentry.simplyservers.io/4"
+    );
+    this.express.use(Raven.requestHandler());
+
     // CORS
     this.express.disable("x-powered-by");
     this.express.use((req, res, next) => {
@@ -73,6 +79,7 @@ export class APIServer {
     Passport.bootstrap();
 
     // Error handling
+    this.express.use(Raven.errorHandler());
     this.express.use((err, req, res, next) => {
       console.log(err);
       console.log("error handler triggered");

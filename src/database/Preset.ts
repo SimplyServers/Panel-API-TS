@@ -30,11 +30,11 @@ export default class Preset extends Typegoose {
     };
   };
   @prop() public preinstalledPlugins: string[];
-  @arrayProp({ itemsRef: Preset, }) public _allowSwitchingTo: Ref<Preset[]>;
+  @arrayProp({ itemsRef: Preset }) public _allowSwitchingTo: Ref<Preset[]>;
   @prop() public creditsPerDay: number;
 }
 
 export const PresetModel = new Preset().getModelForClass(Preset, {
   existingMongoose: mongoose,
-  schemaOptions: {collection: 'presets'}
+  schemaOptions: { collection: "presets" }
 });

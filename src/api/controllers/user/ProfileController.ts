@@ -13,24 +13,22 @@ export class ProfileController implements IController {
       [AuthMiddleware.jwtAuth.required],
       this.getServers
     );
-    router.get(
-      "/profile",
-      [AuthMiddleware.jwtAuth.required],
-      this.profile
-    );
+    router.get("/profile", [AuthMiddleware.jwtAuth.required], this.profile);
     router.get(
       "/profile/presets",
       [AuthMiddleware.jwtAuth.required],
       this.getPresets
     );
-
   }
 
   public profile = async (req, res, next) => {
     let user;
-    try{
-      user = await UserModel.findById(Types.ObjectId(req.payload.id), {"account_info.password": 0, "account_info.resetPassword": 0}).orFail();
-    }catch (e) {
+    try {
+      user = await UserModel.findById(Types.ObjectId(req.payload.id), {
+        "account_info.password": 0,
+        "account_info.resetPassword": 0
+      }).orFail();
+    } catch (e) {
       return next(e);
     }
 
@@ -48,7 +46,7 @@ export class ProfileController implements IController {
 
     return res.json({
       presets: user._group._presetsAllowed
-    })
+    });
   };
 
   public getServers = async (req, res, next) => {
@@ -57,21 +55,28 @@ export class ProfileController implements IController {
     try {
       user = await UserModel.findById(Types.ObjectId(req.payload.id));
 
-      servers = await GameServerModel.find({
-        $or: [
-          {
-            "_sub_owners": Types.ObjectId(user._id)
-          },
-          {
-            "_owner": Types.ObjectId(user._id)
-          }
-        ]
-      }, "-sftpPassword");
-    }catch (e) {
+      servers = await GameServerModel.find(
+        {
+          $or: [
+            {
+              _sub_owners: Types.ObjectId(user._id)
+            },
+            {
+              _owner: Types.ObjectId(user._id)
+            }
+          ]
+        },
+        "-sftpPassword"
+      );
+    } catch (e) {
       return next(e);
     }
+    servers = servers.map(server => {
+      server._preset.special.fs = undefined;
+      return server;
+    });
 
-    return res.json({servers});
+    return res.json({ servers });
 
     // let user;
     // let presets;

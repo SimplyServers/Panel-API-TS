@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import socketClient = require("socket.io-client");
 import * as socketJwt from "socketio-jwt";
 import { GameServerModel } from "../database/GameServer";
@@ -41,15 +42,19 @@ export class SocketServer {
 
         let server;
         try {
-          server = await GameServerModel.findById(socket.handshake.query.server);
+          server = await GameServerModel.findById(
+            new Types.ObjectId(socket.handshake.query.server)
+          ).populate("_nodeInstalled");
         } catch (e) {
           socket.disconnect();
           return;
         }
 
         if (
-          server.owner !== socket.decoded_token._id ||
-          server._sub_owners.find(subOwner => subOwner._id === socket.decoded_token._id) === undefined
+          server._owner._id.toString() !== socket.decoded_token.id &&
+          server._sub_owners.find(
+            subOwner => subOwner._id.toString() === socket.decoded_token.id
+          ) === undefined
         ) {
           socket.disconnect();
           return;
@@ -59,13 +64,18 @@ export class SocketServer {
         // Stupid typings error. Ignore
         // @ts-ignore
         const serverSocket = socketClient(
-          "https://" + server._node.ip + ":" + server._node.port + "/server/" + server._id,
+          "https://" +
+            server._nodeInstalled.ip +
+            ":" +
+            server._nodeInstalled.port +
+            "/server/" +
+            server._id,
           {
             path: "/s/",
             transports: ["websocket", "flashsocket", "polling"],
             rejectUnauthorized: false,
             query: {
-              authentication: server._node.secret
+              authentication: server._nodeInstalled.secret
             }
           }
         );

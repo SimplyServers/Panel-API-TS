@@ -13,7 +13,7 @@ export class Passport {
         async (usr, pass, done) => {
           let user;
           try {
-            user = await UserModel.findOne({"account_info.email": usr});
+            user = await UserModel.findOne({ "account_info.email": usr });
           } catch (e) {
             return done(null, false, { message: "Server error" });
           }

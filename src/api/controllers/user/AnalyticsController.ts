@@ -1,6 +1,6 @@
-import { IController } from "../IController";
 import { Router } from "express";
 import { SimplyServersAPI } from "../../../SimplyServersAPI";
+import { IController } from "../IController";
 
 export class AnalyticsController implements IController {
   public initRoutes = (router: Router): void => {

@@ -27,8 +27,10 @@ export default class MinecraftProperties extends Typegoose {
   };
 }
 
-export const MinecraftPropertiesModel = new MinecraftProperties().getModelForClass(MinecraftProperties, {
-  existingMongoose: mongoose,
-  schemaOptions: {collection: 'minecraftproperties'}
-});
-
+export const MinecraftPropertiesModel = new MinecraftProperties().getModelForClass(
+  MinecraftProperties,
+  {
+    existingMongoose: mongoose,
+    schemaOptions: { collection: "minecraftproperties" }
+  }
+);

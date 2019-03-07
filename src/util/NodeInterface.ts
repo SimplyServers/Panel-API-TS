@@ -172,15 +172,18 @@ export class NodeInterface {
   private get = async (urlExt: string) => {
     // Typings are weird... we can use a string as a url and its ok
     // @ts-ignore
-    const res = await request(urlJoin("https://" + this.node.ip + ":" + this.node.port, urlExt), {
-      // Merge the node IP with the url extension
-      headers: {
-        authorization: "Token " + this.node.secret
-      },
-      rejectUnauthorized: false,
-      requestCert: false, // TODO: I don't think this does anything lol
-      method: "GET"
-    });
+    const res = await request(
+      urlJoin("https://" + this.node.ip + ":" + this.node.port, urlExt),
+      {
+        // Merge the node IP with the url extension
+        headers: {
+          authorization: "Token " + this.node.secret
+        },
+        rejectUnauthorized: false,
+        requestCert: false, // TODO: I don't think this does anything lol
+        method: "GET"
+      }
+    );
 
     return JSON.parse(res);
   };
@@ -189,18 +192,21 @@ export class NodeInterface {
     const formData = querystring.stringify(body);
 
     // @ts-ignore
-    const res = await request(urlJoin("https://" + this.node.ip + ":" + this.node.port, urlExt), {
-      // Merge the node IP with the url extension
-      headers: {
-        authorization: "Token " + this.node.secret,
-        "Content-Length": formData.length,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      rejectUnauthorized: false,
-      requestCert: false, // TODO: I don't think this does anything lol
-      method: "POST",
-      body: formData
-    });
+    const res = await request(
+      urlJoin("https://" + this.node.ip + ":" + this.node.port, urlExt),
+      {
+        // Merge the node IP with the url extension
+        headers: {
+          authorization: "Token " + this.node.secret,
+          "Content-Length": formData.length,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        rejectUnauthorized: false,
+        requestCert: false, // TODO: I don't think this does anything lol
+        method: "POST",
+        body: formData
+      }
+    );
 
     return JSON.parse(res);
   };

@@ -38,38 +38,38 @@ export class SimplyServersAPI {
 
     // There is no config specified
     if (!SimplyServersAPI.config) {
-        const defaultConfig: IConfig = {
-          database: "mongodb://change:me@localhost:66996/changethis",
-          ssl: {
-            key: "./ssl/testing_localhost.key",
-            cert: "./ssl/testing_localhost.crt"
+      const defaultConfig: IConfig = {
+        database: "mongodb://change:me@localhost:66996/changethis",
+        ssl: {
+          key: "./ssl/testing_localhost.key",
+          cert: "./ssl/testing_localhost.crt"
+        },
+        web: {
+          JWTSecret: "you better change this",
+          captchaSecret: "and this",
+          ports: {
+            http: 8080,
+            https: 8443
           },
-          web: {
-            JWTSecret: "you better change this",
-            captchaSecret: "and this",
-            ports: {
-              http: 8080,
-              https: 8443
-            },
-            host: "localhost",
-            motd: "Default Simply Servers API"
-          },
-          email: {
-            user: "change@me.com",
-            password: "change_this",
-            host: "smtp.me.com",
-            port: 696,
-            from: "change@me.com"
-          },
-          simpleCoreSecret: Util.generateRandom(),
-          defaultGroup: "5bf1194965ee972712fb5a03",
-          socket:  {
-            maxFileSize: 3
-          }
-        };
-        
-        await fs.writeJson("../config.json", defaultConfig);
-        SimplyServersAPI.config = defaultConfig;
+          host: "localhost",
+          motd: "Default Simply Servers API"
+        },
+        email: {
+          user: "change@me.com",
+          password: "change_this",
+          host: "smtp.me.com",
+          port: 696,
+          from: "change@me.com"
+        },
+        simpleCoreSecret: Util.generateRandom(),
+        defaultGroup: "5bf1194965ee972712fb5a03",
+        socket: {
+          maxFileSize: 3
+        }
+      };
+
+      await fs.writeJson("../config.json", defaultConfig);
+      SimplyServersAPI.config = defaultConfig;
     }
 
     try {
@@ -79,7 +79,6 @@ export class SimplyServersAPI {
       );
 
       new GroupModel();
-
     } catch (e) {
       SimplyServersAPI.logger.error("Failed to connect to database: " + e);
       process.exit(1);

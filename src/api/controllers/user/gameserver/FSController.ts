@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { check } from "express-validator/check";
+import { check, validationResult } from "express-validator/check";
 import Preset from "../../../../database/Preset";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
+import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
@@ -97,6 +98,11 @@ export class FSController implements IController {
   }
 
   public checkPath = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -127,6 +133,11 @@ export class FSController implements IController {
   };
 
   public writeFile = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -160,6 +171,11 @@ export class FSController implements IController {
   };
 
   public removeFile = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -189,6 +205,11 @@ export class FSController implements IController {
   };
 
   public removeFolder = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -218,6 +239,11 @@ export class FSController implements IController {
   };
 
   public fileContents = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -244,10 +270,15 @@ export class FSController implements IController {
       }
     }
 
-    return res.json({ allowed: data.allowed });
+    return res.json({ contents: data.contents });
   };
 
   public listDir = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
     // Normalize path so users don't fuck with us
     const nPath = path.normalize(req.body.path);
 
@@ -275,8 +306,7 @@ export class FSController implements IController {
     }
 
     const files = [];
-
-    data.contents.map(value => {
+    data.contents.forEach(value => {
       if (
         req.server._preset.special.fs.find(rule => {
           return rule.path === path.join(nPath, value.name) && !rule.canSee;

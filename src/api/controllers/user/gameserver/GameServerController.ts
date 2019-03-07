@@ -178,8 +178,18 @@ export class GameserverController implements IController {
       return next(e);
     }
 
-    if (req.server._sub_owners.forEach(subOwner => subOwner._id === targetUser._id) !== undefined) { return next(new ActionFailed("User is already an subuser.", true)); }
-    if (req.server._owner._id === targetUser._id) { return next(new ActionFailed("The server owner is not a valid subuser.", true)); }
+    if (
+      req.server._sub_owners.forEach(
+        subOwner => subOwner._id === targetUser._id
+      ) !== undefined
+    ) {
+      return next(new ActionFailed("User is already an subuser.", true));
+    }
+    if (req.server._owner._id === targetUser._id) {
+      return next(
+        new ActionFailed("The server owner is not a valid subuser.", true)
+      );
+    }
 
     req.server._sub_owners.push(new Types.ObjectId(targetUser._id));
     try {
@@ -216,7 +226,7 @@ export class GameserverController implements IController {
             name: req.body.name
           },
           {
-            "_owner": Types.ObjectId(req.payload.id)
+            _owner: Types.ObjectId(req.payload.id)
           }
         ]
       });
@@ -243,10 +253,10 @@ export class GameserverController implements IController {
     }
 
     try {
-      const getUser = UserModel.findById(
-        Types.ObjectId(req.payload.id)
-      );
-      const getPreset = PresetModel.findById(Types.ObjectId(req.body.preset)).orFail();
+      const getUser = UserModel.findById(Types.ObjectId(req.payload.id));
+      const getPreset = PresetModel.findById(
+        Types.ObjectId(req.body.preset)
+      ).orFail();
       const getNodes = ServerNodeModel.find({});
 
       user = await getUser;
@@ -281,16 +291,28 @@ export class GameserverController implements IController {
       .map(a => [Math.random(), a])
       .sort((a, b) => a[0] - b[0])
       .map(a => a[1]);
-    const contenders = shuffledNodes.filter(shuffledNode => shuffledNode.games.find(game => game.name === preset.game) !== undefined);
+    const contenders = shuffledNodes.filter(
+      shuffledNode =>
+        shuffledNode.games.find(game => game.name === preset.game) !== undefined
+    );
 
-    if(!contenders) { return next(new ActionFailed("No available nodes that are contenders", true)); }
+    if (!contenders) {
+      return next(
+        new ActionFailed("No available nodes that are contenders", true)
+      );
+    }
 
-    const decidedNode = contenders.find(contender => contender.status.freedisk &&
-      contender.status.totaldisk &&
-      (contender.status.freedisk / contender.status.totaldisk < 0.9));
+    const decidedNode = contenders.find(
+      contender =>
+        contender.status.freedisk &&
+        contender.status.totaldisk &&
+        contender.status.freedisk / contender.status.totaldisk < 0.9
+    );
 
     // Make sure node is not undefined.
-    if (!decidedNode) { return next(new ActionFailed("All nodes are at capacity.", true)); }
+    if (!decidedNode) {
+      return next(new ActionFailed("All nodes are at capacity.", true));
+    }
 
     // Generate SFTP new password.
     // This needs to be decently secure but it's not a huge deal.
@@ -299,11 +321,11 @@ export class GameserverController implements IController {
 
     const newServer = new GameServerModel({
       _owner: Types.ObjectId(req.payload.id),
-      sub_owners: [],
-      preset: req.body.preset,
+      _sub_owners: [],
+      _preset: req.body.preset,
       timeOnline: 0,
       online: false,
-      nodeInstalled: decidedNode._id,
+      _nodeInstalled: decidedNode._id,
       motd: req.body.motd,
       sftpPassword: sftpPwd,
       port: 0,
@@ -409,10 +431,10 @@ export class GameserverController implements IController {
     let newPreset;
 
     try {
-      const getUser = UserModel.findById(
-        Types.ObjectId(req.payload.id)
-      );
-      const getNewPreset = PresetModel.findById(Types.ObjectId(req.body.preset)).orFail();
+      const getUser = UserModel.findById(Types.ObjectId(req.payload.id));
+      const getNewPreset = PresetModel.findById(
+        Types.ObjectId(req.body.preset)
+      ).orFail();
 
       user = await getUser;
       newPreset = await getNewPreset;

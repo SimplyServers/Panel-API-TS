@@ -22,12 +22,12 @@ export class ControlsController implements IController {
       ],
       this.executeCommand
     );
-    router.post(
+    router.get(
       "/server/:server/control/install",
       [AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess],
       this.install
     );
-    router.post(
+    router.get(
       "/server/:server/control/reinstall",
       [AuthMiddleware.jwtAuth.required, GetServerMiddleware.serverBasicAccess],
       this.reinstall
@@ -43,6 +43,7 @@ export class ControlsController implements IController {
     const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.execute(req.server, req.body.command);
+      return res.json({});
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_NOT_OFF":
@@ -57,6 +58,7 @@ export class ControlsController implements IController {
     const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.install(req.server);
+      return res.json({});
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -75,6 +77,7 @@ export class ControlsController implements IController {
     const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
       await nodeInterface.reinstall(req.server);
+      return res.json({});
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":

@@ -41,8 +41,8 @@ export class PresetController implements IController {
 
       returnArr.push({
         path: rule.path.toString(),
-        canChange: rule.canChange.toString(),
-        canSee: rule.canSee.toString()
+        canChange: rule.canChange === true,
+        canSee: rule.canSee === true
       });
     });
 
@@ -144,7 +144,7 @@ export class PresetController implements IController {
           .customSanitizer(this.fsValidator),
         check("_allowSwitchingTo")
           .exists()
-          .customSanitizer(Validators.toObjectIDArray),
+          .customSanitizer(Validators.toObjectIDArray)
       ],
       this.editPreset
     );
@@ -306,7 +306,6 @@ export class PresetController implements IController {
     try {
       await newPreset.save();
     } catch (e) {
-      console.log(e);
       return next(new ActionFailed("Failed to save preset.", false));
     }
 
