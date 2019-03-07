@@ -1,18 +1,18 @@
 import * as mongoose from "mongoose";
 import { Schema, Types } from "mongoose";
 import { arrayProp, post, pre, prop, Ref, Typegoose } from "typegoose";
-import MinecraftPlugin from "./MinecraftPlugin";
-import Preset from "./Preset";
-import ServerNode from "./ServerNode";
-import User from "./User";
+import MinecraftPluginSchema from "./MinecraftPluginSchema";
+import PresetSchema from "./PresetSchema";
+import ServerNodeSchema from "./ServerNodeSchema";
+import UserSchema from "./UserSchema";
 
-@pre<GameServer>("save", async function(next) {
+@pre<GameServerSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-@post<GameServer>("find", async docs => {
+@post<GameServerSchema>("find", async docs => {
   for (const doc of docs) {
     await doc
       .populate("_sub_owners", "_id account_info.username")
@@ -27,7 +27,7 @@ import User from "./User";
       .execPopulate();
   }
 })
-@post<GameServer>("findOne", async doc => {
+@post<GameServerSchema>("findOne", async doc => {
   await doc.populate("_sub_owners", "_id account_info.username").execPopulate();
   await doc.populate("_preset").execPopulate();
   await doc.populate("_minecraftPlugins").execPopulate();
@@ -38,25 +38,25 @@ import User from "./User";
     )
     .execPopulate();
 })
-export default class GameServer extends Typegoose {
+export default class GameServerSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: Types.ObjectId;
-  @prop({ ref: User }) public _owner: Ref<User>;
-  @arrayProp({ itemsRef: User }) public _sub_owners?: Ref<User[]>;
-  @prop({ ref: Preset }) public _preset: Ref<Preset>;
+  @prop({ ref: UserSchema }) public _owner: Ref<UserSchema>;
+  @arrayProp({ itemsRef: UserSchema }) public _sub_owners?: Ref<UserSchema[]>;
+  @prop({ ref: PresetSchema }) public _preset: Ref<PresetSchema>;
   @prop() public timeOnline: number;
   @prop() public motd: string;
-  @prop({ ref: ServerNode }) public _nodeInstalled: Ref<ServerNode>;
+  @prop({ ref: ServerNodeSchema }) public _nodeInstalled: Ref<ServerNodeSchema>;
   @prop() public sftpPassword: string;
   @prop() public online: boolean;
   @prop() public name: string;
   @prop() public port: number;
-  @arrayProp({ itemsRef: MinecraftPlugin }) public _minecraftPlugins?: Ref<
-    MinecraftPlugin[]
+  @arrayProp({ itemsRef: MinecraftPluginSchema }) public _minecraftPlugins?: Ref<
+    MinecraftPluginSchema[]
   >;
 }
 
-export const GameServerModel = new GameServer().getModelForClass(GameServer, {
+export const GameServerModel = new GameServerSchema().getModelForClass(GameServerSchema, {
   existingMongoose: mongoose,
   schemaOptions: { collection: "gameservers" }
 });

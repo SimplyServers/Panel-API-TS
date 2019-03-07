@@ -1,8 +1,9 @@
 import { Types } from "mongoose";
 import { Ref } from "typegoose";
-import { GroupModel } from "../../database/Group";
-import Preset from "../../database/Preset";
+import { GroupModel } from "../../schemas/GroupSchema";
+import PresetSchema from "../../schemas/PresetSchema";
 import { ActionFailed } from "../../util/errors/ActionFailed";
+import { DatabaseItem } from "../DatabaseItem";
 
 export interface IGroupQuery {
   _presetsAllowed: Types.ObjectId[];
@@ -11,45 +12,46 @@ export interface IGroupQuery {
   displayName: string;
   isAdmin: boolean;
   isStaff: boolean;
+  _id?: string;
 }
 
-
-export class Group{
-  public getGroups = async () => {
+export class Group implements DatabaseItem {
+  public static get = async () => {
     return await GroupModel.find({});
   };
 
-  public getGroup = async (objectID: string) => {
+  public static getOne = async (objectID: string) => {
     return await GroupModel.findById(Types.ObjectId(objectID)).orFail();
-
   };
 
-  public removeGroup = async (objectID: string) => {
+  public static remove = async (objectID: string) => {
     let group;
-    group = await GroupModel.findByIdAndDelete(Types.ObjectId(objectID)).orFail();
+    group = await GroupModel.findByIdAndDelete(
+      Types.ObjectId(objectID)
+    ).orFail();
     // Make sure we removed more then 0
     if (group.n < 1) {
       throw new ActionFailed("Failed to find group matching id", true);
     }
   };
 
-  public editGroup = async (editQuery: IGroupQuery) => {
+  public static edit = async (editQuery: IGroupQuery) => {
     // Make sure the name isn't already assigned
-    const existingGroups = await GroupModel.find({ name: editQuery.name }).orFail();
+    const existingGroups = await GroupModel.find({
+      name: editQuery.name
+    }).orFail();
 
-    if (existingGroups.length !== 0) {
-      // This is expected to be 1, especially if they aren't changing the name
-      if (existingGroups[0]._id.toString() !== editQuery.name) {
-        // Only fire this if the group we're editing is NOT this
-        throw new ActionFailed("Name already assigned to group.", true);
-      }
-    } else {
-      throw new ActionFailed("Failed to find group matching id", true);
+    // This is expected to be 1, especially if they aren't changing the name
+    if (existingGroups[0]._id.toString() !== editQuery._id) {
+      // Only fire this if the group we're editing is NOT this
+      throw new ActionFailed("Name already assigned to group.", true);
     }
 
     const existingGroup = existingGroups[0];
 
-    existingGroup._presetsAllowed = editQuery._presetsAllowed as unknown as Ref<Preset[]>;
+    existingGroup._presetsAllowed = (editQuery._presetsAllowed as unknown) as Ref<
+      PresetSchema[]
+    >;
     existingGroup.color = editQuery.color;
     existingGroup.name = editQuery.name;
     existingGroup.displayName = editQuery.displayName;
@@ -59,9 +61,9 @@ export class Group{
     await existingGroup.save();
   };
 
-  public addGroup = async (addQuery: IGroupQuery) => {
+  public static add = async (addQuery: IGroupQuery) => {
     // Make sure the name isn't already assigned
-    const existingGroups = await GroupModel.find({name: addQuery.name});
+    const existingGroups = await GroupModel.find({ name: addQuery.name });
 
     if (existingGroups.length !== 0) {
       throw new ActionFailed("Name already assigned to group.", true);
@@ -73,7 +75,7 @@ export class Group{
       name: addQuery.name,
       isAdmin: addQuery.isAdmin,
       isStaff: addQuery.isStaff,
-      _presetsAllowed: addQuery._presetsAllowed as unknown as Ref<Preset[]>
+      _presetsAllowed: (addQuery._presetsAllowed as unknown) as Ref<PresetSchema[]>
     });
 
     await newGroup.save();

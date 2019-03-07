@@ -2,13 +2,13 @@ import { Types } from "mongoose";
 import * as mongoose from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
 
-@pre<Bugreport>("save", async function(next) {
+@pre<BugreportSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-export default class Bugreport extends Typegoose {
+export default class BugreportSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: Types.ObjectId;
   @prop() public user_id: string;
@@ -23,7 +23,7 @@ export default class Bugreport extends Typegoose {
   };
 }
 
-export const BugreportModel = new Bugreport().getModelForClass(Bugreport, {
+export const BugreportModel = new BugreportSchema().getModelForClass(BugreportSchema, {
   existingMongoose: mongoose,
   schemaOptions: { collection: "bugreports" }
 });

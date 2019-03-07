@@ -2,13 +2,13 @@ import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
 
-@pre<ServerNode>("save", async function(next) {
+@pre<ServerNodeSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-export default class ServerNode extends Typegoose {
+export default class ServerNodeSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: Types.ObjectId;
   @prop() public ip: string;
@@ -27,7 +27,7 @@ export default class ServerNode extends Typegoose {
   @prop() public plugins: any;
 }
 
-export const ServerNodeModel = new ServerNode().getModelForClass(ServerNode, {
+export const ServerNodeModel = new ServerNodeSchema().getModelForClass(ServerNodeSchema, {
   existingMongoose: mongoose,
   schemaOptions: { collection: "servernodes" }
 });

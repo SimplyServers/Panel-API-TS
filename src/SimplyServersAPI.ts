@@ -3,7 +3,7 @@ import * as mongoose from "mongoose";
 
 import * as configData from "../config.json";
 import { APIServer } from "./api/APIServer";
-import { GroupModel } from "./database/Group";
+import { GroupModel } from "./schemas/GroupSchema";
 import { NodeUpdater } from "./NodeUpdater";
 
 import { IConfig } from "./types/IConfig";

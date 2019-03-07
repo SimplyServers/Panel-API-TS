@@ -4,31 +4,31 @@ import { Types } from "mongoose";
 import * as mongoose from "mongoose";
 import { instanceMethod, post, pre, prop, Ref, Typegoose } from "typegoose";
 import { SimplyServersAPI } from "../SimplyServersAPI";
-import GameServer from "./GameServer";
-import Group, { GroupModel } from "./Group";
-import MinecraftPlugin from "./MinecraftPlugin";
+import GameServerSchema from "./GameServerSchema";
+import GroupSchema, { GroupModel } from "./GroupSchema";
+import MinecraftPluginSchema from "./MinecraftPluginSchema";
 
-@pre<User>("save", async function(next) {
+@pre<UserSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-@post<User>("find", async docs => {
+@post<UserSchema>("find", async docs => {
   for (const doc of docs) {
     await doc.populate("_minecraftBoughtPlugins").execPopulate();
     await doc.populate("_group").execPopulate();
   }
 })
-@post<User>("findOne", async doc => {
+@post<UserSchema>("findOne", async doc => {
   await doc.populate("_minecraftBoughtPlugins").execPopulate();
   await doc.populate("_group").execPopulate();
 })
-export default class User extends Typegoose {
+export default class UserSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: mongoose.Types.ObjectId;
-  @prop({ ref: MinecraftPlugin }) public _minecraftBoughtPlugins?: Array<
-    Ref<MinecraftPlugin>
+  @prop({ ref: MinecraftPluginSchema }) public _minecraftBoughtPlugins?: Array<
+    Ref<MinecraftPluginSchema>
   >;
   @prop() public game_info?: {
     minecraft?: {
@@ -40,7 +40,7 @@ export default class User extends Typegoose {
       username?: string;
     };
   };
-  @prop({ ref: Group }) public _group?: Ref<Group>;
+  @prop({ ref: GroupSchema }) public _group?: Ref<GroupSchema>;
   @prop() public account_info: {
     username: string;
     email: string;
@@ -136,7 +136,7 @@ export default class User extends Typegoose {
   }
 }
 
-export const UserModel = new User().getModelForClass(User, {
+export const UserModel = new UserSchema().getModelForClass(UserSchema, {
   existingMongoose: mongoose,
   schemaOptions: { collection: "users" }
 });

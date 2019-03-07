@@ -2,13 +2,13 @@ import { Types } from "mongoose";
 import * as mongoose from "mongoose";
 import { instanceMethod, pre, prop, Typegoose } from "typegoose";
 
-@pre<MinecraftPlugin>("save", async function(next) {
+@pre<MinecraftPluginSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-export default class MinecraftPlugin extends Typegoose {
+export default class MinecraftPluginSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: Types.ObjectId;
   @prop() public name: string;
@@ -30,8 +30,8 @@ export default class MinecraftPlugin extends Typegoose {
   }
 }
 
-export const MinecraftPluginModel = new MinecraftPlugin().getModelForClass(
-  MinecraftPlugin,
+export const MinecraftPluginModel = new MinecraftPluginSchema().getModelForClass(
+  MinecraftPluginSchema,
   {
     existingMongoose: mongoose,
     schemaOptions: { collection: "minecraftplugins" }

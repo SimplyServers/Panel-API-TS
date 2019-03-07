@@ -1,16 +1,16 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { arrayProp, post, pre, prop, Ref, Typegoose } from "typegoose";
-import GameServer from "./GameServer";
-import ServerNode from "./ServerNode";
+import GameServerSchema from "./GameServerSchema";
+import ServerNodeSchema from "./ServerNodeSchema";
 
-@pre<Preset>("save", async function(next) {
+@pre<PresetSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-export default class Preset extends Typegoose {
+export default class PresetSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: Types.ObjectId;
   @prop() public name: string;
@@ -30,11 +30,12 @@ export default class Preset extends Typegoose {
     };
   };
   @prop() public preinstalledPlugins: string[];
-  @arrayProp({ itemsRef: Preset }) public _allowSwitchingTo: Ref<Preset[]>;
+  @arrayProp({ itemsRef: PresetSchema }) public _allowSwitchingTo: Ref<PresetSchema[]>;
+
   @prop() public creditsPerDay: number;
 }
 
-export const PresetModel = new Preset().getModelForClass(Preset, {
+export const PresetModel = new PresetSchema().getModelForClass(PresetSchema, {
   existingMongoose: mongoose,
   schemaOptions: { collection: "presets" }
 });

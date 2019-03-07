@@ -1,8 +1,8 @@
 import * as querystring from "querystring";
 import * as request from "request-promise";
 import urlJoin = require("url-join");
-import GameServer from "../database/GameServer";
-import ServerNode from "../database/ServerNode";
+import GameServerSchema from "../schemas/GameServerSchema";
+import ServerNodeSchema from "../schemas/ServerNodeSchema";
 
 export class NodeInterface {
   public static niceHandle(e) {
@@ -20,9 +20,9 @@ export class NodeInterface {
     return msg;
   }
 
-  private readonly node: ServerNode;
+  private readonly node: ServerNodeSchema;
 
-  constructor(node: ServerNode) {
+  constructor(node: ServerNodeSchema) {
     this.node = node;
   }
 
@@ -34,43 +34,43 @@ export class NodeInterface {
     return await this.get("node");
   };
 
-  public powerOn = async (server: GameServer) => {
+  public powerOn = async (server: GameServerSchema) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "power/on"));
   };
 
-  public powerOff = async (server: GameServer) => {
+  public powerOff = async (server: GameServerSchema) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "power/off"));
   };
 
-  public powerKill = async (server: GameServer) => {
+  public powerKill = async (server: GameServerSchema) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "power/kill"));
   };
 
-  public reinstall = async (server: GameServer) => {
+  public reinstall = async (server: GameServerSchema) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "reinstall"));
   };
 
-  public install = async (server: GameServer) => {
+  public install = async (server: GameServerSchema) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "install"));
   };
 
-  public remove = async (server: GameServer) => {
+  public remove = async (server: GameServerSchema) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "remove"));
   };
 
-  public changePassword = async (server: GameServer, password: string) => {
+  public changePassword = async (server: GameServerSchema, password: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "resetPassword"), {
@@ -78,7 +78,7 @@ export class NodeInterface {
     });
   };
 
-  public edit = async (server: GameServer, config: any) => {
+  public edit = async (server: GameServerSchema, config: any) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "edit"), {
@@ -86,7 +86,7 @@ export class NodeInterface {
     });
   };
 
-  public installPlugin = async (server: GameServer, plugin: string) => {
+  public installPlugin = async (server: GameServerSchema, plugin: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "installPlugin"), {
@@ -94,7 +94,7 @@ export class NodeInterface {
     });
   };
 
-  public removePlugin = async (server: GameServer, plugin: string) => {
+  public removePlugin = async (server: GameServerSchema, plugin: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "removePlugin"), {
@@ -102,7 +102,7 @@ export class NodeInterface {
     });
   };
 
-  public getServerPlugins = async (server: GameServer) => {
+  public getServerPlugins = async (server: GameServerSchema) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.get(urlJoin(serverRoot, "plugins"));
@@ -116,48 +116,48 @@ export class NodeInterface {
     return await this.post("/server/add", { config, password });
   };
 
-  public serverStatus = async (server: GameServer) => {
+  public serverStatus = async (server: GameServerSchema) => {
     return await this.get(urlJoin("server", server._id.toString()));
   };
 
-  public checkAllowed = async (server: GameServer, path: string) => {
+  public checkAllowed = async (server: GameServerSchema, path: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "checkAllowed"), { path });
   };
 
-  public fileContents = async (server: GameServer, path: string) => {
+  public fileContents = async (server: GameServerSchema, path: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "fileContents"), { path });
   };
 
-  public execute = async (server: GameServer, command: string) => {
+  public execute = async (server: GameServerSchema, command: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "execute"), { command });
   };
 
-  public getDir = async (server: GameServer, path: string) => {
+  public getDir = async (server: GameServerSchema, path: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "getDir"), { path });
   };
 
-  public removeFolder = async (server: GameServer, path: string) => {
+  public removeFolder = async (server: GameServerSchema, path: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "removeFolder"), { path });
   };
 
-  public removeFile = async (server: GameServer, path: string) => {
+  public removeFile = async (server: GameServerSchema, path: string) => {
     const serverRoot = urlJoin("server", server._id.toString());
 
     return await this.post(urlJoin(serverRoot, "removeFile"), { path });
   };
 
   public createFile = async (
-    server: GameServer,
+    server: GameServerSchema,
     path: string,
     contents: string
   ) => {

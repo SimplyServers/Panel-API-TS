@@ -1,15 +1,15 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
-import Preset from "./Preset";
+import PresetSchema from "./PresetSchema";
 
-@pre<MinecraftProperties>("save", async function(next) {
+@pre<MinecraftPropertiesSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
     this._id = Types.ObjectId();
   }
   next();
 })
-export default class MinecraftProperties extends Typegoose {
+export default class MinecraftPropertiesSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: Types.ObjectId;
   @prop() public server: string;
@@ -27,8 +27,8 @@ export default class MinecraftProperties extends Typegoose {
   };
 }
 
-export const MinecraftPropertiesModel = new MinecraftProperties().getModelForClass(
-  MinecraftProperties,
+export const MinecraftPropertiesModel = new MinecraftPropertiesSchema().getModelForClass(
+  MinecraftPropertiesSchema,
   {
     existingMongoose: mongoose,
     schemaOptions: { collection: "minecraftproperties" }
