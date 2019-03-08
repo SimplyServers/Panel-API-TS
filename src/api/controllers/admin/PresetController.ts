@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Preset, { PresetModel } from "../../../database/Preset";
+import { Preset } from "../../../core/admin/Preset";
+import PresetSchema, { PresetModel } from "../../../schemas/PresetSchema";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { Validators } from "../../../util/Validators";
@@ -168,7 +169,7 @@ export class PresetController implements IController {
   public getPresets = async (req, res, next) => {
     let presets;
     try {
-      presets = await PresetModel.find({});
+      presets = await Preset.get();
     } catch (e) {
       return next(e);
     }
@@ -181,7 +182,7 @@ export class PresetController implements IController {
   public getPreset = async (req, res, next) => {
     let preset;
     try {
-      preset = await PresetModel.findById(req.params.preset).orFail();
+      preset = await Preset.getOne(req.params.preset);
     } catch (e) {
       return next(e);
     }
@@ -192,16 +193,10 @@ export class PresetController implements IController {
   };
 
   public removePreset = async (req, res, next) => {
-    let preset;
     try {
-      preset = await PresetModel.findByIdAndDelete(req.params.preset).orFail();
+      await Preset.remove(req.params.preset);
     } catch (e) {
       return next(e);
-    }
-
-    // Make sure we removed more then 0
-    if (preset.n < 1) {
-      return next(new ActionFailed("Failed to find preset matching id", true));
     }
 
     return res.json({});
@@ -213,53 +208,29 @@ export class PresetController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Make sure the name isn't already assigned
-    let existingPresets;
-    try {
-      existingPresets = await PresetModel.find({ name: req.body.name });
-    } catch (e) {
-      return next(e);
-    }
-
-    if (existingPresets.length !== 0) {
-      // This is expected to be 1, especially if they aren't changing the name
-      if (existingPresets[0]._id.toString() !== req.params.preset) {
-        // Only fire this if the preset we're editing is NOT this
-        return next(new ActionFailed("Name already assigned to preset.", true));
-      }
-    } else {
-      return next(new ActionFailed("Failed to find preset matching id", true));
-    }
-
-    const existingPreset = existingPresets[0];
-
-    existingPreset.name = req.body.name;
-    existingPreset.game = req.body.game;
-    existingPreset.build.mem = req.body.mem;
-    existingPreset.build.io = req.body.io;
-    existingPreset.build.cpu = req.body.cpu;
-    existingPreset.special.fs = req.body.fs;
-    existingPreset.special.views = req.body.views;
-    existingPreset.autoShutdown = req.body.autoShutdown;
-    existingPreset.creditsPerDay = req.body.creditsPerDay;
-    existingPreset.preinstalledPlugins = req.body.preinstalledPlugins;
-    existingPreset._allowSwitchingTo = req.body.allowSwitchingTo;
-    existingPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
-    existingPreset.maxPlayers = req.body.maxPlayers;
-
-    if (req.body.maxPlugins) {
-      existingPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
-    }
-
-    try {
-      await existingPreset.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed to save preset.", false));
-    }
-
-    return res.json({
-      preset: existingPreset
+    await Preset.edit({
+      name: req.body.name,
+      game: req.body.game,
+      build: {
+        mem: req.body.mem,
+        io: req.body.io,
+        cpu: req.body.cpu
+      },
+      special: {
+        fs: req.body.fs,
+        views: req.body.views,
+        minecraft: {
+          maxPlugins: req.body.maxPlugins
+        }
+      },
+      autoShutdown: req.body.autoShutdown,
+      creditsPerDay: req.body.creditsPerDay,
+      preinstalledPlugins: req.body.preinstalledPlugins,
+      _allowSwitchingTo: req.body.allowSwitchingTo,
+      maxPlayers: req.body.maxPlayers
     });
+
+    return res.json({});
   };
 
   public addPreset = async (req, res, next) => {
@@ -268,18 +239,7 @@ export class PresetController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Make sure the name isn't already assigned
-    let existingPresets;
-    try {
-      existingPresets = await PresetModel.find({ name: req.body.name });
-    } catch (e) {
-      return next(new ActionFailed("Failed checking existing presets.", false));
-    }
-    if (existingPresets.length !== 0) {
-      return next(new ActionFailed("Name already assigned to preset.", true));
-    }
-
-    const newPreset = new PresetModel({
+    await Preset.add({
       name: req.body.name,
       game: req.body.game,
       autoShutdown: req.body.autoShutdown,
@@ -299,18 +259,6 @@ export class PresetController implements IController {
       creditsPerDay: req.body.creditsPerDay
     });
 
-    if (req.body.maxPlugins) {
-      newPreset.special.minecraft.maxPlugins = req.body.maxPlugins;
-    }
-
-    try {
-      await newPreset.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed to save preset.", false));
-    }
-
-    return res.json({
-      preset: newPreset
-    });
+    return res.json({});
   };
 }

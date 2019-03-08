@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { UserModel } from "../../../database/User";
+import { User } from "../../../core/admin/User";
+import { UserModel } from "../../../schemas/UserSchema";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
@@ -20,7 +21,7 @@ export class UserController implements IController {
   public getUsers = async (req, res, next) => {
     let users;
     try {
-      users = await UserModel.find({}, { "account_info.password": 0 });
+      users = await User.get();
     } catch (e) {
       return next(e);
     }
@@ -33,7 +34,7 @@ export class UserController implements IController {
   public getUser = async (req, res, next) => {
     let user;
     try {
-      user = await UserModel.findById(req.params.user).orFail();
+      user = User.getOne(req.params.user);
     } catch (e) {
       return next(e);
     }

@@ -1,6 +1,6 @@
 import * as passport from "passport";
 import passportLocal = require("passport-local");
-import { UserModel } from "../database/User";
+import { UserModel } from "../schemas/UserSchema";
 
 export class Passport {
   public static bootstrap = () => {

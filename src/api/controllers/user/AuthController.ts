@@ -3,7 +3,7 @@ import { check, validationResult } from "express-validator/check";
 import { Types } from "mongoose";
 import * as passport from "passport";
 import * as zxcvbn from "zxcvbn";
-import User, { UserModel } from "../../../database/User";
+import UserSchema, { UserModel } from "../../../schemas/UserSchema";
 
 import { SimplyServersAPI } from "../../../SimplyServersAPI";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
@@ -64,7 +64,7 @@ export class AuthController implements IController {
     // Check for existing users
     let existingUsers;
     try {
-      // existingUsers = await Storage.getItems(Models.User, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
+      // existingUsers = await Storage.getItems(Models.UserSchema, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
       existingUsers = await UserModel.find({
         $or: [
           { "account_info.email": req.body.email },

@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Group, { GroupModel } from "../../../database/Group";
-import { ActionFailed } from "../../../util/errors/ActionFailed";
+import { Group } from "../../../core/admin/Group";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { Validators } from "../../../util/Validators";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
@@ -85,7 +84,7 @@ export class GroupController implements IController {
   public getGroups = async (req, res, next) => {
     let groups;
     try {
-      groups = await GroupModel.find({});
+      groups = await Group.get();
     } catch (e) {
       return next(e);
     }
@@ -98,7 +97,7 @@ export class GroupController implements IController {
   public getGroup = async (req, res, next) => {
     let group;
     try {
-      group = await GroupModel.findById(req.params.group).orFail();
+      group = await await Group.getOne(req.params.group);
     } catch (e) {
       return next(e);
     }
@@ -109,16 +108,10 @@ export class GroupController implements IController {
   };
 
   public removeGroup = async (req, res, next) => {
-    let group;
     try {
-      group = await GroupModel.findByIdAndDelete(req.params.group).orFail();
+      await Group.remove(req.params.group);
     } catch (e) {
       return next(e);
-    }
-
-    // Make sure we removed more then 0
-    if (group.n < 1) {
-      return next(new ActionFailed("Failed to find group matching id", true));
     }
 
     return res.json({});
@@ -130,42 +123,21 @@ export class GroupController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Make sure the name isn't already assigned
-    let existingGroups;
     try {
-      existingGroups = await GroupModel.find({ name: req.body.name });
+      await Group.edit({
+        _presetsAllowed: req.body.presetsAllowed,
+        color: req.body.color,
+        name: req.body.name,
+        displayName: req.body.displayName,
+        isAdmin: req.body.isAdmin,
+        isStaff: req.body.isStaff,
+        _id: req.params.group
+      });
     } catch (e) {
       return next(e);
     }
 
-    if (existingGroups.length !== 0) {
-      // This is expected to be 1, especially if they aren't changing the name
-      if (existingGroups[0]._id.toString() !== req.params.group) {
-        // Only fire this if the group we're editing is NOT this
-        return next(new ActionFailed("Name already assigned to group.", true));
-      }
-    } else {
-      return next(new ActionFailed("Failed to find group matching id", true));
-    }
-
-    const existingGroup = existingGroups[0];
-
-    existingGroup._presetsAllowed = req.body.presetsAllowed;
-    existingGroup.color = req.body.color;
-    existingGroup.name = req.body.name;
-    existingGroup.displayName = req.body.displayName;
-    existingGroup.isAdmin = req.body.isAdmin;
-    existingGroup.isStaff = req.body.isStaff;
-
-    try {
-      await existingGroup.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed to save group.", false));
-    }
-
-    return res.json({
-      group: existingGroup
-    });
+    return res.json({});
   };
 
   public addGroup = async (req, res, next) => {
@@ -174,18 +146,7 @@ export class GroupController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Make sure the name isn't already assigned
-    let existingGroups;
-    try {
-      existingGroups = await GroupModel.find({ name: req.body.name });
-    } catch (e) {
-      return next(new ActionFailed("Failed checking existing groups.", false));
-    }
-    if (existingGroups.length !== 0) {
-      return next(new ActionFailed("Name already assigned to group.", true));
-    }
-
-    const newGroup = new GroupModel({
+    await Group.add({
       color: req.body.color,
       displayName: req.body.displayName,
       name: req.body.name,
@@ -194,14 +155,6 @@ export class GroupController implements IController {
       _presetsAllowed: req.body.presetsAllowed
     });
 
-    try {
-      await newGroup.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed to save group.", false));
-    }
-
-    return res.json({
-      group: newGroup
-    });
-  };
+    return res.json({});
+  }
 }

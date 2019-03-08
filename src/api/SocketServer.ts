@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import socketClient = require("socket.io-client");
 import * as socketJwt from "socketio-jwt";
-import { GameServerModel } from "../database/GameServer";
+import { GameServerModel } from "../schemas/GameServerSchema";
 
 import { SimplyServersAPI } from "../SimplyServersAPI";
 import { Validators } from "../util/Validators";

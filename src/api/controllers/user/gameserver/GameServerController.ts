@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
 import { Types } from "mongoose";
-import GameServer, { GameServerModel } from "../../../../database/GameServer";
-import MinecraftProperties from "../../../../database/MinecraftProperties";
-import { PresetModel } from "../../../../database/Preset";
-import Node, { ServerNodeModel } from "../../../../database/ServerNode";
-import { UserModel } from "../../../../database/User";
+import GameServerSchema, { GameServerModel } from "../../../../schemas/GameServerSchema";
+import MinecraftPropertiesSchema from "../../../../schemas/MinecraftPropertiesSchema";
+import { PresetModel } from "../../../../schemas/PresetSchema";
+import Node, { ServerNodeModel } from "../../../../schemas/ServerNodeSchema";
+import { UserModel } from "../../../../schemas/UserSchema";
 import { SimplyServersAPI } from "../../../../SimplyServersAPI";
 import { Captcha } from "../../../../util/Captcha";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
@@ -183,7 +183,7 @@ export class GameserverController implements IController {
         subOwner => subOwner._id === targetUser._id
       ) !== undefined
     ) {
-      return next(new ActionFailed("User is already an subuser.", true));
+      return next(new ActionFailed("UserSchema is already an subuser.", true));
     }
     if (req.server._owner._id === targetUser._id) {
       return next(
@@ -383,8 +383,8 @@ export class GameserverController implements IController {
     // (if its a Minecraft server) update minecraft_properties
     if (preset.special.views.indexOf("minecraft_properties_viewer") > -1) {
       // Create the user
-      const MinecraftPropertiesModal = new MinecraftProperties().getModelForClass(
-        MinecraftProperties
+      const MinecraftPropertiesModal = new MinecraftPropertiesSchema().getModelForClass(
+        MinecraftPropertiesSchema
       );
 
       const serverProperties = new MinecraftPropertiesModal({
@@ -444,7 +444,7 @@ export class GameserverController implements IController {
 
     // Check to see if preset is compatible.
     if (!(req.server._preset.allowSwitchingTo.indexOf(req.body.preset) > -1)) {
-      return next(new ActionFailed("Preset not allowed.", true));
+      return next(new ActionFailed("PresetSchema not allowed.", true));
     }
 
     if (!(user._group.presetsAllowed.indexOf(req.body.preset) > -1)) {

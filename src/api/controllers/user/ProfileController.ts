@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { Types } from "mongoose";
-import { GameServerModel } from "../../../database/GameServer";
-import { PresetModel } from "../../../database/Preset";
-import { UserModel } from "../../../database/User";
+import { GameServerModel } from "../../../schemas/GameServerSchema";
+import { PresetModel } from "../../../schemas/PresetSchema";
+import { UserModel } from "../../../schemas/UserSchema";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
@@ -85,11 +85,11 @@ export class ProfileController implements IController {
     //
     // try {
     //   const getUser = Storage.getItemByID({
-    //     model: Models.User,
+    //     model: Models.UserSchema,
     //     id: Types.ObjectId(req.payload.id)
     //   });
     //   const getPresets = Storage.getAll({
-    //     model: Models.Preset,
+    //     model: Models.PresetSchema,
     //     rule: { "special.fs": 0 }
     //   });
     //
@@ -98,7 +98,7 @@ export class ProfileController implements IController {
     //
     //   // We can now get the server and group based on the previous info
     //   const getServers = Storage.getItems({
-    //     model: Models.GameServer,
+    //     model: Models.GameServerSchema,
     //     rule: { sftpPassword: 0 },
     //     condition: {
     //       $or: [
@@ -112,7 +112,7 @@ export class ProfileController implements IController {
     //     }
     //   });
     //   const getGroup = Storage.getItemByID({
-    //     model: Models.Group,
+    //     model: Models.GroupSchema,
     //     id: user.account_info.group
     //   });
     //
@@ -155,10 +155,10 @@ export class ProfileController implements IController {
     //         preset => preset._id === presetSwitched
     //       );
     //       if (!presetSwitchedData) {
-    //         return; // Preset has been removed
+    //         return; // PresetSchema has been removed
     //       }
     //       if (!(group.presetsAllowed.indexOf(presetSwitched) > -1)) {
-    //         return; // User does not have access to preset
+    //         return; // UserSchema does not have access to preset
     //       }
     //
     //       allowSwitchingTo.push(presetSwitchedData);
@@ -171,7 +171,7 @@ export class ProfileController implements IController {
     //       let subUsers;
     //       try {
     //         subUsers = await Storage.getItems({
-    //           model: Models.User,
+    //           model: Models.UserSchema,
     //           condition: { id: { $all: server.sub_owners } },
     //           rule: { "account_info.username": 1 }
     //         });

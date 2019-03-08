@@ -8,10 +8,10 @@ export interface INodeQuery {
   name: string;
   secret: string;
   port: number;
-  _id: string;
+  _id?: string;
 }
 
-export class Node implements DatabaseItem {
+export class ServerNode implements DatabaseItem {
   public static get = async () => {
     return await ServerNodeModel.find({});
   };

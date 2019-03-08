@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { GameServerModel } from "../../database/GameServer";
+import { GameServerModel } from "../../schemas/GameServerSchema";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 
 export class GetServerMiddleware {

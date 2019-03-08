@@ -1,6 +1,6 @@
 import * as jwt from "express-jwt";
 import { Types } from "mongoose";
-import { UserModel } from "../../database/User";
+import { UserModel } from "../../schemas/UserSchema";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 

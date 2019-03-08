@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import Preset from "../../../../database/Preset";
+import PresetSchema from "../../../../schemas/PresetSchema";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";
@@ -11,7 +11,7 @@ import { IController } from "../../IController";
 import * as path from "path";
 
 export class FSController implements IController {
-  public static checkViolations = (cPath: string, preset: Preset) => {
+  public static checkViolations = (cPath: string, preset: PresetSchema) => {
     // The path should always start with a /
     if (!cPath.startsWith("/")) {
       cPath = "/" + cPath;
