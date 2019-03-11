@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import { ServerNode } from "../../../core/admin/Node";
+import { ServerNode } from "../../../services/admin/NodeService";
 import Node, { ServerNodeModel } from "../../../schemas/ServerNodeSchema";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";

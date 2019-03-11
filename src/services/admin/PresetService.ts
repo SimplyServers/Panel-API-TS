@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { pre, Ref } from "typegoose";
 import PresetSchema, { PresetModel } from "../../schemas/PresetSchema";
 import { ActionFailed } from "../../util/errors/ActionFailed";
-import { DatabaseItem } from "../DatabaseItem";
+import { DatabaseService } from "../DatabaseService";
 
 export interface IPresetQuery {
   name: string;
@@ -27,7 +27,7 @@ export interface IPresetQuery {
   _id?: string;
 }
 
-export class Preset implements DatabaseItem {
+export class PresetService implements DatabaseService {
   public static get = async () => {
     return await PresetModel.find({});
   };

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import { Group } from "../../../core/admin/Group";
+import { GroupService } from "../../../services/admin/GroupService";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { Validators } from "../../../util/Validators";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
@@ -84,7 +84,7 @@ export class GroupController implements IController {
   public getGroups = async (req, res, next) => {
     let groups;
     try {
-      groups = await Group.get();
+      groups = await GroupService.get();
     } catch (e) {
       return next(e);
     }
@@ -97,7 +97,7 @@ export class GroupController implements IController {
   public getGroup = async (req, res, next) => {
     let group;
     try {
-      group = await await Group.getOne(req.params.group);
+      group = await await GroupService.getOne(req.params.group);
     } catch (e) {
       return next(e);
     }
@@ -109,7 +109,7 @@ export class GroupController implements IController {
 
   public removeGroup = async (req, res, next) => {
     try {
-      await Group.remove(req.params.group);
+      await GroupService.remove(req.params.group);
     } catch (e) {
       return next(e);
     }
@@ -124,7 +124,7 @@ export class GroupController implements IController {
     }
 
     try {
-      await Group.edit({
+      await GroupService.edit({
         _presetsAllowed: req.body.presetsAllowed,
         color: req.body.color,
         name: req.body.name,
@@ -146,7 +146,7 @@ export class GroupController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    await Group.add({
+    await GroupService.add({
       color: req.body.color,
       displayName: req.body.displayName,
       name: req.body.name,

@@ -3,7 +3,7 @@ import { Ref } from "typegoose";
 import { GroupModel } from "../../schemas/GroupSchema";
 import PresetSchema from "../../schemas/PresetSchema";
 import { ActionFailed } from "../../util/errors/ActionFailed";
-import { DatabaseItem } from "../DatabaseItem";
+import { DatabaseService } from "../DatabaseService";
 
 export interface IGroupQuery {
   _presetsAllowed: Types.ObjectId[];
@@ -15,7 +15,7 @@ export interface IGroupQuery {
   _id?: string;
 }
 
-export class Group implements DatabaseItem {
+export class GroupService implements DatabaseService {
   public static get = async () => {
     return await GroupModel.find({});
   };
@@ -25,14 +25,9 @@ export class Group implements DatabaseItem {
   };
 
   public static remove = async (objectID: string) => {
-    let group;
-    group = await GroupModel.findByIdAndDelete(
+    GroupModel.findByIdAndDelete(
       Types.ObjectId(objectID)
     ).orFail();
-    // Make sure we removed more then 0
-    if (group.n < 1) {
-      throw new ActionFailed("Failed to find group matching id", true);
-    }
   };
 
   public static edit = async (editQuery: IGroupQuery) => {

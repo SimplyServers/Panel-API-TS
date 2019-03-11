@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import { Preset } from "../../../core/admin/Preset";
+import { PresetService } from "../../../services/admin/PresetService";
 import PresetSchema, { PresetModel } from "../../../schemas/PresetSchema";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
@@ -169,7 +169,7 @@ export class PresetController implements IController {
   public getPresets = async (req, res, next) => {
     let presets;
     try {
-      presets = await Preset.get();
+      presets = await PresetService.get();
     } catch (e) {
       return next(e);
     }
@@ -182,7 +182,7 @@ export class PresetController implements IController {
   public getPreset = async (req, res, next) => {
     let preset;
     try {
-      preset = await Preset.getOne(req.params.preset);
+      preset = await PresetService.getOne(req.params.preset);
     } catch (e) {
       return next(e);
     }
@@ -194,7 +194,7 @@ export class PresetController implements IController {
 
   public removePreset = async (req, res, next) => {
     try {
-      await Preset.remove(req.params.preset);
+      await PresetService.remove(req.params.preset);
     } catch (e) {
       return next(e);
     }
@@ -208,7 +208,7 @@ export class PresetController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    await Preset.edit({
+    await PresetService.edit({
       name: req.body.name,
       game: req.body.game,
       build: {
@@ -239,7 +239,7 @@ export class PresetController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    await Preset.add({
+    await PresetService.add({
       name: req.body.name,
       game: req.body.game,
       autoShutdown: req.body.autoShutdown,

@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { ServerNodeModel } from "../../schemas/ServerNodeSchema";
 import { ActionFailed } from "../../util/errors/ActionFailed";
-import { DatabaseItem } from "../DatabaseItem";
+import { DatabaseService } from "../DatabaseService";
 
 export interface INodeQuery {
   ip: string;
@@ -11,7 +11,7 @@ export interface INodeQuery {
   _id?: string;
 }
 
-export class ServerNode implements DatabaseItem {
+export class ServerNode implements DatabaseService {
   public static get = async () => {
     return await ServerNodeModel.find({});
   };

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { User } from "../../../core/admin/User";
+import { UserService } from "../../../services/admin/UserService";
 import { UserModel } from "../../../schemas/UserSchema";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
@@ -21,7 +21,7 @@ export class UserController implements IController {
   public getUsers = async (req, res, next) => {
     let users;
     try {
-      users = await User.get();
+      users = await UserService.get();
     } catch (e) {
       return next(e);
     }
@@ -34,7 +34,7 @@ export class UserController implements IController {
   public getUser = async (req, res, next) => {
     let user;
     try {
-      user = User.getOne(req.params.user);
+      user = UserService.getOne(req.params.user);
     } catch (e) {
       return next(e);
     }

@@ -1,0 +1,408 @@
+import { Types } from "mongoose";
+import GameServerSchema, { GameServerModel } from "../../schemas/GameServerSchema";
+import GroupSchema from "../../schemas/GroupSchema";
+import ServerNodeSchema  from "../../schemas/ServerNodeSchema";
+import { UserModel } from "../../schemas/UserSchema";
+import { ActionFailed } from "../../util/errors/ActionFailed";
+import { NodeInterface } from "../../util/NodeInterface";
+
+export class GameServerService{
+  public installPlugin = async (server: GameServerSchema, plugin: string) => {
+    // Contact node
+    const nodeInterface = new NodeInterface(server._nodeInstalled as ServerNodeSchema);
+
+    try {
+      await nodeInterface.installPlugin(server, plugin);
+    } catch (e) {
+      switch (NodeInterface.niceHandle(e)) {
+        case "PLUGIN_INSTALLED":
+          throw new ActionFailed("Plugin already installed.", true);
+        case "INVALID_PLUGIN":
+          throw new ActionFailed("Plugin does not exist.", true);
+        case "PLUGIN_NOT_SUPPORTED":
+          throw new ActionFailed("Plugin not supported.", true);
+        case "SERVER_NOT_OFF":
+          throw new ActionFailed("Server is not off.", true);
+        case "SERVER_LOCKED":
+          throw new ActionFailed("Server is locked.", true);
+        default:
+          throw new ActionFailed("Unknown error.", true);
+      }
+    }
+  };
+
+  public removePlugin = async (server: GameServerSchema, plugin: string) => {
+    // Contact node
+    const nodeInterface = new NodeInterface(server._nodeInstalled as ServerNodeSchema);
+
+    try {
+      await nodeInterface.removePlugin(server, plugin);
+    } catch (e) {
+      switch (NodeInterface.niceHandle(e)) {
+        case "PLUGIN_NOT_INSTALLED":
+          throw new ActionFailed("Plugin is not installed.", true);
+        case "SERVER_NOT_OFF":
+          throw new ActionFailed("Server is not off.", true);
+        case "SERVER_LOCKED":
+          throw new ActionFailed("Server is locked.", true);
+        default:
+          throw new ActionFailed("Unknown error.", true);
+      }
+    }
+  };
+
+  public removeSubuser = async (server: GroupSchema, targetID: string) => {
+    const targetUser = await UserModel.findById(Types.ObjectId(targetID));
+
+    // @ts-ignore
+    server._sub_owners.filter(subOwner => subOwner._id !== targetUser._id);
+      await server.save();
+  };
+
+  // public addSubuser = async (server: GameServerSchema) => {
+  //   let targetUser;
+  //     targetUser = await UserModel.findOne({
+  //       "account_info.email": req.body.email
+  //     });
+  //
+  //   if (
+  //     server._sub_owners.forEach(
+  //       subOwner => subOwner._id === targetUser._id
+  //     ) !== undefined
+  //   ) {
+  //     throw new ActionFailed("UserSchema is already an subuser.", true);
+  //   }
+  //   if (server._owner._id === targetUser._id) {
+  //     throw
+  //       new ActionFailed("The server owner is not a valid subuser.", true)
+  //     );
+  //   }
+  //
+  //   server._sub_owners.push(new Types.ObjectId(targetUser._id));
+  //   try {
+  //     await server.save();
+  //   } catch (e) {
+  //     throw new ActionFailed("Failed save server.", false));
+  //   }
+  //
+  //
+  // };
+  //
+  // public addServer = async (server: GameServerSchema) => {
+  //   if (
+  //     process.env.NODE_ENV !== "dev" &&
+  //     Captcha.checkValid(req.connection.remoteAddress, req.body.captcha)
+  //   ) {
+  //     throw
+  //       new ValidationError({
+  //         location: "body",
+  //         param: "email",
+  //         msg: "Captcha is incorrect"
+  //       })
+  //     );
+  //   }
+  //
+  //   let existingServers;
+  //   let preset;
+  //   let nodes;
+  //   let user;
+  //   try {
+  //     existingServers = await GameServerModel.find({
+  //       $or: [
+  //         {
+  //           name: req.body.name
+  //         },
+  //         {
+  //           _owner: Types.ObjectId(req.payload.id)
+  //         }
+  //       ]
+  //     });
+  //   } catch (e) {
+  //     throw e);
+  //   }
+  //
+  //   if (existingServers.length !== 0) {
+  //     if (existingServers[0].name.toString() === req.body.name.toString()) {
+  //       throw
+  //         new ValidationError({
+  //           location: "body",
+  //           param: "name",
+  //           msg: "Name already assigned"
+  //         })
+  //       );
+  //     } else if (
+  //       existingServers[0]._owner.toString() ===
+  //       Types.ObjectId(req.payload.id).toString()
+  //     ) {
+  //       throw new ActionFailed("You already own a server.", true);
+  //     }
+  //     throw new ActionFailed("Value already exists", true);
+  //   }
+
+  //   try {
+  //     const getUser = UserModel.findById(Types.ObjectId(req.payload.id));
+  //     const getPreset = PresetModel.findById(
+  //       Types.ObjectId(req.body.preset)
+  //     ).orFail();
+  //     const getNodes = ServerNodeModel.find({});
+  //
+  //     user = await getUser;
+  //     preset = await getPreset;
+  //     nodes = await getNodes;
+  //   } catch (e) {
+  //     throw e);
+  //   }
+  //
+  //   // Make sure the user is verified
+  //   if (!user.checkVerified()) {
+  //     throw
+  //       new ActionFailed("You must first verify your account.", true)
+  //     );
+  //   }
+  //
+  //   // Check if the user has access to preset
+  //   if (
+  //     user._group._presetsAllowed.find(
+  //       groupPreset => groupPreset._id.toString() === req.body.preset.toString()
+  //     ) === undefined
+  //   ) {
+  //     throw new ActionFailed("You don't have permissions.", true);
+  //   }
+  //
+  //   // Check if there are no nodes
+  //   if (nodes.length < 1) {
+  //     throw new ActionFailed("No available nodes", false));
+  //   }
+  //
+  //   const shuffledNodes = nodes
+  //     .map(a => [Math.random(), a])
+  //     .sort((a, b) => a[0] - b[0])
+  //     .map(a => a[1]);
+  //   const contenders = shuffledNodes.filter(
+  //     shuffledNode =>
+  //       shuffledNode.games.find(game => game.name === preset.game) !== undefined
+  //   );
+  //
+  //   if (!contenders) {
+  //     throw
+  //       new ActionFailed("No available nodes that are contenders", true)
+  //     );
+  //   }
+  //
+  //   const decidedNode = contenders.find(
+  //     contender =>
+  //       contender.status.freedisk &&
+  //       contender.status.totaldisk &&
+  //       contender.status.freedisk / contender.status.totaldisk < 0.9
+  //   );
+  //
+  //   // Make sure node is not undefined.
+  //   if (!decidedNode) {
+  //     throw new ActionFailed("All nodes are at capacity.", true);
+  //   }
+  //
+  //   // Generate SFTP new password.
+  //   // This needs to be decently secure but it's not a huge deal.
+  //   // TODO: unused
+  //   const sftpPwd = Util.generateRandom();
+  //
+  //   const newServer = new GameServerModel({
+  //     _owner: Types.ObjectId(req.payload.id),
+  //     _sub_owners: [],
+  //     _preset: req.body.preset,
+  //     timeOnline: 0,
+  //     online: false,
+  //     _nodeInstalled: decidedNode._id,
+  //     motd: req.body.motd,
+  //     sftpPassword: sftpPwd,
+  //     port: 0,
+  //     name: req.body.name,
+  //     _minecraftPlugins: []
+  //   });
+  //
+  //   try {
+  //     await newServer.save();
+  //   } catch (e) {
+  //     throw new ActionFailed("Failed save server.", false));
+  //   }
+  //
+  //   const serverTemplateConfig = {
+  //     id: newServer._id,
+  //     game: preset.game,
+  //     port: -1,
+  //     build: {
+  //       io: preset.build.io,
+  //       cpu: preset.build.cpu,
+  //       mem: preset.build.mem
+  //     },
+  //     players: preset.maxPlayers
+  //   };
+  //
+  //   // Create manager config
+  //   const nodeInterface = new NodeInterface(decidedNode);
+  //
+  //   let createData;
+  //   try {
+  //     createData = await nodeInterface.add(
+  //       JSON.stringify(serverTemplateConfig),
+  //       sftpPwd
+  //     );
+  //   } catch (e) {
+  //     try {
+  //       await newServer.remove();
+  //       throw
+  //         new ActionFailed("Failed to add server to selected node", false)
+  //       );
+  //     } catch (e) {
+  //       throw new ActionFailed("Failed recovering from fallback", false));
+  //     }
+  //   }
+  //
+  //   // Update server port from data
+  //   newServer.port = createData.server.port;
+  //
+  //   try {
+  //     await newServer.save();
+  //   } catch (e) {
+  //     throw new ActionFailed("Failed updating server port", false));
+  //   }
+  //
+  //   // (if its a Minecraft server) update minecraft_properties
+  //   if (preset.special.views.indexOf("minecraft_properties_viewer") > -1) {
+  //     // Create the user
+  //     const MinecraftPropertiesModal = new MinecraftPropertiesSchema().getModelForClass(
+  //       MinecraftPropertiesSchema
+  //     );
+  //
+  //     const serverProperties = new MinecraftPropertiesModal({
+  //       server: newServer._id,
+  //       settings: {
+  //         spawnprotection: 16,
+  //         allownether: true,
+  //         gamemode: 0,
+  //         difficulty: 1,
+  //         spawnmonsters: true,
+  //         pvp: true,
+  //         hardcore: false,
+  //         allowflight: false,
+  //         resourcepack: "",
+  //         whitelist: false
+  //       }
+  //     });
+  //
+  //     try {
+  //       await serverProperties.save();
+  //     } catch (e) {
+  //       throw new ActionFailed("Failed save server properties.", false));
+  //     }
+  //   }
+  //
+  //   // Install any preinstalled plugins specified
+  //   if (preset.preinstalledPlugins) {
+  //     await Promise.all(
+  //       preset.preinstalledPlugins.map(async value => {
+  //         try {
+  //           await nodeInterface.installPlugin(newServer._id, value);
+  //         } catch (e) {
+  //           SimplyServersAPI.logger.error("Server plugin install failed: " + e);
+  //         }
+  //       })
+  //     );
+  //   }
+  //
+  //
+  // };
+  //
+  // public changePreset = async (server: GameServerSchema) => {
+  //   let user;
+  //   let newPreset;
+  //
+  //   try {
+  //     const getUser = UserModel.findById(Types.ObjectId(req.payload.id));
+  //     const getNewPreset = PresetModel.findById(
+  //       Types.ObjectId(req.body.preset)
+  //     ).orFail();
+  //
+  //     user = await getUser;
+  //     newPreset = await getNewPreset;
+  //   } catch (e) {
+  //     throw e);
+  //   }
+  //
+  //   // Check to see if preset is compatible.
+  //   if (!(server._preset.allowSwitchingTo.indexOf(req.body.preset) > -1)) {
+  //     throw new ActionFailed("PresetSchema not allowed.", true);
+  //   }
+  //
+  //   if (!(user._group.presetsAllowed.indexOf(req.body.preset) > -1)) {
+  //     throw new ActionFailed("You don't have permissions.", true);
+  //   }
+  //
+  //   if (req.body.preset === server.preset) {
+  //     throw new ActionFailed("This is already your preset.", true);
+  //   }
+  //
+  //   // Contact node
+  //   const nodeInterface = new NodeInterface(server._nodeInstalled as ServerNodeSchema);
+  //
+  //   try {
+  //     await nodeInterface.edit(
+  //       server,
+  //       JSON.stringify({
+  //         build: {
+  //           io: newPreset.build.io,
+  //           mem: newPreset.build.mem,
+  //           cpu: newPreset.build.cpu
+  //         },
+  //         players: newPreset.maxPlayers,
+  //         game: newPreset.game
+  //       })
+  //     );
+  //   } catch (e) {
+  //     switch (NodeInterface.niceHandle(e)) {
+  //       case "SERVER_LOCKED":
+  //         throw new ActionFailed("Server is locked.", true);
+  //       case "SERVER_NOT_OFF":
+  //         throw new ActionFailed("Server is not off", true);
+  //       default:
+  //         throw new ActionFailed("Unknown error.", true);
+  //     }
+  //   }
+  //
+  //   server.preset = req.body.preset;
+  //
+  //   try {
+  //     await server.save();
+  //   } catch (e) {
+  //     throw new ActionFailed("Failed save server.", false));
+  //   }
+  //
+  //
+  // };
+  //
+  // public removeServer = async (server: GameServerSchema) => {
+  //   // Contact node
+  //   const nodeInterface = new NodeInterface(server._nodeInstalled as ServerNodeSchema);
+  //
+  //   try {
+  //     await nodeInterface.remove(server);
+  //   } catch (e) {
+  //     switch (NodeInterface.niceHandle(e)) {
+  //       case "SERVER_LOCKED":
+  //         throw new ActionFailed("Server is locked.", true);
+  //       case "SERVER_NOT_OFF":
+  //         throw new ActionFailed("Server is not off", true);
+  //       default:
+  //         throw new ActionFailed("Unknown error.", true);
+  //     }
+  //   }
+  //
+  //   try {
+  //     server.remove();
+  //   } catch (e) {
+  //     throw new ActionFailed("Failed remove server.", false));
+  //   }
+  //
+  //
+  // };
+}
