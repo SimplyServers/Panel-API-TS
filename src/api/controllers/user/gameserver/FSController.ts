@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
 import PresetSchema from "../../../../schemas/PresetSchema";
+import { FilesystemService } from "../../../../services/gameserver/FilesystemService";
 import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { NodeInterface } from "../../../../util/NodeInterface";
@@ -103,33 +104,11 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Normalize path so users don't fuck with us
-    const nPath = path.normalize(req.body.path);
-
-    // This removes the tailing/leading slash if its present
-    // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, req.server._preset)) {
-      return next(new ActionFailed("Restricted file target.", false));
-    }
-
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    let data;
     try {
-      data = await nodeInterface.checkAllowed(req.server, req.body.path);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "FILE_NOT_FOUND":
-          return next(new ActionFailed("File not found.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+      return res.json({ allowed: await FilesystemService.checkPath(req.server, req.body.path) });
+    }catch (e) {
+      return next(e);
     }
-
-    return res.json({ allowed: data.allowed });
   };
 
   public writeFile = async (req, res, next) => {
@@ -138,33 +117,10 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Normalize path so users don't fuck with us
-    const nPath = path.normalize(req.body.path);
-
-    // This removes the tailing/leading slash if its present
-    // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, req.server._preset)) {
-      return next(new ActionFailed("Restricted file target.", false));
-    }
-
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    try {
-      await nodeInterface.createFile(
-        req.server,
-        req.body.path,
-        req.body.contents
-      );
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "FILE_NOT_FOUND":
-          return next(new ActionFailed("File not found.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+    try{
+      await FilesystemService.writeFile(req.server, req.body.path, req.body.contents);
+    }catch (e) {
+      return next(e);
     }
 
     return res.json({});
@@ -176,29 +132,10 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Normalize path so users don't fuck with us
-    const nPath = path.normalize(req.body.path);
-
-    // This removes the tailing/leading slash if its present
-    // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, req.server._preset)) {
-      return next(new ActionFailed("Restricted file target.", false));
-    }
-
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    try {
-      await nodeInterface.removeFile(req.server, req.body.path);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "FILE_NOT_FOUND":
-          return next(new ActionFailed("File not found.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+    try{
+      await FilesystemService.removeFile(req.server, req.body.path);
+    }catch (e) {
+      return next(e);
     }
 
     return res.json({});
@@ -210,29 +147,10 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Normalize path so users don't fuck with us
-    const nPath = path.normalize(req.body.path);
-
-    // This removes the tailing/leading slash if its present
-    // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, req.server._preset)) {
-      return next(new ActionFailed("Restricted file target.", false));
-    }
-
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
     try {
-      await nodeInterface.removeFolder(req.server, req.body.path);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "FILE_NOT_FOUND":
-          return next(new ActionFailed("File not found.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+      await FilesystemService.removeFolder(req.server, req.body.path);
+    }catch (e) {
+      return next(e);
     }
 
     return res.json({});
@@ -244,33 +162,11 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Normalize path so users don't fuck with us
-    const nPath = path.normalize(req.body.path);
-
-    // This removes the tailing/leading slash if its present
-    // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, req.server._preset)) {
-      return next(new ActionFailed("Restricted file target.", false));
-    }
-
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    let data;
     try {
-      data = await nodeInterface.fileContents(req.server, req.body.path);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "FILE_NOT_FOUND":
-          return next(new ActionFailed("File not found.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+      return res.json({ contents: await FilesystemService.fileContents(req.server, req.body.path) });
+    }catch (e) {
+      return next(e);
     }
-
-    return res.json({ contents: data.contents });
   };
 
   public listDir = async (req, res, next) => {
@@ -279,43 +175,6 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    // Normalize path so users don't fuck with us
-    const nPath = path.normalize(req.body.path);
-
-    // This removes the tailing/leading slash if its present
-    // TODO: double check all conditions
-    if (!FSController.checkViolations(nPath, req.server._preset)) {
-      return next(new ActionFailed("Restricted file target.", false));
-    }
-
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    let data;
-    try {
-      data = await nodeInterface.getDir(req.server, req.body.path);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "FILE_NOT_FOUND":
-          return next(new ActionFailed("File not found.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
-    }
-
-    const files = [];
-    data.contents.forEach(value => {
-      if (
-        req.server._preset.special.fs.find(rule => {
-          return rule.path === path.join(nPath, value.name) && !rule.canSee;
-        }) === undefined
-      ) {
-        files.push(value);
-      }
-    });
-
-    return res.json({ files });
+    return res.json({ files: await FilesystemService.listDir(req.server, req.body.path) });
   };
 }

@@ -19,7 +19,7 @@ export class FilesystemService {
     return preset.special.fs.find(rule => rule.path === filePath) === undefined;
   };
 
-  public checkPath = async (
+  public static checkPath = async (
     server: any,
     filePath: string
   ): Promise<boolean> => {
@@ -50,7 +50,7 @@ export class FilesystemService {
     return data.allowed;
   };
 
-  public writeFile = async (
+  public static writeFile = async (
     server: any,
     filePath: string,
     contents: string
@@ -80,7 +80,7 @@ export class FilesystemService {
     }
   };
 
-  public removeFile = async (server: any, filePath: string) => {
+  public static removeFile = async (server: any, filePath: string) => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present
@@ -106,7 +106,7 @@ export class FilesystemService {
     }
   };
 
-  public removeFolder = async (server: any, filePath: string) => {
+  public static removeFolder = async (server: any, filePath: string) => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present
@@ -132,7 +132,7 @@ export class FilesystemService {
     }
   };
 
-  public fileContents = async (
+  public static fileContents = async (
     server: any,
     filePath: string
   ): Promise<string> => {
@@ -164,7 +164,7 @@ export class FilesystemService {
     return data.contents;
   };
 
-  public listDir = async (server: any, filePath: string) => {
+  public static listDir = async (server: any, filePath: string) => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present

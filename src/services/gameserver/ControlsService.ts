@@ -2,7 +2,7 @@ import { ActionFailed } from "../../util/errors/ActionFailed";
 import { NodeInterface } from "../../util/NodeInterface";
 
 export class ControlsService {
-  public executeCommand = async (server: any, command: string) => {
+  public static executeCommand = async (server: any, command: string) => {
     const nodeInterface = new NodeInterface(server._nodeInstalled);
     try {
       await nodeInterface.execute(server, command);
@@ -16,7 +16,7 @@ export class ControlsService {
     }
   };
 
-  public install = async (server: any) => {
+  public static install = async (server: any) => {
     const nodeInterface = new NodeInterface(server._nodeInstalled);
     try {
       await nodeInterface.install(server);
@@ -34,7 +34,7 @@ export class ControlsService {
     }
   };
 
-  public reinstall = async (server: any) => {
+  public static reinstall = async (server: any) => {
     const nodeInterface = new NodeInterface(server._nodeInstalled);
     try {
       await nodeInterface.reinstall(server);

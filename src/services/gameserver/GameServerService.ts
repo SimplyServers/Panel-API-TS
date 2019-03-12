@@ -21,7 +21,7 @@ export interface ICreateServer {
 }
 
 export class GameServerService {
-  public installPlugin = async (server: any, plugin: string) => {
+  public static installPlugin = async (server: any, plugin: string) => {
     // Contact node
     const nodeInterface = new NodeInterface(
       server._nodeInstalled as ServerNodeSchema
@@ -47,7 +47,7 @@ export class GameServerService {
     }
   };
 
-  public removePlugin = async (server: any, plugin: string) => {
+  public static removePlugin = async (server: any, plugin: string) => {
     // Contact node
     const nodeInterface = new NodeInterface(
       server._nodeInstalled as ServerNodeSchema
@@ -69,14 +69,14 @@ export class GameServerService {
     }
   };
 
-  public removeSubuser = async (server: any, targetID: string) => {
+  public static removeSubuser = async (server: any, targetID: string) => {
     const targetUser = await UserModel.findById(Types.ObjectId(targetID));
 
     server._sub_owners.filter(subOwner => subOwner._id !== targetUser._id);
     await server.save();
   };
 
-  public addSubuser = async (server: any, email: string) => {
+  public static addSubuser = async (server: any, email: string) => {
     let targetUser;
     targetUser = await UserModel.findOne({
       "account_info.email": email
@@ -97,7 +97,7 @@ export class GameServerService {
     await server.save();
   };
 
-  public addServer = async (
+  public static addServer = async (
     settings: ICreateServer,
     captcha?: ICaptchaRequest
   ) => {
@@ -294,7 +294,7 @@ export class GameServerService {
     }
   };
 
-  public changePreset = async (server: any, presetId: string) => {
+  public static changePreset = async (server: any, presetId: string) => {
     let user;
     let newPreset;
 
@@ -350,7 +350,7 @@ export class GameServerService {
     await server.save();
   };
 
-  public removeServer = async (server: any) => {
+  public static removeServer = async (server: any) => {
     // Contact node
     const nodeInterface = new NodeInterface(
       server._nodeInstalled as ServerNodeSchema

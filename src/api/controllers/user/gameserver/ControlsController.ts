@@ -1,10 +1,8 @@
 import { Router } from "express";
 
 import { check, validationResult } from "express-validator/check";
-import { ServerNodeModel } from "../../../../schemas/ServerNodeSchema";
-import { ActionFailed } from "../../../../util/errors/ActionFailed";
+import { ControlsService } from "../../../../services/gameserver/ControlsService";
 import { ValidationError } from "../../../../util/errors/ValidationError";
-import { NodeInterface } from "../../../../util/NodeInterface";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -40,55 +38,27 @@ export class ControlsController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
-      await nodeInterface.execute(req.server, req.body.command);
-      return res.json({});
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("Server not off.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+      await ControlsService.executeCommand(req.server, req.body.commad);
+    }catch (e) {
+      return next(e);
     }
   };
 
   public install = async (req, res, next) => {
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-    try {
-      await nodeInterface.install(req.server);
-      return res.json({});
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "REINSTALL_INSTEAD":
-          return next(new ActionFailed("Reinstall your server instead.", true));
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("Server not off.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+
+    try{
+      await ControlsService.install(req.server);
+    }catch (e) {
+      return next(e);
     }
   };
 
   public reinstall = async (req, res, next) => {
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
     try {
-      await nodeInterface.reinstall(req.server);
-      return res.json({});
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "INSTALL_INSTEAD":
-          return next(new ActionFailed("Install your server instead.", true));
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("Server not off.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+      await ControlsService.reinstall(req.server);
+    }catch (e) {
+      return next(e);
     }
   };
 }

@@ -2,7 +2,7 @@ import { ActionFailed } from "../../util/errors/ActionFailed";
 import { NodeInterface } from "../../util/NodeInterface";
 
 export class PowerService {
-  public setPower = async (server: any, stringAction: string) => {
+  public static setPower = async (server: any, stringAction: string) => {
     // Contact node
     const nodeInterface = new NodeInterface(server._nodeInstalled);
 

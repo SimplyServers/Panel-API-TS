@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { ActionFailed } from "../../../../util/errors/ActionFailed";
-import { NodeInterface } from "../../../../util/NodeInterface";
+import { PowerService } from "../../../../services/gameserver/PowerService";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -15,38 +14,10 @@ export class PowerController implements IController {
   }
 
   public setPower = async (req, res, next) => {
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
     try {
-      switch (req.params.power) {
-        case "on":
-          await nodeInterface.powerOn(req.server);
-          break;
-        case "off":
-          await nodeInterface.powerOff(req.server);
-          break;
-        case "kill":
-          await nodeInterface.powerKill(req.server);
-          break;
-        default:
-          return next(new ActionFailed("Unknown power operator.", true));
-      }
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("File not found.", true));
-        case "REINSTALL":
-          return next(new ActionFailed("Reinstall your server.", true));
-        case "SERVER_NOT_RUNNING":
-          return next(new ActionFailed("Server not running", true));
-        case "SERVER_NOT_STOPPED":
-          return next(new ActionFailed("Server not stopped", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+      await PowerService.setPower(req.body, req.params.power);
+    }catch (e) {
+      return next(e);
     }
 
     return res.json({});
