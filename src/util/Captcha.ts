@@ -1,18 +1,22 @@
 import * as request from "request-promise";
 import { SimplyServersAPI } from "../SimplyServersAPI";
 
+export interface ICaptchaRequest {
+  ip: string,
+  key: string
+}
+
 export class Captcha {
   public static checkValid = async (
-    ip: string,
-    key: string
+    settings: ICaptchaRequest
   ): Promise<boolean> => {
     const url =
       "https://www.google.com/recaptcha/api/siteverify?secret=" +
       SimplyServersAPI.config.web.captchaSecret +
       "&response=" +
-      key +
+      settings.key +
       "&remoteip=" +
-      ip;
+      settings.ip;
 
     let captchaData;
     try {
