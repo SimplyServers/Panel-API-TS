@@ -2,9 +2,7 @@ import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
 import PresetSchema from "../../../../schemas/PresetSchema";
 import { FilesystemService } from "../../../../services/gameserver/FilesystemService";
-import { ActionFailed } from "../../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../../util/errors/ValidationError";
-import { NodeInterface } from "../../../../util/NodeInterface";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -26,6 +24,81 @@ export class FSController implements IController {
     // Check to ensure we're not violating any fs rules
     return preset.special.fs.find(rule => rule.path === cPath) === undefined;
   };
+  public checkPath = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    try {
+      return res.json({ allowed: await FilesystemService.checkPath(req.server, req.body.path) });
+    } catch (e) {
+      return next(e);
+    }
+  };
+  public writeFile = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    try {
+      await FilesystemService.writeFile(req.server, req.body.path, req.body.contents);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public removeFile = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    try {
+      await FilesystemService.removeFile(req.server, req.body.path);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public removeFolder = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    try {
+      await FilesystemService.removeFolder(req.server, req.body.path);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public fileContents = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    try {
+      return res.json({ contents: await FilesystemService.fileContents(req.server, req.body.path) });
+    } catch (e) {
+      return next(e);
+    }
+  };
+  public listDir = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    return res.json({ files: await FilesystemService.listDir(req.server, req.body.path) });
+  };
+
   public initRoutes(router: Router): void {
     router.post(
       "/server/:server/fs/checkAllowed",
@@ -97,84 +170,4 @@ export class FSController implements IController {
       this.listDir
     );
   }
-
-  public checkPath = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    try {
-      return res.json({ allowed: await FilesystemService.checkPath(req.server, req.body.path) });
-    }catch (e) {
-      return next(e);
-    }
-  };
-
-  public writeFile = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    try{
-      await FilesystemService.writeFile(req.server, req.body.path, req.body.contents);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public removeFile = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    try{
-      await FilesystemService.removeFile(req.server, req.body.path);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public removeFolder = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    try {
-      await FilesystemService.removeFolder(req.server, req.body.path);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public fileContents = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    try {
-      return res.json({ contents: await FilesystemService.fileContents(req.server, req.body.path) });
-    }catch (e) {
-      return next(e);
-    }
-  };
-
-  public listDir = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    return res.json({ files: await FilesystemService.listDir(req.server, req.body.path) });
-  };
 }

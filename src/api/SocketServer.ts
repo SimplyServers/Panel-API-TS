@@ -1,28 +1,19 @@
 import { Types } from "mongoose";
-import socketClient = require("socket.io-client");
 import * as socketJwt from "socketio-jwt";
 import { GameServerModel } from "../schemas/GameServerSchema";
 
 import { SimplyServersAPI } from "../SimplyServersAPI";
-import { Validators } from "../util/Validators";
+import socketClient = require("socket.io-client");
 
 export class SocketServer {
-  private consoleSocket: any;
-  private uploadSocket: any;
-  private downloadSocket: any;
-
-  constructor(io: any) {
-    this.consoleSocket = io.of("/console");
-    this.uploadSocket = io.of("/upload");
-    this.downloadSocket = io.of("/download");
-  }
-
   public bootstrap = (): void => {
     this.initConsole();
     this.initDownload();
     this.initUpload();
   };
-
+  private consoleSocket: any;
+  private uploadSocket: any;
+  private downloadSocket: any;
   private initConsole = (): void => {
     // This throws a gay error because of typings. Ignore
     // @ts-ignore
@@ -65,11 +56,11 @@ export class SocketServer {
         // @ts-ignore
         const serverSocket = socketClient(
           "https://" +
-            server._nodeInstalled.ip +
-            ":" +
-            server._nodeInstalled.port +
-            "/server/" +
-            server._id,
+          server._nodeInstalled.ip +
+          ":" +
+          server._nodeInstalled.port +
+          "/server/" +
+          server._id,
           {
             path: "/s/",
             transports: ["websocket", "flashsocket", "polling"],
@@ -117,8 +108,14 @@ export class SocketServer {
         });
       });
   };
+  private initUpload = (): void => {
+  };
+  private initDownload = (): void => {
+  };
 
-  private initUpload = (): void => {};
-
-  private initDownload = (): void => {};
+  constructor(io: any) {
+    this.consoleSocket = io.of("/console");
+    this.uploadSocket = io.of("/upload");
+    this.downloadSocket = io.of("/download");
+  }
 }

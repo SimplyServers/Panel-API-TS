@@ -3,6 +3,15 @@ import * as winston from "winston";
 import { SimplyServersAPI } from "../SimplyServersAPI";
 
 class Logger {
+  public info = (message: string): void => {
+    this.logger.info("[Info] " + message);
+  };
+  public verbose = (message: string): void => {
+    this.logger.debug("[Verbose] " + message);
+  };
+  public error = (message: string): void => {
+    this.logger.error("[Verbose] " + message);
+  };
   private logger;
 
   constructor(logToFile: boolean) {
@@ -39,18 +48,6 @@ class Logger {
       exitOnError: false
     });
   }
-
-  public info = (message: string): void => {
-    this.logger.info("[Info] " + message);
-  };
-
-  public verbose = (message: string): void => {
-    this.logger.debug("[Verbose] " + message);
-  };
-
-  public error = (message: string): void => {
-    this.logger.error("[Verbose] " + message);
-  };
 }
 
 export { Logger };

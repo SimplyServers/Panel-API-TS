@@ -40,16 +40,16 @@ export class ControlsController implements IController {
 
     try {
       await ControlsService.executeCommand(req.server, req.body.commad);
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
   };
 
   public install = async (req, res, next) => {
 
-    try{
+    try {
       await ControlsService.install(req.server);
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
   };
@@ -57,7 +57,7 @@ export class ControlsController implements IController {
   public reinstall = async (req, res, next) => {
     try {
       await ControlsService.reinstall(req.server);
-    }catch (e) {
+    } catch (e) {
       return next(e);
     }
   };

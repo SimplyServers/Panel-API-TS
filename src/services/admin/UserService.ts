@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { UserModel } from "../../schemas/UserSchema";
 import { DatabaseService } from "../DatabaseService";
 
-export class UserService implements DatabaseService{
+export class UserService implements DatabaseService {
   public static get = async () => {
     return await UserModel.find({}, { "account_info.password": 0 });
   };

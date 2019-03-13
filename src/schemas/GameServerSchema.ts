@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { Schema, Types } from "mongoose";
+import { Types } from "mongoose";
 import { arrayProp, post, pre, prop, Ref, Typegoose } from "typegoose";
 import MinecraftPluginSchema from "./MinecraftPluginSchema";
 import PresetSchema from "./PresetSchema";
@@ -51,9 +51,7 @@ export default class GameServerSchema extends Typegoose {
   @prop() public online: boolean;
   @prop() public name: string;
   @prop() public port: number;
-  @arrayProp({ itemsRef: MinecraftPluginSchema }) public _minecraftPlugins?: Ref<
-    MinecraftPluginSchema[]
-  >;
+  @arrayProp({ itemsRef: MinecraftPluginSchema }) public _minecraftPlugins?: Ref<MinecraftPluginSchema[]>;
 }
 
 export const GameServerModel = new GameServerSchema().getModelForClass(GameServerSchema, {

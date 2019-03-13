@@ -1,10 +1,9 @@
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { Types } from "mongoose";
 import * as mongoose from "mongoose";
+import { Types } from "mongoose";
 import { instanceMethod, post, pre, prop, Ref, Typegoose } from "typegoose";
 import { SimplyServersAPI } from "../SimplyServersAPI";
-import GameServerSchema from "./GameServerSchema";
 import GroupSchema, { GroupModel } from "./GroupSchema";
 import MinecraftPluginSchema from "./MinecraftPluginSchema";
 
@@ -27,9 +26,7 @@ import MinecraftPluginSchema from "./MinecraftPluginSchema";
 export default class UserSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: mongoose.Types.ObjectId;
-  @prop({ ref: MinecraftPluginSchema }) public _minecraftBoughtPlugins?: Array<
-    Ref<MinecraftPluginSchema>
-  >;
+  @prop({ ref: MinecraftPluginSchema }) public _minecraftBoughtPlugins?: Array<Ref<MinecraftPluginSchema>>;
   @prop() public game_info?: {
     minecraft?: {
       uuid?: string;

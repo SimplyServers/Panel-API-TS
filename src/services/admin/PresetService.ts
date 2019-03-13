@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { pre, Ref } from "typegoose";
+import { Ref } from "typegoose";
 import PresetSchema, { PresetModel } from "../../schemas/PresetSchema";
 import { ActionFailed } from "../../util/errors/ActionFailed";
 import { DatabaseService } from "../DatabaseService";
@@ -64,9 +64,7 @@ export class PresetService implements DatabaseService {
     existingPreset.autoShutdown = presetQuery.autoShutdown;
     existingPreset.creditsPerDay = presetQuery.creditsPerDay;
     existingPreset.preinstalledPlugins = presetQuery.preinstalledPlugins;
-    existingPreset._allowSwitchingTo = (presetQuery._allowSwitchingTo as unknown) as Ref<
-      PresetSchema[]
-    >;
+    existingPreset._allowSwitchingTo = (presetQuery._allowSwitchingTo as unknown) as Ref<PresetSchema[]>;
     existingPreset.maxPlayers = presetQuery.maxPlayers;
 
     if (
@@ -103,9 +101,7 @@ export class PresetService implements DatabaseService {
         minecraft: {}
       },
       preinstalledPlugins: addQuery.preinstalledPlugins,
-      _allowSwitchingTo: (addQuery._allowSwitchingTo as unknown) as Ref<
-        PresetSchema[]
-      >,
+      _allowSwitchingTo: (addQuery._allowSwitchingTo as unknown) as Ref<PresetSchema[]>,
       creditsPerDay: addQuery.creditsPerDay
     });
 

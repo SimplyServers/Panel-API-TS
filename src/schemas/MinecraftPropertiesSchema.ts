@@ -1,7 +1,6 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
-import PresetSchema from "./PresetSchema";
 
 @pre<MinecraftPropertiesSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {

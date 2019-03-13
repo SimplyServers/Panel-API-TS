@@ -7,6 +7,79 @@ import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
 export class GroupController implements IController {
+  public getGroups = async (req, res, next) => {
+    let groups;
+    try {
+      groups = await GroupService.get();
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({
+      groups
+    });
+  };
+  public getGroup = async (req, res, next) => {
+    let group;
+    try {
+      group = await await GroupService.getOne(req.params.group);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({
+      group
+    });
+  };
+  public removeGroup = async (req, res, next) => {
+    try {
+      await GroupService.remove(req.params.group);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public editGroup = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    try {
+      await GroupService.edit({
+        _presetsAllowed: req.body.presetsAllowed,
+        color: req.body.color,
+        name: req.body.name,
+        displayName: req.body.displayName,
+        isAdmin: req.body.isAdmin,
+        isStaff: req.body.isStaff,
+        _id: req.params.group
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public addGroup = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    await GroupService.add({
+      color: req.body.color,
+      displayName: req.body.displayName,
+      name: req.body.name,
+      isAdmin: req.body.isAdmin,
+      isStaff: req.body.isStaff,
+      _presetsAllowed: req.body.presetsAllowed
+    });
+
+    return res.json({});
+  };
+
   public initRoutes(router: Router): void {
     router.post(
       "/group/add",
@@ -79,82 +152,5 @@ export class GroupController implements IController {
       [AuthMiddleware.jwtAuth.required, AuthMiddleware.isAdmin],
       this.getGroups
     );
-  }
-
-  public getGroups = async (req, res, next) => {
-    let groups;
-    try {
-      groups = await GroupService.get();
-    } catch (e) {
-      return next(e);
-    }
-
-    return res.json({
-      groups
-    });
-  };
-
-  public getGroup = async (req, res, next) => {
-    let group;
-    try {
-      group = await await GroupService.getOne(req.params.group);
-    } catch (e) {
-      return next(e);
-    }
-
-    return res.json({
-      group
-    });
-  };
-
-  public removeGroup = async (req, res, next) => {
-    try {
-      await GroupService.remove(req.params.group);
-    } catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public editGroup = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    try {
-      await GroupService.edit({
-        _presetsAllowed: req.body.presetsAllowed,
-        color: req.body.color,
-        name: req.body.name,
-        displayName: req.body.displayName,
-        isAdmin: req.body.isAdmin,
-        isStaff: req.body.isStaff,
-        _id: req.params.group
-      });
-    } catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public addGroup = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    await GroupService.add({
-      color: req.body.color,
-      displayName: req.body.displayName,
-      name: req.body.name,
-      isAdmin: req.body.isAdmin,
-      isStaff: req.body.isStaff,
-      _presetsAllowed: req.body.presetsAllowed
-    });
-
-    return res.json({});
   }
 }

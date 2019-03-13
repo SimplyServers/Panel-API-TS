@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
 import { PresetService } from "../../../services/admin/PresetService";
-import PresetSchema, { PresetModel } from "../../../schemas/PresetSchema";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { Validators } from "../../../util/Validators";
@@ -48,6 +47,97 @@ export class PresetController implements IController {
     });
 
     return returnArr;
+  };
+  public getPresets = async (req, res, next) => {
+    let presets;
+    try {
+      presets = await PresetService.get();
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({
+      presets
+    });
+  };
+  public getPreset = async (req, res, next) => {
+    let preset;
+    try {
+      preset = await PresetService.getOne(req.params.preset);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({
+      preset
+    });
+  };
+  public removePreset = async (req, res, next) => {
+    try {
+      await PresetService.remove(req.params.preset);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public editPreset = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    await PresetService.edit({
+      name: req.body.name,
+      game: req.body.game,
+      build: {
+        mem: req.body.mem,
+        io: req.body.io,
+        cpu: req.body.cpu
+      },
+      special: {
+        fs: req.body.fs,
+        views: req.body.views,
+        minecraft: {
+          maxPlugins: req.body.maxPlugins
+        }
+      },
+      autoShutdown: req.body.autoShutdown,
+      creditsPerDay: req.body.creditsPerDay,
+      preinstalledPlugins: req.body.preinstalledPlugins,
+      _allowSwitchingTo: req.body.allowSwitchingTo,
+      maxPlayers: req.body.maxPlayers
+    });
+
+    return res.json({});
+  };
+  public addPreset = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return next(new ValidationError(errors.array()));
+    }
+
+    await PresetService.add({
+      name: req.body.name,
+      game: req.body.game,
+      autoShutdown: req.body.autoShutdown,
+      maxPlayers: req.body.maxPlayers,
+      build: {
+        mem: req.body.mem,
+        io: req.body.io,
+        cpu: req.body.cpu
+      },
+      special: {
+        fs: req.body.fs,
+        views: req.body.views,
+        minecraft: {}
+      },
+      preinstalledPlugins: req.body.preinstalledPlugins,
+      _allowSwitchingTo: req.body.allowSwitchingTo,
+      creditsPerDay: req.body.creditsPerDay
+    });
+
+    return res.json({});
   };
 
   public initRoutes(router: Router): void {
@@ -165,100 +255,4 @@ export class PresetController implements IController {
       this.getPresets
     );
   }
-
-  public getPresets = async (req, res, next) => {
-    let presets;
-    try {
-      presets = await PresetService.get();
-    } catch (e) {
-      return next(e);
-    }
-
-    return res.json({
-      presets
-    });
-  };
-
-  public getPreset = async (req, res, next) => {
-    let preset;
-    try {
-      preset = await PresetService.getOne(req.params.preset);
-    } catch (e) {
-      return next(e);
-    }
-
-    return res.json({
-      preset
-    });
-  };
-
-  public removePreset = async (req, res, next) => {
-    try {
-      await PresetService.remove(req.params.preset);
-    } catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public editPreset = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    await PresetService.edit({
-      name: req.body.name,
-      game: req.body.game,
-      build: {
-        mem: req.body.mem,
-        io: req.body.io,
-        cpu: req.body.cpu
-      },
-      special: {
-        fs: req.body.fs,
-        views: req.body.views,
-        minecraft: {
-          maxPlugins: req.body.maxPlugins
-        }
-      },
-      autoShutdown: req.body.autoShutdown,
-      creditsPerDay: req.body.creditsPerDay,
-      preinstalledPlugins: req.body.preinstalledPlugins,
-      _allowSwitchingTo: req.body.allowSwitchingTo,
-      maxPlayers: req.body.maxPlayers
-    });
-
-    return res.json({});
-  };
-
-  public addPreset = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next(new ValidationError(errors.array()));
-    }
-
-    await PresetService.add({
-      name: req.body.name,
-      game: req.body.game,
-      autoShutdown: req.body.autoShutdown,
-      maxPlayers: req.body.maxPlayers,
-      build: {
-        mem: req.body.mem,
-        io: req.body.io,
-        cpu: req.body.cpu
-      },
-      special: {
-        fs: req.body.fs,
-        views: req.body.views,
-        minecraft: {}
-      },
-      preinstalledPlugins: req.body.preinstalledPlugins,
-      _allowSwitchingTo: req.body.allowSwitchingTo,
-      creditsPerDay: req.body.creditsPerDay
-    });
-
-    return res.json({});
-  };
 }

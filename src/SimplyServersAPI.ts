@@ -4,7 +4,6 @@ import * as mongoose from "mongoose";
 import * as configData from "../config.json";
 import { APIServer } from "./api/APIServer";
 import { NodeUpdater } from "./NodeUpdater";
-import { GroupModel } from "./schemas/GroupSchema";
 
 import { IConfig } from "./types/IConfig";
 import { Logger } from "./util/Logger";
@@ -17,22 +16,6 @@ export class SimplyServersAPI {
   public static getRoot = (): string => {
     return __dirname;
   };
-
-  constructor() {
-    SimplyServersAPI.logger = new Logger(false);
-    SimplyServersAPI.config = configData as IConfig;
-
-    SimplyServersAPI.logger.info("Bootstrapping");
-    this.bootstrap()
-      .then(() => {
-        SimplyServersAPI.logger.info("Bootstrap done");
-      })
-      .catch(err => {
-        SimplyServersAPI.logger.error("Bootstrap failed: " + err);
-        process.exit(1);
-        return;
-      });
-  }
   private bootstrap = async (): Promise<void> => {
     SimplyServersAPI.logger.info("Bootstrap init");
 
@@ -77,8 +60,6 @@ export class SimplyServersAPI {
         SimplyServersAPI.config.database,
         { useNewUrlParser: true }
       );
-
-      new GroupModel();
     } catch (e) {
       SimplyServersAPI.logger.error("Failed to connect to database: " + e);
       process.exit(1);
@@ -95,4 +76,20 @@ export class SimplyServersAPI {
     const apiServer = new APIServer();
     await apiServer.bootstrapExpress();
   };
+
+  constructor() {
+    SimplyServersAPI.logger = new Logger(false);
+    SimplyServersAPI.config = configData as IConfig;
+
+    SimplyServersAPI.logger.info("Bootstrapping");
+    this.bootstrap()
+      .then(() => {
+        SimplyServersAPI.logger.info("Bootstrap done");
+      })
+      .catch(err => {
+        SimplyServersAPI.logger.error("Bootstrap failed: " + err);
+        process.exit(1);
+        return;
+      });
+  }
 }

@@ -1,10 +1,8 @@
 import { Types } from "mongoose";
-import  { GameServerModel } from "../../schemas/GameServerSchema";
+import { GameServerModel } from "../../schemas/GameServerSchema";
 import MinecraftPropertiesSchema from "../../schemas/MinecraftPropertiesSchema";
 import { PresetModel } from "../../schemas/PresetSchema";
-import ServerNodeSchema, {
-  ServerNodeModel
-} from "../../schemas/ServerNodeSchema";
+import ServerNodeSchema, { ServerNodeModel } from "../../schemas/ServerNodeSchema";
 import { UserModel } from "../../schemas/UserSchema";
 import { SimplyServersAPI } from "../../SimplyServersAPI";
 import { Captcha, ICaptchaRequest } from "../../util/Captcha";

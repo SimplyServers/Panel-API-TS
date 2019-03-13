@@ -1,26 +1,11 @@
 import { Router } from "express";
 import { Types } from "mongoose";
 import { GameServerModel } from "../../../schemas/GameServerSchema";
-import { PresetModel } from "../../../schemas/PresetSchema";
 import { UserModel } from "../../../schemas/UserSchema";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 import { IController } from "../IController";
 
 export class ProfileController implements IController {
-  public initRoutes(router: Router): void {
-    router.get(
-      "/profile/servers",
-      [AuthMiddleware.jwtAuth.required],
-      this.getServers
-    );
-    router.get("/profile", [AuthMiddleware.jwtAuth.required], this.profile);
-    router.get(
-      "/profile/presets",
-      [AuthMiddleware.jwtAuth.required],
-      this.getPresets
-    );
-  }
-
   public profile = async (req, res, next) => {
     let user;
     try {
@@ -34,7 +19,6 @@ export class ProfileController implements IController {
 
     return res.json({ user });
   };
-
   public getPresets = async (req, res, next) => {
     let user;
 
@@ -48,7 +32,6 @@ export class ProfileController implements IController {
       presets: user._group._presetsAllowed
     });
   };
-
   public getServers = async (req, res, next) => {
     let user;
     let servers;
@@ -192,4 +175,18 @@ export class ProfileController implements IController {
     //   servers: returnServers
     // });
   };
+
+  public initRoutes(router: Router): void {
+    router.get(
+      "/profile/servers",
+      [AuthMiddleware.jwtAuth.required],
+      this.getServers
+    );
+    router.get("/profile", [AuthMiddleware.jwtAuth.required], this.profile);
+    router.get(
+      "/profile/presets",
+      [AuthMiddleware.jwtAuth.required],
+      this.getPresets
+    );
+  }
 }

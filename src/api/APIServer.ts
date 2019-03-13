@@ -27,11 +27,6 @@ export class APIServer {
   public http;
   public https;
   public io;
-
-  constructor() {
-    this.express = express();
-  }
-
   public bootstrapExpress = async (): Promise<void> => {
     Raven.config(
       "https://bfbb378696fe46ffaf132cc1c6b24dfa:6e433d90864f47b5a165b460258d37e1@sentry.simplyservers.io/4"
@@ -122,7 +117,6 @@ export class APIServer {
 
     await this.createHttp();
   };
-
   private createHttp = async (): Promise<void> => {
     SimplyServersAPI.logger.verbose("Loading API...");
 
@@ -177,12 +171,11 @@ export class APIServer {
 
     SimplyServersAPI.logger.info(
       "API server done loading. HTTP: " +
-        SimplyServersAPI.config.web.ports.http +
-        ", HTTPS: " +
-        SimplyServersAPI.config.web.ports.https
+      SimplyServersAPI.config.web.ports.http +
+      ", HTTPS: " +
+      SimplyServersAPI.config.web.ports.https
     );
   };
-
   private mountRoutes = (): void => {
     const router = express.Router();
 
@@ -224,4 +217,8 @@ export class APIServer {
 
     this.express.use("/api/v1/", router);
   };
+
+  constructor() {
+    this.express = express();
+  }
 }

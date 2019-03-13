@@ -6,6 +6,78 @@ import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
 
 export class GameserverController implements IController {
+  public installPlugin = async (req, res, next) => {
+    try {
+      await GameServerService.installPlugin(req.server, req.body.plugin);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public removePlugin = async (req, res, next) => {
+    try {
+      await GameServerService.removePlugin(req.server, req.body.plugin);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public removeSubuser = async (req, res, next) => {
+    try {
+      await GameServerService.removeSubuser(req.server, req.body._id);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public addSubuser = async (req, res, next) => {
+    try {
+      await GameServerService.addSubuser(req.server, req.body.email);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public addServer = async (req, res, next) => {
+    try {
+      await GameServerService.addServer({
+        owner: req.payload.id,
+        preset: req.body.preset,
+        name: req.body.name,
+        motd: req.body.motd
+      }, {
+        ip: req.connection.remoteAddress,
+        key: req.body.captcha
+      });
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public changePreset = async (req, res, next) => {
+    try {
+      await GameServerService.changePreset(req.server, req.body.preset);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+  public removeServer = async (req, res, next) => {
+    try {
+      await GameServerService.removeServer(req.server);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
+  };
+
   public initRoutes(router: Router): void {
     router.post(
       "/server/:server/changePreset",
@@ -89,82 +161,4 @@ export class GameserverController implements IController {
       this.removeServer
     );
   }
-
-  public installPlugin = async (req, res, next) => {
-    try{
-      await GameServerService.installPlugin(req.server, req.body.plugin);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public removePlugin = async (req, res, next) => {
-    try{
-      await GameServerService.removePlugin(req.server, req.body.plugin);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public removeSubuser = async (req, res, next) => {
-    try{
-      await GameServerService.removeSubuser(req.server, req.body._id);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public addSubuser = async (req, res, next) => {
-    try{
-      await GameServerService.addSubuser(req.server, req.body.email);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public addServer = async (req, res, next) => {
-    try{
-      await GameServerService.addServer({
-        owner: req.payload.id,
-        preset: req.body.preset,
-        name: req.body.name,
-        motd: req.body.motd
-      }, {
-        ip: req.connection.remoteAddress,
-        key: req.body.captcha
-      })
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public changePreset = async (req, res, next) => {
-    try{
-      await GameServerService.changePreset(req.server, req.body.preset);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
-
-  public removeServer = async (req, res, next) => {
-    try{
-      await GameServerService.removeServer(req.server);
-    }catch (e) {
-      return next(e);
-    }
-
-    return res.json({});
-  };
 }

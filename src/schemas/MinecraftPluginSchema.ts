@@ -1,5 +1,5 @@
-import { Types } from "mongoose";
 import * as mongoose from "mongoose";
+import { Types } from "mongoose";
 import { instanceMethod, pre, prop, Typegoose } from "typegoose";
 
 @pre<MinecraftPluginSchema>("save", async function(next) {
@@ -16,6 +16,7 @@ export default class MinecraftPluginSchema extends Typegoose {
   @prop() public credits: number;
   @prop() public reloadRequired: boolean;
   @prop() public description: string;
+
   @instanceMethod
   public checkComp(game: any) {
     let works = false;

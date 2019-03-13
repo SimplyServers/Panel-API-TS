@@ -1,7 +1,6 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { arrayProp, post, pre, prop, Ref, Typegoose } from "typegoose";
-import GameServerSchema from "./GameServerSchema";
 import PresetSchema from "./PresetSchema";
 
 @pre<GroupSchema>("save", async function(next) {

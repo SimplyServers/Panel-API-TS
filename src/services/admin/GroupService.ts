@@ -44,9 +44,7 @@ export class GroupService implements DatabaseService {
 
     const existingGroup = existingGroups[0];
 
-    existingGroup._presetsAllowed = (editQuery._presetsAllowed as unknown) as Ref<
-      PresetSchema[]
-    >;
+    existingGroup._presetsAllowed = (editQuery._presetsAllowed as unknown) as Ref<PresetSchema[]>;
     existingGroup.color = editQuery.color;
     existingGroup.name = editQuery.name;
     existingGroup.displayName = editQuery.displayName;

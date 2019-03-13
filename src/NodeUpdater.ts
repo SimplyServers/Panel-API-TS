@@ -4,13 +4,6 @@ import { NodeInterface } from "./util/NodeInterface";
 
 export class NodeUpdater {
   public enabled: boolean;
-  private checkInterval: any;
-
-  constructor() {
-    this.enabled = false;
-    this.checkInterval = undefined;
-  }
-
   public stop = () => {
     if (!this.enabled || this.checkInterval === undefined) {
       return;
@@ -19,7 +12,6 @@ export class NodeUpdater {
     clearInterval(this.checkInterval);
     this.enabled = false;
   };
-
   public start = () => {
     if (this.enabled) {
       return;
@@ -31,7 +23,7 @@ export class NodeUpdater {
     this.checkInterval = setInterval(this.check, 1000 * 60 * 3);
     // this.checkInterval = setInterval(this.check, 1000 * 10);
   };
-
+  private checkInterval: any;
   private check = async () => {
     SimplyServersAPI.logger.verbose("Updating nodes");
     const nodes = await ServerNodeModel.find({});
@@ -74,4 +66,9 @@ export class NodeUpdater {
       })
     );
   };
+
+  constructor() {
+    this.enabled = false;
+    this.checkInterval = undefined;
+  }
 }

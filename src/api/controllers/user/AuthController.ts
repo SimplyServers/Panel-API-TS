@@ -3,7 +3,7 @@ import { check, validationResult } from "express-validator/check";
 import { Types } from "mongoose";
 import * as passport from "passport";
 import * as zxcvbn from "zxcvbn";
-import UserSchema, { UserModel } from "../../../schemas/UserSchema";
+import { UserModel } from "../../../schemas/UserSchema";
 
 import { SimplyServersAPI } from "../../../SimplyServersAPI";
 import { ActionFailed } from "../../../util/errors/ActionFailed";
@@ -12,38 +12,6 @@ import { Mailer } from "../../../util/Mailer";
 import { IController } from "../IController";
 
 export class AuthController implements IController {
-  public initRoutes(router: Router): void {
-    router.post(
-      "/auth/login",
-      [
-        check("email").exists(),
-        check("email").isLength({ max: 50 }),
-        check("email").isEmail(),
-        check("password").exists(),
-        check("password").isLength({ max: 50 }),
-        check("password").isString()
-      ],
-      this.login
-    );
-
-    router.post(
-      "/auth/register",
-      [
-        check("email").exists(),
-        check("email").isLength({ max: 50 }),
-        check("email").isEmail(),
-        check("email").normalizeEmail(),
-        check("password").exists(),
-        check("password").isLength({ max: 50 }),
-        check("username").exists(),
-        check("username").isLength({ max: 50 }),
-        check("password").isString(),
-        check("username").isString()
-      ],
-      this.register
-    );
-  }
-
   public register = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -154,7 +122,6 @@ export class AuthController implements IController {
       user: userData
     });
   };
-
   public login = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -202,4 +169,36 @@ export class AuthController implements IController {
       return next(e);
     }
   };
+
+  public initRoutes(router: Router): void {
+    router.post(
+      "/auth/login",
+      [
+        check("email").exists(),
+        check("email").isLength({ max: 50 }),
+        check("email").isEmail(),
+        check("password").exists(),
+        check("password").isLength({ max: 50 }),
+        check("password").isString()
+      ],
+      this.login
+    );
+
+    router.post(
+      "/auth/register",
+      [
+        check("email").exists(),
+        check("email").isLength({ max: 50 }),
+        check("email").isEmail(),
+        check("email").normalizeEmail(),
+        check("password").exists(),
+        check("password").isLength({ max: 50 }),
+        check("username").exists(),
+        check("username").isLength({ max: 50 }),
+        check("password").isString(),
+        check("username").isString()
+      ],
+      this.register
+    );
+  }
 }

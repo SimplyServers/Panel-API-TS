@@ -1,5 +1,5 @@
-import { Types } from "mongoose";
 import * as mongoose from "mongoose";
+import { Types } from "mongoose";
 import { pre, prop, Typegoose } from "typegoose";
 
 @pre<BugreportSchema>("save", async function(next) {

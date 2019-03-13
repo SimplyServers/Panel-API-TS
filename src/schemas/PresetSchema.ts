@@ -1,8 +1,6 @@
 import * as mongoose from "mongoose";
 import { Types } from "mongoose";
-import { arrayProp, post, pre, prop, Ref, Typegoose } from "typegoose";
-import GameServerSchema from "./GameServerSchema";
-import ServerNodeSchema from "./ServerNodeSchema";
+import { arrayProp, pre, prop, Ref, Typegoose } from "typegoose";
 
 @pre<PresetSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {

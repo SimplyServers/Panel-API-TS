@@ -2,6 +2,7 @@ import { Router } from "express";
 import { check } from "express-validator/check";
 import { SimplecoreAuthMiddleware } from "../../../middleware/SimplecoreAuthMiddleware";
 import { IController } from "../../IController";
+import { GameServerService } from "../../../../services/gameserver/GameServerService";
 
 export class SimpleCoreController implements IController {
   public initRoutes = (router: Router): void => {
@@ -87,17 +88,36 @@ export class SimpleCoreController implements IController {
     );
   };
 
-  public createServer = (): void => {};
+  public createServer = async (req, res, next): Promise<void> => {
+    try {
+      await GameServerService.addServer({
+        owner: req.body.owner,
+        preset: req.body.preset,
+        name: req.body.name,
+        motd: req.body.motd
+      });
+    } catch (e) {
+      return next(e);
+    }
 
-  public checkUUID = (): void => {};
+    return res.json({});
+  };
 
-  public createEmptyUser = (): void => {};
+  public checkUUID = (): void => {
+  };
 
-  public serverPower = (): void => {};
+  public createEmptyUser = (): void => {
+  };
 
-  public removeServer = (): void => {};
+  public serverPower = (): void => {
+  };
 
-  public reinstallServer = (): void => {};
+  public removeServer = (): void => {
+  };
 
-  public executeCommand = (): void => {};
+  public reinstallServer = (): void => {
+  };
+
+  public executeCommand = (): void => {
+  };
 }
