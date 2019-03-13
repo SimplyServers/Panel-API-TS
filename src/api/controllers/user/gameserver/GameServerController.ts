@@ -1,17 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
-import { Types } from "mongoose";
-import GameServerSchema, { GameServerModel } from "../../../../schemas/GameServerSchema";
-import MinecraftPropertiesSchema from "../../../../schemas/MinecraftPropertiesSchema";
-import { PresetModel } from "../../../../schemas/PresetSchema";
-import Node, { ServerNodeModel } from "../../../../schemas/ServerNodeSchema";
-import { UserModel } from "../../../../schemas/UserSchema";
-import { SimplyServersAPI } from "../../../../SimplyServersAPI";
-import { Captcha } from "../../../../util/Captcha";
-import { ActionFailed } from "../../../../util/errors/ActionFailed";
-import { ValidationError } from "../../../../util/errors/ValidationError";
-import { NodeInterface } from "../../../../util/NodeInterface";
-import { Util } from "../../../../util/Util";
+import { GameServerService } from "../../../../services/gameserver/GameServerService";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -102,418 +91,78 @@ export class GameserverController implements IController {
   }
 
   public installPlugin = async (req, res, next) => {
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    try {
-      await nodeInterface.installPlugin(req.server, req.body.plugin);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "PLUGIN_INSTALLED":
-          return next(new ActionFailed("Plugin already installed.", true));
-        case "INVALID_PLUGIN":
-          return next(new ActionFailed("Plugin does not exist.", true));
-        case "PLUGIN_NOT_SUPPORTED":
-          return next(new ActionFailed("Plugin not supported.", true));
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("Server is not off.", true));
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+    try{
+      await GameServerService.installPlugin(req.server, req.body.plugin);
+    }catch (e) {
+      return next(e);
     }
 
     return res.json({});
   };
 
   public removePlugin = async (req, res, next) => {
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    try {
-      await nodeInterface.removePlugin(req.server, req.body.plugin);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "PLUGIN_NOT_INSTALLED":
-          return next(new ActionFailed("Plugin is not installed.", true));
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("Server is not off.", true));
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
+    try{
+      await GameServerService.removePlugin(req.server, req.body.plugin);
+    }catch (e) {
+      return next(e);
     }
 
     return res.json({});
   };
 
   public removeSubuser = async (req, res, next) => {
-    let targetUser;
-    try {
-      targetUser = await UserModel.findById(req.body._id);
-    } catch (e) {
+    try{
+      await GameServerService.removeSubuser(req.server, req.body._id);
+    }catch (e) {
       return next(e);
-    }
-
-    req.server._sub_owners.filter(subOwner => subOwner._id !== targetUser._id);
-
-    try {
-      await req.server.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed save server.", false));
     }
 
     return res.json({});
   };
 
   public addSubuser = async (req, res, next) => {
-    let targetUser;
-    try {
-      targetUser = await UserModel.findOne({
-        "account_info.email": req.body.email
-      });
-    } catch (e) {
+    try{
+      await GameServerService.addSubuser(req.server, req.body.email);
+    }catch (e) {
       return next(e);
-    }
-
-    if (
-      req.server._sub_owners.forEach(
-        subOwner => subOwner._id === targetUser._id
-      ) !== undefined
-    ) {
-      return next(new ActionFailed("UserSchema is already an subuser.", true));
-    }
-    if (req.server._owner._id === targetUser._id) {
-      return next(
-        new ActionFailed("The server owner is not a valid subuser.", true)
-      );
-    }
-
-    req.server._sub_owners.push(new Types.ObjectId(targetUser._id));
-    try {
-      await req.server.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed save server.", false));
     }
 
     return res.json({});
   };
 
   public addServer = async (req, res, next) => {
-    if (
-      process.env.NODE_ENV !== "dev" &&
-      Captcha.checkValid(req.connection.remoteAddress, req.body.captcha)
-    ) {
-      return next(
-        new ValidationError({
-          location: "body",
-          param: "email",
-          msg: "Captcha is incorrect"
-        })
-      );
-    }
-
-    let existingServers;
-    let preset;
-    let nodes;
-    let user;
-    try {
-      existingServers = await GameServerModel.find({
-        $or: [
-          {
-            name: req.body.name
-          },
-          {
-            _owner: Types.ObjectId(req.payload.id)
-          }
-        ]
-      });
-    } catch (e) {
+    try{
+      await GameServerService.addServer({
+        owner: req.payload.id,
+        preset: req.body.preset,
+        name: req.body.name,
+        motd: req.body.motd
+      }, {
+        ip: req.connection.remoteAddress,
+        key: req.body.captcha
+      })
+    }catch (e) {
       return next(e);
-    }
-
-    if (existingServers.length !== 0) {
-      if (existingServers[0].name.toString() === req.body.name.toString()) {
-        return next(
-          new ValidationError({
-            location: "body",
-            param: "name",
-            msg: "Name already assigned"
-          })
-        );
-      } else if (
-        existingServers[0]._owner.toString() ===
-        Types.ObjectId(req.payload.id).toString()
-      ) {
-        return next(new ActionFailed("You already own a server.", true));
-      }
-      return next(new ActionFailed("Value already exists", true));
-    }
-
-    try {
-      const getUser = UserModel.findById(Types.ObjectId(req.payload.id));
-      const getPreset = PresetModel.findById(
-        Types.ObjectId(req.body.preset)
-      ).orFail();
-      const getNodes = ServerNodeModel.find({});
-
-      user = await getUser;
-      preset = await getPreset;
-      nodes = await getNodes;
-    } catch (e) {
-      return next(e);
-    }
-
-    // Make sure the user is verified
-    if (!user.checkVerified()) {
-      return next(
-        new ActionFailed("You must first verify your account.", true)
-      );
-    }
-
-    // Check if the user has access to preset
-    if (
-      user._group._presetsAllowed.find(
-        groupPreset => groupPreset._id.toString() === req.body.preset.toString()
-      ) === undefined
-    ) {
-      return next(new ActionFailed("You don't have permissions.", true));
-    }
-
-    // Check if there are no nodes
-    if (nodes.length < 1) {
-      return next(new ActionFailed("No available nodes", false));
-    }
-
-    const shuffledNodes = nodes
-      .map(a => [Math.random(), a])
-      .sort((a, b) => a[0] - b[0])
-      .map(a => a[1]);
-    const contenders = shuffledNodes.filter(
-      shuffledNode =>
-        shuffledNode.games.find(game => game.name === preset.game) !== undefined
-    );
-
-    if (!contenders) {
-      return next(
-        new ActionFailed("No available nodes that are contenders", true)
-      );
-    }
-
-    const decidedNode = contenders.find(
-      contender =>
-        contender.status.freedisk &&
-        contender.status.totaldisk &&
-        contender.status.freedisk / contender.status.totaldisk < 0.9
-    );
-
-    // Make sure node is not undefined.
-    if (!decidedNode) {
-      return next(new ActionFailed("All nodes are at capacity.", true));
-    }
-
-    // Generate SFTP new password.
-    // This needs to be decently secure but it's not a huge deal.
-    // TODO: unused
-    const sftpPwd = Util.generateRandom();
-
-    const newServer = new GameServerModel({
-      _owner: Types.ObjectId(req.payload.id),
-      _sub_owners: [],
-      _preset: req.body.preset,
-      timeOnline: 0,
-      online: false,
-      _nodeInstalled: decidedNode._id,
-      motd: req.body.motd,
-      sftpPassword: sftpPwd,
-      port: 0,
-      name: req.body.name,
-      _minecraftPlugins: []
-    });
-
-    try {
-      await newServer.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed save server.", false));
-    }
-
-    const serverTemplateConfig = {
-      id: newServer._id,
-      game: preset.game,
-      port: -1,
-      build: {
-        io: preset.build.io,
-        cpu: preset.build.cpu,
-        mem: preset.build.mem
-      },
-      players: preset.maxPlayers
-    };
-
-    // Create manager config
-    const nodeInterface = new NodeInterface(decidedNode);
-
-    let createData;
-    try {
-      createData = await nodeInterface.add(
-        JSON.stringify(serverTemplateConfig),
-        sftpPwd
-      );
-    } catch (e) {
-      try {
-        await newServer.remove();
-        return next(
-          new ActionFailed("Failed to add server to selected node", false)
-        );
-      } catch (e) {
-        return next(new ActionFailed("Failed recovering from fallback", false));
-      }
-    }
-
-    // Update server port from data
-    newServer.port = createData.server.port;
-
-    try {
-      await newServer.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed updating server port", false));
-    }
-
-    // (if its a Minecraft server) update minecraft_properties
-    if (preset.special.views.indexOf("minecraft_properties_viewer") > -1) {
-      // Create the user
-      const MinecraftPropertiesModal = new MinecraftPropertiesSchema().getModelForClass(
-        MinecraftPropertiesSchema
-      );
-
-      const serverProperties = new MinecraftPropertiesModal({
-        server: newServer._id,
-        settings: {
-          spawnprotection: 16,
-          allownether: true,
-          gamemode: 0,
-          difficulty: 1,
-          spawnmonsters: true,
-          pvp: true,
-          hardcore: false,
-          allowflight: false,
-          resourcepack: "",
-          whitelist: false
-        }
-      });
-
-      try {
-        await serverProperties.save();
-      } catch (e) {
-        return next(new ActionFailed("Failed save server properties.", false));
-      }
-    }
-
-    // Install any preinstalled plugins specified
-    if (preset.preinstalledPlugins) {
-      await Promise.all(
-        preset.preinstalledPlugins.map(async value => {
-          try {
-            await nodeInterface.installPlugin(newServer._id, value);
-          } catch (e) {
-            SimplyServersAPI.logger.error("Server plugin install failed: " + e);
-          }
-        })
-      );
     }
 
     return res.json({});
   };
 
   public changePreset = async (req, res, next) => {
-    let user;
-    let newPreset;
-
-    try {
-      const getUser = UserModel.findById(Types.ObjectId(req.payload.id));
-      const getNewPreset = PresetModel.findById(
-        Types.ObjectId(req.body.preset)
-      ).orFail();
-
-      user = await getUser;
-      newPreset = await getNewPreset;
-    } catch (e) {
+    try{
+      await GameServerService.changePreset(req.server, req.body.preset);
+    }catch (e) {
       return next(e);
-    }
-
-    // Check to see if preset is compatible.
-    if (!(req.server._preset.allowSwitchingTo.indexOf(req.body.preset) > -1)) {
-      return next(new ActionFailed("PresetSchema not allowed.", true));
-    }
-
-    if (!(user._group.presetsAllowed.indexOf(req.body.preset) > -1)) {
-      return next(new ActionFailed("You don't have permissions.", true));
-    }
-
-    if (req.body.preset === req.server.preset) {
-      return next(new ActionFailed("This is already your preset.", true));
-    }
-
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    try {
-      await nodeInterface.edit(
-        req.server,
-        JSON.stringify({
-          build: {
-            io: newPreset.build.io,
-            mem: newPreset.build.mem,
-            cpu: newPreset.build.cpu
-          },
-          players: newPreset.maxPlayers,
-          game: newPreset.game
-        })
-      );
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("Server is not off", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
-    }
-
-    req.server.preset = req.body.preset;
-
-    try {
-      await req.server.save();
-    } catch (e) {
-      return next(new ActionFailed("Failed save server.", false));
     }
 
     return res.json({});
   };
 
   public removeServer = async (req, res, next) => {
-    // Contact node
-    const nodeInterface = new NodeInterface(req.server._nodeInstalled);
-
-    try {
-      await nodeInterface.remove(req.server);
-    } catch (e) {
-      switch (NodeInterface.niceHandle(e)) {
-        case "SERVER_LOCKED":
-          return next(new ActionFailed("Server is locked.", true));
-        case "SERVER_NOT_OFF":
-          return next(new ActionFailed("Server is not off", true));
-        default:
-          return next(new ActionFailed("Unknown error.", true));
-      }
-    }
-
-    try {
-      req.server.remove();
-    } catch (e) {
-      return next(new ActionFailed("Failed remove server.", false));
+    try{
+      await GameServerService.removeServer(req.server);
+    }catch (e) {
+      return next(e);
     }
 
     return res.json({});
