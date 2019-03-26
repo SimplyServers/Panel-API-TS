@@ -39,19 +39,22 @@ export class ControlsController implements IController {
     }
 
     try {
-      await ControlsService.executeCommand(req.server, req.body.commad);
+      await ControlsService.executeCommand(req.server, req.body.command);
     } catch (e) {
       return next(e);
     }
+
+    return res.json({});
   };
 
   public install = async (req, res, next) => {
-
     try {
       await ControlsService.install(req.server);
     } catch (e) {
       return next(e);
     }
+
+    return res.json({});
   };
 
   public reinstall = async (req, res, next) => {
@@ -60,5 +63,7 @@ export class ControlsController implements IController {
     } catch (e) {
       return next(e);
     }
+
+    return res.json({});
   };
 }

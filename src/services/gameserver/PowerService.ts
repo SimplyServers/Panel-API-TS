@@ -21,6 +21,7 @@ export class PowerService {
           break;
       }
     } catch (e) {
+      console.log(e);
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
           throw new ActionFailed("Server is locked.", true);

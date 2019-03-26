@@ -7,7 +7,7 @@ import { IController } from "../../IController";
 export class PowerController implements IController {
   public setPower = async (req, res, next) => {
     try {
-      await PowerService.setPower(req.body, req.params.power);
+      await PowerService.setPower(req.server, req.params.power);
     } catch (e) {
       return next(e);
     }
