@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import { GroupService } from "../../../services/admin/GroupService";
+import { GroupModel } from "../../../schemas/GroupSchema";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { Validators } from "../../../util/Validators";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
@@ -10,7 +10,7 @@ export class GroupController implements IController {
   public getGroups = async (req, res, next) => {
     let groups;
     try {
-      groups = await GroupService.get();
+      groups = await GroupModel.find({});
     } catch (e) {
       return next(e);
     }
@@ -22,7 +22,7 @@ export class GroupController implements IController {
   public getGroup = async (req, res, next) => {
     let group;
     try {
-      group = await await GroupService.getOne(req.params.group);
+      group = await GroupModel.findById(req.params.group);
     } catch (e) {
       return next(e);
     }
@@ -33,7 +33,7 @@ export class GroupController implements IController {
   };
   public removeGroup = async (req, res, next) => {
     try {
-      await GroupService.remove(req.params.group);
+      await GroupModel.findByIdAndDelete(req.params.group);
     } catch (e) {
       return next(e);
     }
@@ -47,7 +47,8 @@ export class GroupController implements IController {
     }
 
     try {
-      await GroupService.edit({
+      const group = await GroupModel.findById(req.params.group).orFail();
+      await group.edit({
         _presetsAllowed: req.body.presetsAllowed,
         color: req.body.color,
         name: req.body.name,
@@ -56,6 +57,7 @@ export class GroupController implements IController {
         isStaff: req.body.isStaff,
         _id: req.params.group
       });
+      await group.save();
     } catch (e) {
       return next(e);
     }
@@ -68,14 +70,18 @@ export class GroupController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    await GroupService.add({
-      color: req.body.color,
-      displayName: req.body.displayName,
-      name: req.body.name,
-      isAdmin: req.body.isAdmin,
-      isStaff: req.body.isStaff,
-      _presetsAllowed: req.body.presetsAllowed
-    });
+    try {
+      await GroupModel.add({
+        color: req.body.color,
+        displayName: req.body.displayName,
+        name: req.body.name,
+        isAdmin: req.body.isAdmin,
+        isStaff: req.body.isStaff,
+        _presetsAllowed: req.body.presetsAllowed
+      });
+    }catch (e) {
+      return next(e);
+    }
 
     return res.json({});
   };

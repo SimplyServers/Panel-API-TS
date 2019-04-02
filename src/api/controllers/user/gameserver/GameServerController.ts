@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator/check";
-import { GameServerService } from "../../../../services/gameserver/GameServerService";
+import { GameServerModel } from "../../../../schemas/GameServerSchema";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -8,7 +8,7 @@ import { IController } from "../../IController";
 export class GameserverController implements IController {
   public installPlugin = async (req, res, next) => {
     try {
-      await GameServerService.installPlugin(req.server, req.body.plugin);
+      await req.server.installPlugin(req.body.plugin);
     } catch (e) {
       return next(e);
     }
@@ -17,7 +17,7 @@ export class GameserverController implements IController {
   };
   public removePlugin = async (req, res, next) => {
     try {
-      await GameServerService.removePlugin(req.server, req.body.plugin);
+      await req.server.removePlugin(req.body.plugin);
     } catch (e) {
       return next(e);
     }
@@ -26,7 +26,7 @@ export class GameserverController implements IController {
   };
   public removeSubuser = async (req, res, next) => {
     try {
-      await GameServerService.removeSubuser(req.server, req.body._id);
+      await req.server.removeSubuser(req.body._id);
     } catch (e) {
       return next(e);
     }
@@ -35,7 +35,7 @@ export class GameserverController implements IController {
   };
   public addSubuser = async (req, res, next) => {
     try {
-      await GameServerService.addSubuser(req.server, req.body.email);
+      await req.server.addSubuser(req.body.email);
     } catch (e) {
       return next(e);
     }
@@ -44,7 +44,7 @@ export class GameserverController implements IController {
   };
   public addServer = async (req, res, next) => {
     try {
-      await GameServerService.addServer({
+      await GameServerModel.addServer({
         owner: req.payload.id,
         preset: req.body.preset,
         name: req.body.name,
@@ -61,7 +61,7 @@ export class GameserverController implements IController {
   };
   public changePreset = async (req, res, next) => {
     try {
-      await GameServerService.changePreset(req.server, req.body.preset);
+      await req.server.changePreset(req.body.preset);
     } catch (e) {
       return next(e);
     }
@@ -70,7 +70,8 @@ export class GameserverController implements IController {
   };
   public removeServer = async (req, res, next) => {
     try {
-      await GameServerService.removeServer(req.server);
+      await req.server.removeManager();
+      await req.server.delete();
     } catch (e) {
       return next(e);
     }

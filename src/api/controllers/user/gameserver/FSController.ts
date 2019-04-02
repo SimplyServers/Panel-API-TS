@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
 import PresetSchema from "../../../../schemas/PresetSchema";
-import { FilesystemService } from "../../../../services/gameserver/FilesystemService";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
@@ -31,7 +30,7 @@ export class FSController implements IController {
     }
 
     try {
-      return res.json({ allowed: await FilesystemService.checkPath(req.server, req.body.path) });
+      return res.json({ allowed: await req.server.getFilesystemHelper().checkPath(req.body.path) });
     } catch (e) {
       return next(e);
     }
@@ -43,7 +42,7 @@ export class FSController implements IController {
     }
 
     try {
-      await FilesystemService.writeFile(req.server, req.body.path, req.body.contents);
+      await req.server.getFilesystemHelper().writeFile(req.body.path, req.body.contents);
     } catch (e) {
       return next(e);
     }
@@ -57,7 +56,7 @@ export class FSController implements IController {
     }
 
     try {
-      await FilesystemService.removeFile(req.server, req.body.path);
+      await req.server.getFilesystemHelper().removeFile(req.body.path);
     } catch (e) {
       return next(e);
     }
@@ -71,7 +70,7 @@ export class FSController implements IController {
     }
 
     try {
-      await FilesystemService.removeFolder(req.server, req.body.path);
+      await req.server.getFilesystemHelper().removeFolder(req.body.path);
     } catch (e) {
       return next(e);
     }
@@ -85,7 +84,7 @@ export class FSController implements IController {
     }
 
     try {
-      return res.json({ contents: await FilesystemService.fileContents(req.server, req.body.path) });
+      return res.json({ contents: await req.server.getFilesystemHelper().fileContents(req.body.path) });
     } catch (e) {
       return next(e);
     }
@@ -96,7 +95,7 @@ export class FSController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    return res.json({ files: await FilesystemService.listDir(req.server, req.body.path) });
+    return res.json({ files: await req.server.getFilesystemHelper().listDir(req.body.path) });
   };
 
   public initRoutes(router: Router): void {

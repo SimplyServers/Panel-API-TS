@@ -1,11 +1,16 @@
-import { ActionFailed } from "../../util/errors/ActionFailed";
-import { NodeInterface } from "../../util/NodeInterface";
+import { ActionFailed } from "../../../util/errors/ActionFailed";
+import { NodeInterface } from "../../../util/NodeInterface";
+import { Helper } from "./Helper";
 
-export class ControlsService {
-  public static executeCommand = async (server: any, command: string) => {
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+export class ControlsHelper extends Helper{
+  constructor(props) {
+    super(props);
+  }
+
+  public executeCommand = async (command: string) => {
+    const nodeInterface = new NodeInterface(this.parent);
     try {
-      await nodeInterface.execute(server, command);
+      await nodeInterface.execute(this.parent, command);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_NOT_OFF":
@@ -16,10 +21,10 @@ export class ControlsService {
     }
   };
 
-  public static install = async (server: any) => {
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+  public install = async () => {
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
     try {
-      await nodeInterface.install(server);
+      await nodeInterface.install(this.parent);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -34,10 +39,10 @@ export class ControlsService {
     }
   };
 
-  public static reinstall = async (server: any) => {
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+  public reinstall = async () => {
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
     try {
-      await nodeInterface.reinstall(server);
+      await nodeInterface.reinstall(this.parent);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -51,4 +56,5 @@ export class ControlsService {
       }
     }
   };
+
 }

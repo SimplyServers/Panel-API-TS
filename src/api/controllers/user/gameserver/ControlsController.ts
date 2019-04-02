@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import { check, validationResult } from "express-validator/check";
-import { ControlsService } from "../../../../services/gameserver/ControlsService";
 import { ValidationError } from "../../../../util/errors/ValidationError";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
@@ -39,7 +38,7 @@ export class ControlsController implements IController {
     }
 
     try {
-      await ControlsService.executeCommand(req.server, req.body.command);
+      await req.server.getControlsHelper().executeCommand(req.body.command);
     } catch (e) {
       return next(e);
     }
@@ -49,7 +48,7 @@ export class ControlsController implements IController {
 
   public install = async (req, res, next) => {
     try {
-      await ControlsService.install(req.server);
+      await req.server.getControlsHelper().install();
     } catch (e) {
       return next(e);
     }
@@ -59,7 +58,7 @@ export class ControlsController implements IController {
 
   public reinstall = async (req, res, next) => {
     try {
-      await ControlsService.reinstall(req.server);
+      await req.server.getControlsHelper().reinstall();
     } catch (e) {
       return next(e);
     }

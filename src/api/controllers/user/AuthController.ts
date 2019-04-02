@@ -32,7 +32,6 @@ export class AuthController implements IController {
     // Check for existing users
     let existingUsers;
     try {
-      // existingUsers = await Storage.getItems(Models.UserSchema, { $or: [{ "account_info.email": req.body.email }, { "account_info.username": req.body.username }] });
       existingUsers = await UserModel.find({
         $or: [
           { "account_info.email": req.body.email },

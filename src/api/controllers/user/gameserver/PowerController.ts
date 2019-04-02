@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { PowerService } from "../../../../services/gameserver/PowerService";
 import { AuthMiddleware } from "../../../middleware/AuthMiddleware";
 import { GetServerMiddleware } from "../../../middleware/GetServerMiddleware";
 import { IController } from "../../IController";
@@ -7,7 +6,7 @@ import { IController } from "../../IController";
 export class PowerController implements IController {
   public setPower = async (req, res, next) => {
     try {
-      await PowerService.setPower(req.server, req.params.power);
+      await req.server.getPowerHelper().setPower(req.params.power);
     } catch (e) {
       return next(e);
     }

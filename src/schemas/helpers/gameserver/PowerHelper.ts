@@ -1,21 +1,22 @@
-import { ActionFailed } from "../../util/errors/ActionFailed";
-import { NodeInterface } from "../../util/NodeInterface";
+import { ActionFailed } from "../../../util/errors/ActionFailed";
+import { NodeInterface } from "../../../util/NodeInterface";
+import { Helper } from "./Helper";
 
-export class PowerService {
-  public static setPower = async (server: any, stringAction: string) => {
+export class PowerHelper extends Helper{
+  public setPower = async (stringAction: string) => {
     // Contact node
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
 
     try {
       switch (stringAction) {
         case "on":
-          await nodeInterface.powerOn(server);
+          await nodeInterface.powerOn(this.parent);
           break;
         case "off":
-          await nodeInterface.powerOff(server);
+          await nodeInterface.powerOff(this.parent);
           break;
         case "kill":
-          await nodeInterface.powerKill(server);
+          await nodeInterface.powerKill(this.parent);
           break;
         default:
           break;

@@ -4,8 +4,10 @@ import * as mongoose from "mongoose";
 import { Types } from "mongoose";
 import { instanceMethod, post, pre, prop, Ref, Typegoose } from "typegoose";
 import { SimplyServersAPI } from "../SimplyServersAPI";
+import { GameServerModel } from "./GameServerSchema";
 import GroupSchema, { GroupModel } from "./GroupSchema";
 import MinecraftPluginSchema from "./MinecraftPluginSchema";
+import PresetSchema from "./PresetSchema";
 
 @pre<UserSchema>("save", async function(next) {
   if (this._id === undefined || this._id === null) {
@@ -26,7 +28,9 @@ import MinecraftPluginSchema from "./MinecraftPluginSchema";
 export default class UserSchema extends Typegoose {
   /* tslint:disable:variable-name */
   @prop() public _id?: mongoose.Types.ObjectId;
-  @prop({ ref: MinecraftPluginSchema }) public _minecraftBoughtPlugins?: Array<Ref<MinecraftPluginSchema>>;
+  @prop({ ref: MinecraftPluginSchema }) public _minecraftBoughtPlugins?: Array<
+    Ref<MinecraftPluginSchema>
+  >;
   @prop() public game_info?: {
     minecraft?: {
       uuid?: string;
@@ -130,6 +134,33 @@ export default class UserSchema extends Typegoose {
       },
       SimplyServersAPI.config.web.JWTSecret
     );
+  }
+
+  @instanceMethod
+  public async getPresets(){
+    return (this._group as GroupSchema)._presetsAllowed
+  }
+
+  @instanceMethod
+  public async getServers() {
+      const servers = await GameServerModel.find(
+        {
+          $or: [
+            {
+              _sub_owners: this._id
+            },
+            {
+              _owner: this._id
+            }
+          ]
+        },
+        "-sftpPassword"
+      );
+
+    return servers.map(server => {
+      (server._preset as PresetSchema).special.fs = undefined;
+      return server;
+    });
   }
 }
 

@@ -1,10 +1,14 @@
 import * as path from "path";
-import PresetSchema from "../../schemas/PresetSchema";
-import { ActionFailed } from "../../util/errors/ActionFailed";
-import { NodeInterface } from "../../util/NodeInterface";
+import { ActionFailed } from "../../../util/errors/ActionFailed";
+import { NodeInterface } from "../../../util/NodeInterface";
+import { Helper } from "./Helper";
 
-export class FilesystemService {
-  public static checkViolations = (filePath: string, preset: PresetSchema) => {
+export class FilesystemHelper extends Helper{
+  constructor(props) {
+    super(props);
+  }
+
+  public checkViolations = (filePath: string) => {
     // The path should always start with a /
     if (!filePath.startsWith("/")) {
       filePath = "/" + filePath;
@@ -16,27 +20,24 @@ export class FilesystemService {
     }
 
     // Check to ensure we're not violating any fs rules
-    return preset.special.fs.find(rule => rule.path === filePath) === undefined;
+    return this.parent._preset.special.fs.find(rule => rule.path === filePath) === undefined;
   };
 
-  public static checkPath = async (
-    server: any,
-    filePath: string
-  ): Promise<boolean> => {
+  public checkPath = async (filePath: string): Promise<boolean> => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FilesystemService.checkViolations(nPath, server._preset)) {
+    if (!this.checkViolations(nPath)) {
       throw new ActionFailed("Restricted file target.", false);
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
 
     let data;
     try {
-      data = await nodeInterface.checkAllowed(server, nPath);
+      data = await nodeInterface.checkAllowed(this.parent, nPath);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -50,8 +51,7 @@ export class FilesystemService {
     return data.allowed;
   };
 
-  public static writeFile = async (
-    server: any,
+  public writeFile = async (
     filePath: string,
     contents: string
   ) => {
@@ -59,15 +59,15 @@ export class FilesystemService {
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FilesystemService.checkViolations(nPath, server._preset)) {
+    if (!this.checkViolations(nPath)) {
       throw new ActionFailed("Restricted file target.", false);
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
 
     try {
-      await nodeInterface.createFile(server, filePath, contents);
+      await nodeInterface.createFile(this.parent, filePath, contents);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -80,20 +80,20 @@ export class FilesystemService {
     }
   };
 
-  public static removeFile = async (server: any, filePath: string) => {
+  public removeFile = async (filePath: string) => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FilesystemService.checkViolations(nPath, server._preset)) {
+    if (!this.checkViolations(nPath)) {
       throw new ActionFailed("Restricted file target.", false);
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
 
     try {
-      await nodeInterface.removeFile(server, filePath);
+      await nodeInterface.removeFile(this.parent, filePath);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -106,20 +106,20 @@ export class FilesystemService {
     }
   };
 
-  public static removeFolder = async (server: any, filePath: string) => {
+  public removeFolder = async (filePath: string) => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FilesystemService.checkViolations(nPath, server._preset)) {
+    if (!this.checkViolations(nPath)) {
       throw new ActionFailed("Restricted file target.", false);
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
 
     try {
-      await nodeInterface.removeFolder(server, filePath);
+      await nodeInterface.removeFolder(this.parent, filePath);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -132,24 +132,23 @@ export class FilesystemService {
     }
   };
 
-  public static fileContents = async (
-    server: any,
+  public fileContents = async (
     filePath: string
   ): Promise<string> => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FilesystemService.checkViolations(nPath, server._preset)) {
+    if (!this.checkViolations(nPath)) {
       throw new ActionFailed("Restricted file target.", false);
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
 
     let data;
     try {
-      data = await nodeInterface.fileContents(server, filePath);
+      data = await nodeInterface.fileContents(this.parent, filePath);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -164,21 +163,21 @@ export class FilesystemService {
     return data.contents;
   };
 
-  public static listDir = async (server: any, filePath: string) => {
+  public listDir = async (filePath: string) => {
     const nPath = path.normalize(filePath);
 
     // This removes the tailing/leading slash if its present
     // TODO: double check all conditions
-    if (!FilesystemService.checkViolations(nPath, server._preset)) {
+    if (!this.checkViolations(nPath)) {
       throw new ActionFailed("Restricted file target.", false);
     }
 
     // Contact node
-    const nodeInterface = new NodeInterface(server._nodeInstalled);
+    const nodeInterface = new NodeInterface(this.parent._nodeInstalled);
 
     let data;
     try {
-      data = await nodeInterface.getDir(server, filePath);
+      data = await nodeInterface.getDir(this.parent, filePath);
     } catch (e) {
       switch (NodeInterface.niceHandle(e)) {
         case "SERVER_LOCKED":
@@ -193,7 +192,7 @@ export class FilesystemService {
     const files = [];
     data.contents.forEach(value => {
       if (
-        server._preset.special.fs.find(rule => {
+        this.parent._preset.special.fs.find(rule => {
           return rule.path === path.join(nPath, value.name) && !rule.canSee;
         }) === undefined
       ) {
@@ -203,4 +202,5 @@ export class FilesystemService {
 
     return files;
   };
+
 }

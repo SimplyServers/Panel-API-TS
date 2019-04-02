@@ -2,18 +2,20 @@ import { Types } from "mongoose";
 import * as socketJwt from "socketio-jwt";
 import { GameServerModel } from "../schemas/GameServerSchema";
 
-import { SimplyServersAPI } from "../SimplyServersAPI";
 import socketClient = require("socket.io-client");
+import { SimplyServersAPI } from "../SimplyServersAPI";
 
 export class SocketServer {
+  private consoleSocket: any;
+  private uploadSocket: any;
+  private downloadSocket: any;
+
   public bootstrap = (): void => {
     this.initConsole();
     this.initDownload();
     this.initUpload();
   };
-  private consoleSocket: any;
-  private uploadSocket: any;
-  private downloadSocket: any;
+
   private initConsole = (): void => {
     // This throws a gay error because of typings. Ignore
     // @ts-ignore

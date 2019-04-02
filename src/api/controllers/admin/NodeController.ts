@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator/check";
-import { ServerNode } from "../../../services/admin/NodeService";
 import { ServerNodeModel } from "../../../schemas/ServerNodeSchema";
 import { ValidationError } from "../../../util/errors/ValidationError";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware";
@@ -10,7 +9,7 @@ export class NodeController implements IController {
   public getNodes = async (req, res, next) => {
     let nodes;
     try {
-      nodes = await ServerNode.get();
+      nodes = await ServerNodeModel.find({});
     } catch (e) {
       return next(e);
     }
@@ -33,7 +32,7 @@ export class NodeController implements IController {
   };
   public removeNode = async (req, res, next) => {
     try {
-      await ServerNode.remove(req.params.node);
+      await ServerNodeModel.findByIdAndDelete(req.params.node);
     } catch (e) {
       return next(e);
     }
@@ -46,13 +45,21 @@ export class NodeController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    await ServerNode.edit({
-      ip: req.body.ip,
-      name: req.body.name,
-      secret: req.body.secret,
-      port: req.body.port,
-      _id: req.params.node
-    });
+    try {
+      const node = await ServerNodeModel.findById(req.params.node).orFail();
+      await node.edit({
+        ip: req.body.ip,
+        name: req.body.name,
+        secret: req.body.secret,
+        port: req.body.port,
+        _id: req.params.node
+      });
+      await node.save();
+    }catch (e) {
+      return next(e);
+    }
+
+    return res.json({});
   };
   public addNode = async (req, res, next) => {
     const errors = validationResult(req);
@@ -60,12 +67,16 @@ export class NodeController implements IController {
       return next(new ValidationError(errors.array()));
     }
 
-    await ServerNode.add({
-      ip: req.body.ip,
-      name: req.body.name,
-      secret: req.body.secret,
-      port: req.body.port
-    });
+    try {
+      await ServerNodeModel.add({
+        ip: req.body.ip,
+        name: req.body.name,
+        secret: req.body.secret,
+        port: req.body.port
+      });
+    }catch (e) {
+      return next(e);
+    }
 
     return res.json({});
   };
