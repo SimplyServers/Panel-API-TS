@@ -1,15 +1,10 @@
 export interface IConfig {
   database: string;
-  ssl: {
-    key: string;
-    cert: string;
-  };
   web: {
     JWTSecret: string;
     captchaSecret: string;
     ports: {
       http: number;
-      https: number;
     };
     host: string;
     motd: string;

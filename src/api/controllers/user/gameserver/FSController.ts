@@ -10,20 +10,6 @@ import { IController } from "../../IController";
 import * as path from "path";
 
 export class FSController implements IController {
-  public static checkViolations = (cPath: string, preset: PresetSchema) => {
-    // The path should always start with a /
-    if (!cPath.startsWith("/")) {
-      cPath = "/" + cPath;
-    }
-
-    // The path should never end with a /
-    if (cPath.endsWith("/")) {
-      cPath = cPath.slice(0, -1);
-    }
-
-    // Check to ensure we're not violating any fs rules
-    return preset.special.fs.find(rule => rule.path === cPath) === undefined;
-  };
   public checkPath = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

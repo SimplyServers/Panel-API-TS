@@ -16,6 +16,22 @@ export class SimplyServersAPI {
   public static getRoot = (): string => {
     return __dirname;
   };
+
+  constructor() {
+    SimplyServersAPI.logger = new Logger(false);
+    SimplyServersAPI.config = configData as IConfig;
+
+    SimplyServersAPI.logger.info("Bootstrapping");
+    this.bootstrap()
+      .then(() => {
+        SimplyServersAPI.logger.info("Bootstrap done");
+      })
+      .catch(err => {
+        SimplyServersAPI.logger.error("Bootstrap failed: " + err);
+        process.exit(1);
+        return;
+      });
+  }
   private bootstrap = async (): Promise<void> => {
     SimplyServersAPI.logger.info("Bootstrap init");
 
@@ -23,16 +39,11 @@ export class SimplyServersAPI {
     if (!SimplyServersAPI.config) {
       const defaultConfig: IConfig = {
         database: "mongodb://change:me@localhost:66996/changethis",
-        ssl: {
-          key: "./ssl/testing_localhost.key",
-          cert: "./ssl/testing_localhost.crt"
-        },
         web: {
           JWTSecret: "you better change this",
           captchaSecret: "and this",
           ports: {
-            http: 8080,
-            https: 8443
+            http: 8080
           },
           host: "localhost",
           motd: "Default Simply Servers API"
@@ -76,20 +87,4 @@ export class SimplyServersAPI {
     const apiServer = new APIServer();
     await apiServer.bootstrapExpress();
   };
-
-  constructor() {
-    SimplyServersAPI.logger = new Logger(false);
-    SimplyServersAPI.config = configData as IConfig;
-
-    SimplyServersAPI.logger.info("Bootstrapping");
-    this.bootstrap()
-      .then(() => {
-        SimplyServersAPI.logger.info("Bootstrap done");
-      })
-      .catch(err => {
-        SimplyServersAPI.logger.error("Bootstrap failed: " + err);
-        process.exit(1);
-        return;
-      });
-  }
 }
