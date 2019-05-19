@@ -1,9 +1,7 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import * as ExpressValidator from "express-validator";
-import * as fs from "fs-extra";
 import * as http from "http";
-import * as https from "https";
 import * as Raven from "raven";
 import * as SocketIO from "socket.io";
 import { SimplyServersAPI } from "../SimplyServersAPI";
